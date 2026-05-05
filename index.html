@@ -2932,7 +2932,7 @@
         firestoreDatabaseId: "ai-studio-e20fe8a3-51eb-4c70-b5e2-be2681714950",
         storageBucket: "gen-lang-client-0148267833.firebasestorage.app",
         messagingSenderId: "496148193699",
-        measurementId: ""
+        measurementId: "",
       };
 
       const app = initializeApp(firebaseConfig);
@@ -2973,7 +2973,7 @@
         throw new Error(JSON.stringify(errInfo));
       }
 
-      const signInWithGoogle = window.signInWithGoogle = () => {
+      const signInWithGoogle = (window.signInWithGoogle = () => {
         const provider = new GoogleAuthProvider();
         document.getElementById("googleSignInBtn").textContent = "Loading...";
         signInWithPopup(auth, provider).catch((err) => {
@@ -2988,11 +2988,11 @@
             alert("Login error: " + err.message + " (" + err.code + ")");
           }
         });
-      };
+      });
 
       window.isGuestMode = false;
 
-      const useAsGuest = window.useAsGuest = () => {
+      const useAsGuest = (window.useAsGuest = () => {
         localStorage.setItem("codex_guestMode", "true");
         window.isGuestMode = true;
         document.getElementById("loginOverlay").style.display = "none";
@@ -3027,9 +3027,9 @@
           document.getElementById("page-seasonal").classList.contains("active")
         )
           renderSeasonal();
-      };
+      });
 
-      const signOutUser = window.signOutUser = () => {
+      const signOutUser = (window.signOutUser = () => {
         if (window.isGuestMode) {
           localStorage.removeItem("codex_guestMode");
           window.isGuestMode = false;
@@ -3040,7 +3040,7 @@
         } else {
           signOut(auth);
         }
-      };
+      });
 
       function loadFirestoreLibrary(uid) {
         const colRef = collection(db, "users", uid, "library");
@@ -3092,17 +3092,17 @@
 
       // src/renderers.js
 
-      const toggleSidebar = window.toggleSidebar = () => {
+      const toggleSidebar = (window.toggleSidebar = () => {
         document.getElementById("sidebar").classList.toggle("open");
         document.getElementById("sidebar-overlay").classList.toggle("visible");
-      };
-      const closeSidebar = window.closeSidebar = () => {
+      });
+      const closeSidebar = (window.closeSidebar = () => {
         document.getElementById("sidebar").classList.remove("open");
         document.getElementById("sidebar-overlay").classList.remove("visible");
-      };
+      });
 
       // TIER LIST RENDERER
-      const renderTierList = window.renderTierList = () => {
+      const renderTierList = (window.renderTierList = () => {
         const c = document.getElementById("tierListContainer");
         const tiers = ["S", "A", "B", "C", "D", "E", "F"];
 
@@ -3135,21 +3135,22 @@
         `;
         });
         c.innerHTML = html;
-      };
+      });
 
       // STATS RENDERER
       let tierChartInstance = null;
       let statusChartInstance = null;
 
-      const renderStats = window.renderStats = () => {
-        document.getElementById("stat-total").textContent = window.library.length;
-        document.getElementById("stat-completed").textContent = window.library.filter(
-          (l) => l.status === "Completed",
-        ).length;
-        document.getElementById("stat-episodes").textContent = window.library.reduce(
-          (acc, l) => acc + (parseInt(l.episodes) || 0),
-          0,
-        );
+      const renderStats = (window.renderStats = () => {
+        document.getElementById("stat-total").textContent =
+          window.library.length;
+        document.getElementById("stat-completed").textContent =
+          window.library.filter((l) => l.status === "Completed").length;
+        document.getElementById("stat-episodes").textContent =
+          window.library.reduce(
+            (acc, l) => acc + (parseInt(l.episodes) || 0),
+            0,
+          );
 
         // Top genre
         const gCount = {};
@@ -3341,10 +3342,10 @@
             genreHtml ||
             '<div style="color:var(--text-muted);font-size:13px">No data</div>';
         }, 100);
-      };
+      });
 
       // SEASONAL RENDERER
-      const renderSeasonal = window.renderSeasonal = () => {
+      const renderSeasonal = (window.renderSeasonal = () => {
         const c = document.getElementById("seasonalContainer");
         const fSeason = document.getElementById("seasonalFilter").value;
 
@@ -3403,17 +3404,17 @@
           html =
             '<div class="empty-state"><div class="empty-icon">🌸</div><h3>No Seasonal Data</h3><p>Tag entries with a season (e.g., "Winter 2024") to see them here.</p></div>';
         c.innerHTML = html;
-      };
+      });
 
       // MULTI-SELECTION STUB (For Bulk Delete Feature in index.html)
       const bulkSelection = new Set();
       window.bulkSelection = bulkSelection;
-      const toggleSelection = window.toggleSelection = (id) => {
+      const toggleSelection = (window.toggleSelection = (id) => {
         if (bulkSelection.has(id)) bulkSelection.delete(id);
         else bulkSelection.add(id);
         updateBulkBar();
-      };
-      const updateBulkBar = window.updateBulkBar = () => {
+      });
+      const updateBulkBar = (window.updateBulkBar = () => {
         const bar = document.getElementById("bulkBar");
         const cnt = document.getElementById("bulkCount");
         if (bulkSelection.size > 0) {
@@ -3422,13 +3423,13 @@
         } else {
           bar.classList.remove("visible");
         }
-      };
-      const clearSelection = window.clearSelection = () => {
+      });
+      const clearSelection = (window.clearSelection = () => {
         bulkSelection.clear();
         renderLibrary();
         updateBulkBar();
-      };
-      const bulkDelete = window.bulkDelete = async () => {
+      });
+      const bulkDelete = (window.bulkDelete = async () => {
         if (confirm(`Delete ${bulkSelection.size} entries permanently?`)) {
           if (window.isGuestMode) {
             window.library = window.library.filter(
@@ -3462,21 +3463,23 @@
             updateNavBadges();
             showToast("Batch deleted", "success");
           } catch (err) {
-            try { handleFirestoreError(err, "delete", "users/.../library"); } catch(e) {}
+            try {
+              handleFirestoreError(err, "delete", "users/.../library");
+            } catch (e) {}
             showToast("Failed to batch delete: " + err.message, "error");
           }
         }
-      };
+      });
 
       // Removed Sync Modal since it is no longer used
-      const openSyncModal = window.openSyncModal = () => {};
-      const closeSyncModal = window.closeSyncModal = () => {};
-      const switchSyncTab = window.switchSyncTab = () => {};
-      const generateCodexKey = window.generateCodexKey = () => {};
-      const copyCodexKey = window.copyCodexKey = () => {};
-      const loadCodexKey = window.loadCodexKey = () => {};
+      const openSyncModal = (window.openSyncModal = () => {});
+      const closeSyncModal = (window.closeSyncModal = () => {});
+      const switchSyncTab = (window.switchSyncTab = () => {});
+      const generateCodexKey = (window.generateCodexKey = () => {});
+      const copyCodexKey = (window.copyCodexKey = () => {});
+      const loadCodexKey = (window.loadCodexKey = () => {});
 
-      const exportBackup = window.exportBackup = () => {
+      const exportBackup = (window.exportBackup = () => {
         const dataStr =
           "data:text/json;charset=utf-8," +
           encodeURIComponent(JSON.stringify(window.library));
@@ -3487,9 +3490,9 @@
           `codex_backup_${new Date().toISOString().slice(0, 10)}.json`,
         );
         dlAnchorElem.click();
-      };
+      });
 
-      const importBackup = window.importBackup = (e) => {
+      const importBackup = (window.importBackup = (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
@@ -3566,8 +3569,8 @@
           }
         };
         reader.readAsText(file);
-      };
-      const toggleBackupMenu = window.toggleBackupMenu = (e) => {
+      });
+      const toggleBackupMenu = (window.toggleBackupMenu = (e) => {
         e.stopPropagation();
         const menu = document.getElementById("backupMenu");
         if (menu.style.display === "block") menu.style.display = "none";
@@ -3577,16 +3580,16 @@
           menu.style.top = rect.bottom + 8 + "px";
           menu.style.right = window.innerWidth - rect.right + "px";
         }
-      };
-      const closeBackupMenu = window.closeBackupMenu = () =>
-        (document.getElementById("backupMenu").style.display = "none");
+      });
+      const closeBackupMenu = (window.closeBackupMenu = () =>
+        (document.getElementById("backupMenu").style.display = "none"));
       document.addEventListener("click", () => {
         closeBackupMenu();
         document.getElementById("searchDropdown").style.display = "none";
       });
 
       // SURPRISE MATCHING
-      const openSurpriseModal = window.openSurpriseModal = () => {
+      const openSurpriseModal = (window.openSurpriseModal = () => {
         const wrap = document.getElementById("surpriseGenrePills");
         const genres = new Set();
         window.library.forEach((e) => {
@@ -3603,12 +3606,12 @@
           .join("");
         document.getElementById("surpriseResult").innerHTML = "";
         document.getElementById("surpriseModalOverlay").classList.add("open");
-      };
-      const closeSurpriseModal = window.closeSurpriseModal = () =>
+      });
+      const closeSurpriseModal = (window.closeSurpriseModal = () =>
         document
           .getElementById("surpriseModalOverlay")
-          .classList.remove("open");
-      const pickSurprise = window.pickSurprise = () => {
+          .classList.remove("open"));
+      const pickSurprise = (window.pickSurprise = () => {
         const status = document.getElementById("surpriseStatus").value;
         const selectedGenres = Array.from(
           document.querySelectorAll(".genre-toggle-pill.selected"),
@@ -3641,7 +3644,7 @@
             </div>
         </div>
     `;
-      };
+      });
 
       let searchDebounce = null;
       let currentDiscoverType = "anime";
@@ -3752,7 +3755,7 @@
         ],
       };
 
-      const navigateTo = window.navigateTo = (page) => {
+      const navigateTo = (window.navigateTo = (page) => {
         document
           .querySelectorAll(".page-section")
           .forEach((el) => el.classList.remove("active"));
@@ -3773,11 +3776,11 @@
         else if (page === "seasonal") renderSeasonal();
 
         updateNavBadges();
-      };
+      });
 
       window._currentView = "grid";
 
-      const setView = window.setView = (v) => {
+      const setView = (window.setView = (v) => {
         window._currentView = v;
         document
           .getElementById("gridViewBtn")
@@ -3795,11 +3798,11 @@
         } else {
           lv.style.display = "none";
         }
-      };
+      });
 
-      const saveLibrary = window.saveLibrary = () => {
+      const saveLibrary = (window.saveLibrary = () => {
         // Obsolete: data is managed directly via Firestore docs
-      };
+      });
 
       function showToast(msg, type = "info") {
         const c = document.getElementById("toast-container");
@@ -3859,7 +3862,7 @@
             .join("");
       }
 
-      const quickFilterStatus = window.quickFilterStatus = (status) => {
+      const quickFilterStatus = (window.quickFilterStatus = (status) => {
         document
           .querySelectorAll(".status-filter-btn")
           .forEach((btn) =>
@@ -3868,11 +3871,11 @@
         navigateTo("library");
         document.getElementById("filterStatus").value = status;
         renderLibrary();
-      };
+      });
 
       window.editingId = null;
 
-      const openAddModal = window.openAddModal = () => {
+      const openAddModal = (window.openAddModal = () => {
         window.editingId = null;
         document.getElementById("entryModalTitle").textContent = "ADD ENTRY";
         document.getElementById("field-title").value = "";
@@ -3889,11 +3892,11 @@
         currentDraftGenres = [];
         window.selectTier(""); // reset tier
         document.getElementById("entryModalOverlay").classList.add("open");
-      };
-      const closeEntryModal = window.closeEntryModal = () =>
-        document.getElementById("entryModalOverlay").classList.remove("open");
+      });
+      const closeEntryModal = (window.closeEntryModal = () =>
+        document.getElementById("entryModalOverlay").classList.remove("open"));
 
-      const editEntry = window.editEntry = (id) => {
+      const editEntry = (window.editEntry = (id) => {
         const entry = window.library.find((l) => l.id === String(id));
         if (!entry) return;
         window.editingId = entry.id;
@@ -3918,12 +3921,12 @@
         document.getElementById("autofillStatus").innerHTML = "";
         document.getElementById("searchDropdown").style.display = "none";
         document.getElementById("entryModalOverlay").classList.add("open");
-      };
+      });
 
       let currentDraftGenres = [];
       let currentDraftTier = "";
 
-      const selectTier = window.selectTier = (t) => {
+      const selectTier = (window.selectTier = (t) => {
         if (currentDraftTier === t && t !== "") {
           currentDraftTier = "";
           document
@@ -3937,7 +3940,7 @@
           .forEach((el) => el.classList.remove("selected"));
         if (t)
           document.getElementById(`tierTile-${t}`).classList.add("selected");
-      };
+      });
 
       function setupTierSelector() {
         const c = document.getElementById("tierSelector");
@@ -3951,7 +3954,7 @@
       }
       setupTierSelector();
 
-      const handleGenreKey = window.handleGenreKey = (e) => {
+      const handleGenreKey = (window.handleGenreKey = (e) => {
         if (e.key === "Enter" || e.key === ",") {
           e.preventDefault();
           const val = e.target.value.trim().replace(",", "");
@@ -3961,11 +3964,11 @@
           }
           e.target.value = "";
         }
-      };
-      const removeDraftGenre = window.removeDraftGenre = (idx) => {
+      });
+      const removeDraftGenre = (window.removeDraftGenre = (idx) => {
         currentDraftGenres.splice(idx, 1);
         renderDraftGenres();
-      };
+      });
       function renderDraftGenres() {
         document.getElementById("genreTags").innerHTML = currentDraftGenres
           .map(
@@ -3975,7 +3978,7 @@
           .join("");
       }
 
-      const saveEntry = window.saveEntry = async () => {
+      const saveEntry = (window.saveEntry = async () => {
         try {
           if (!auth.currentUser && !window.isGuestMode)
             return showToast("You must be logged in!", "error");
@@ -4066,9 +4069,9 @@
           alert("Unexpected error in saveEntry: " + globalErr.message);
           console.error(globalErr);
         }
-      };
+      });
 
-      const deleteEntry = window.deleteEntry = async (id) => {
+      const deleteEntry = (window.deleteEntry = async (id) => {
         if (confirm("Delete this entry permanently?")) {
           if (window.isGuestMode) {
             window.library = window.library.filter((l) => l.id !== String(id));
@@ -4095,13 +4098,15 @@
             closeDetailModal();
             showToast("Entry deleted", "success");
           } catch (err) {
-            try { handleFirestoreError(err, "delete", "users/.../library"); } catch(e) {}
+            try {
+              handleFirestoreError(err, "delete", "users/.../library");
+            } catch (e) {}
             showToast("Failed to delete: " + err.message, "error");
           }
         }
-      };
+      });
 
-      const renderLibrary = window.renderLibrary = () => {
+      const renderLibrary = (window.renderLibrary = () => {
         const qs = document.getElementById("searchInput").value.toLowerCase();
         const fType = document.getElementById("filterType").value;
         const fStatus = document.getElementById("filterStatus").value;
@@ -4110,7 +4115,7 @@
         const sBy = document.getElementById("sortBy").value;
 
         let filtered = window.library.filter((e) => {
-          if (qs && !e.title.toLowerCase().includes(qs)) return false;
+          if (qs && !(e.title || "").toLowerCase().includes(qs)) return false;
           if (fType && e.type !== fType) return false;
           if (fStatus && e.status !== fStatus) return false;
           if (fTier && e.tier !== fTier) return false;
@@ -4185,16 +4190,16 @@
   `,
           )
           .join("");
-      };
+      });
 
-      const selectAllFiltered = window.selectAllFiltered = () => {
+      const selectAllFiltered = (window.selectAllFiltered = () => {
         if (!window._currentFiltered) return;
         window._currentFiltered.forEach((e) => bulkSelection.add(e.id));
         updateBulkBar();
         renderLibrary();
-      };
+      });
 
-      const onSearchInput = window.onSearchInput = () => {
+      const onSearchInput = (window.onSearchInput = () => {
         if (
           document.getElementById("page-library").classList.contains("active")
         ) {
@@ -4203,16 +4208,16 @@
           navigateTo("library");
           renderLibrary();
         }
-      };
+      });
 
-      const handleTitleKey = window.handleTitleKey = (e) => {
+      const handleTitleKey = (window.handleTitleKey = (e) => {
         if (e.key === "Escape") {
           document.getElementById("searchDropdown").style.display = "none";
         }
-      };
+      });
 
       // AUTOCOMPLETE SEARCH FOR ADD ENTRY
-      const onTitleInput = window.onTitleInput = () => {
+      const onTitleInput = (window.onTitleInput = () => {
         const q = document.getElementById("field-title").value.trim();
         const spin = document.getElementById("titleSpinner");
         document.getElementById("autofillStatus").innerHTML = "";
@@ -4307,10 +4312,10 @@
             }
 
             // Sort mixed results to bring exact or prefix matches to the top
-            const qLower = q.toLowerCase();
+            const qLower = (q || "").toLowerCase();
             mixedResults.sort((a, b) => {
-              const aLower = a.title.toLowerCase();
-              const bLower = b.title.toLowerCase();
+              const aLower = (a.title || "").toLowerCase();
+              const bLower = (b.title || "").toLowerCase();
               const aMatch =
                 aLower === qLower ? 2 : aLower.startsWith(qLower) ? 1 : 0;
               const bMatch =
@@ -4347,9 +4352,9 @@
             spin.style.display = "none";
           }
         }, 600); // 600ms debounce
-      };
+      });
 
-      const selectSearch = window.selectSearch = (idx) => {
+      const selectSearch = (window.selectSearch = (idx) => {
         const r = window._tempSearchResults[idx];
         if (!r) return;
         document.getElementById("field-title").value = r.title;
@@ -4367,14 +4372,14 @@
         document.getElementById("searchDropdown").style.display = "none";
         document.getElementById("autofillStatus").innerHTML =
           '<span style="color:var(--success);font-size:11px;font-weight:600">✨ Auto-filled from database</span>';
-      };
+      });
 
-      const onTypeChange = window.onTypeChange = () => {
+      const onTypeChange = (window.onTypeChange = () => {
         // Left empty as search is now universal and does not depend on type dropdown
-      };
+      });
 
       // DISCOVER LOGIC
-      const switchDiscoverType = window.switchDiscoverType = (type) => {
+      const switchDiscoverType = (window.switchDiscoverType = (type) => {
         currentDiscoverType = type;
         document
           .querySelectorAll(".discover-pill")
@@ -4382,47 +4387,105 @@
             el.classList.toggle("active", el.dataset.type === type),
           );
         renderDiscover(true);
-      };
+      });
 
-      const getTasteProfile = window.getTasteProfile = () => {
+      const getTasteProfile = (window.getTasteProfile = () => {
         const scores = {};
+        const yearBuckets = {
+          "classic (<2000)": 0,
+          "2000s": 0,
+          "2010s": 0,
+          "recent (>=2020)": 0,
+        };
         const statuses = {
           Completed: 1.5,
           Watching: 1.2,
           "Plan to Watch": 1.0,
           "On Hold": 0.5,
-          Dropped: 0.1,
+          Dropped: -1.0, // penalize dropped
           "": 1.0,
         };
-        const tiers = { S: 5, A: 4, B: 3, C: 2, D: 1, E: 0, F: 0, "": 2 };
+        const tiers = { S: 5, A: 4, B: 3, C: 1, D: -1, E: -2, F: -3, "": 1 };
 
         window.library.forEach((l) => {
-          let w =
-            (tiers[l.tier] !== undefined ? tiers[l.tier] : 2) *
-            (statuses[l.status] !== undefined ? statuses[l.status] : 1.0);
+          const tierVal = tiers[l.tier] !== undefined ? tiers[l.tier] : 1;
+          const statusVal =
+            statuses[l.status] !== undefined ? statuses[l.status] : 1.0;
+          let w = tierVal * statusVal;
           if (l.genres) {
             l.genres.forEach((g) => {
               scores[g] = (scores[g] || 0) + w;
             });
           }
-        });
-        return Object.entries(scores).sort((a, b) => b[1] - a[1]);
-      };
 
-      const scoreItemAgainstTaste = window.scoreItemAgainstTaste = (itemGenres, tasteProfile) => {
-        if (!itemGenres || !itemGenres.length || !tasteProfile.length)
-          return Math.random(); // shuffle if no genres or taste
+          if (l.year) {
+            if (l.year < 2000) yearBuckets["classic (<2000)"] += w;
+            else if (l.year < 2010) yearBuckets["2000s"] += w;
+            else if (l.year < 2020) yearBuckets["2010s"] += w;
+            else yearBuckets["recent (>=2020)"] += w;
+          }
+        });
+        return {
+          genres: Object.entries(scores).sort((a, b) => b[1] - a[1]),
+          years: yearBuckets,
+        };
+      });
+
+      const scoreItemAgainstTaste = (window.scoreItemAgainstTaste = (
+        item,
+        tasteProfile,
+        baseScore = 0,
+      ) => {
+        const itemGenres = item.genres || [];
+        const itemYear = item.year || undefined;
         let score = 0;
-        itemGenres.forEach((g) => {
-          const found = tasteProfile.find(
-            (t) => t[0].toLowerCase() === g.toLowerCase(),
-          );
-          if (found) score += found[1];
-        });
-        return score + Math.random() * 0.1; // Add slight randomness to prevent exact same order
-      };
 
-      const renderDiscover = window.renderDiscover = async (forceRefresh = false) => {
+        const genreTastes = tasteProfile.genres;
+        let maxTaste =
+          genreTastes.length > 0 && genreTastes[0][1] > 0
+            ? genreTastes[0][1]
+            : 1;
+
+        if (itemGenres.length > 0) {
+          itemGenres.forEach((g) => {
+            const found = genreTastes.find(
+              (t) =>
+                t[0].toLowerCase() ===
+                (typeof g === "string"
+                  ? g.toLowerCase()
+                  : g.name?.toLowerCase()),
+            );
+            if (found) {
+              // penalize heavily if negative taste, boost if positive
+              score +=
+                found[1] > 0 ? found[1] / maxTaste : (found[1] / maxTaste) * 2;
+            }
+          });
+          score = score / itemGenres.length; // Normalize by number of genres to avoid bias towards items with many genres
+        }
+
+        // Year preference
+        if (itemYear) {
+          let yBucket = "recent (>=2020)";
+          if (itemYear < 2000) yBucket = "classic (<2000)";
+          else if (itemYear < 2010) yBucket = "2000s";
+          else if (itemYear < 2020) yBucket = "2010s";
+
+          const yScore = tasteProfile.years[yBucket] || 0;
+          score += Math.max(0, Math.min(yScore / 10, 0.5)); // slight boost for preferred eras
+        }
+
+        // Final score formula: Taste Match * Weight + Rating * Weight + Discovery/Randomness modifier
+        // We want highly rated things generally but personalized things bubble up.
+        const normalizedRating = (Number(baseScore) || 5) / 10; // 0 to 1
+        const randomJitter = Math.random() * 0.15; // 15% random noise
+
+        return score * 0.6 + normalizedRating * 0.4 + randomJitter;
+      });
+
+      const renderDiscover = (window.renderDiscover = async (
+        forceRefresh = false,
+      ) => {
         const grid = document.getElementById("discoverGrid");
         const sourceLabel = document.getElementById("discoverSourceLabel");
         const tasteProfile = window.getTasteProfile();
@@ -4433,80 +4496,126 @@
           sourceLabel.textContent = "Sourced from iTunes Store / TMDb";
         else sourceLabel.textContent = "Sourced from TVMaze / Trakt";
 
-        if (tasteProfile.length > 0) {
+        if (tasteProfile.genres.length > 0) {
           document.getElementById("tasteEmpty").style.display = "none";
-          document.getElementById("tasteTagsContainer").innerHTML = tasteProfile
-            .slice(0, 4)
-            .map(
-              (t) =>
-                `<span style="font-size:11px; font-weight:600; padding:3px 8px; border-radius:4px; background:var(--bg-elevated); border:1px solid var(--border-active); color:var(--text-primary)">${t[0]}</span>`,
-            )
-            .join("");
+          document.getElementById("tasteTagsContainer").innerHTML =
+            tasteProfile.genres
+              .slice(0, 5)
+              .map(
+                (t) =>
+                  `<span style="font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px; background:var(--bg-elevated); border:1px solid var(--border-active); color:var(--text-primary)">${t[0]}</span>`,
+              )
+              .join("");
         } else {
           document.getElementById("tasteEmpty").style.display = "inline";
           document.getElementById("tasteTagsContainer").innerHTML = "";
         }
 
         grid.innerHTML =
-          '<div style="color:var(--text-muted);grid-column:1/-1;text-align:center;padding:60px 0;"><div class="spinner" style="margin:0 auto 16px;width:30px;height:30px"></div>Fetching recommendations based on your taste...</div>';
+          '<div style="color:var(--text-muted);grid-column:1/-1;text-align:center;padding:60px 0;"><div class="spinner" style="margin:0 auto 16px;width:30px;height:30px"></div>Fetching personalized recommendations...</div>';
 
         try {
           let results = [];
+          const libraryTitles = new Set(
+            window.library.map((l) => (l.title || "").toLowerCase().trim()),
+          );
 
           if (forceRefresh) {
+            let pool = [];
             // FETCH FROM API
             if (currentDiscoverType === "anime") {
-              // Fetch top anime (could randomize page to get a big pool, page 1-3)
-              const p1 = fetch(
-                `https://api.jikan.moe/v4/top/anime?type=tv&page=${Math.floor(Math.random() * 3) + 1}&limit=25`,
-              ).then((r) => r.json());
-              const p2 = fetch(
-                `https://api.jikan.moe/v4/top/anime?type=tv&page=${Math.floor(Math.random() * 3) + 4}&limit=25`,
-              ).then((r) => r.json());
-              const [d1, d2] = await Promise.all([p1, p2]);
-              let pool = [];
-              if (d1 && d1.data) pool = pool.concat(d1.data);
-              if (d2 && d2.data) pool = pool.concat(d2.data);
+              const pages = [1, 2, 3, 4, 5]
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 3);
+              const promises = pages.map((p) =>
+                fetch(
+                  `https://api.jikan.moe/v4/top/anime?type=tv&page=${p}&limit=25`,
+                )
+                  .then((r) => r.json())
+                  .catch(() => ({})),
+              );
+              const res = await Promise.all(promises);
+              res.forEach((d) => {
+                if (d && d.data) pool = pool.concat(d.data);
+              });
+
+              pool = pool.filter((item) => {
+                const t1 = (item.title_english || "").toLowerCase().trim();
+                const t2 = (item.title || "").toLowerCase().trim();
+                return (
+                  t1 && !libraryTitles.has(t1) && t2 && !libraryTitles.has(t2)
+                );
+              });
 
               pool.sort(
                 (a, b) =>
                   window.scoreItemAgainstTaste(
-                    b.genres?.map((g) => g.name),
+                    {
+                      genres: b.genres?.map((g) => g.name),
+                      year: b.aired?.prop?.from?.year || b.year,
+                    },
                     tasteProfile,
+                    b.score,
                   ) -
                   window.scoreItemAgainstTaste(
-                    a.genres?.map((g) => g.name),
+                    {
+                      genres: a.genres?.map((g) => g.name),
+                      year: a.aired?.prop?.from?.year || a.year,
+                    },
                     tasteProfile,
+                    a.score,
                   ),
               );
 
-              results = pool.slice(0, 20).map((item) => ({
+              results = pool.slice(0, 50).map((item) => ({
                 title: item.title_english || item.title,
                 poster: item.images?.jpg?.large_image_url || "",
                 genres: item.genres?.map((g) => g.name) || [],
                 score: (item.score || 0).toFixed(1),
               }));
             } else if (currentDiscoverType === "series") {
-              const rPage = Math.floor(Math.random() * 5);
-              const p1 = fetch(
-                `https://api.tvmaze.com/shows?page=${rPage}`,
-              ).then((r) => r.json());
-              const p2 = fetch(
-                `https://api.tvmaze.com/shows?page=${rPage + 1}`,
-              ).then((r) => r.json());
-              const [d1, d2] = await Promise.all([p1, p2]);
-              let pool = [];
-              if (d1 && Array.isArray(d1)) pool = pool.concat(d1);
-              if (d2 && Array.isArray(d2)) pool = pool.concat(d2);
+              const rPage = Math.floor(Math.random() * 10);
+              const promises = [rPage, rPage + 1, rPage + 2].map((p) =>
+                fetch(`https://api.tvmaze.com/shows?page=${p}`)
+                  .then((r) => r.json())
+                  .catch(() => []),
+              );
+              const res = await Promise.all(promises);
+              res.forEach((d) => {
+                if (d && Array.isArray(d)) pool = pool.concat(d);
+              });
 
-              let good = pool.filter((d) => d.rating?.average >= 7.5);
+              pool = pool.filter((item) => {
+                const t = (item.name || "").toLowerCase().trim();
+                return t && !libraryTitles.has(t);
+              });
+
+              let good = pool.filter((d) => d.rating?.average >= 6.5);
               good.sort(
                 (a, b) =>
-                  window.scoreItemAgainstTaste(b.genres, tasteProfile) -
-                  window.scoreItemAgainstTaste(a.genres, tasteProfile),
+                  window.scoreItemAgainstTaste(
+                    {
+                      genres: b.genres,
+                      year: b.premiered
+                        ? parseInt(b.premiered.split("-")[0])
+                        : undefined,
+                    },
+                    tasteProfile,
+                    b.rating?.average,
+                  ) -
+                  window.scoreItemAgainstTaste(
+                    {
+                      genres: a.genres,
+                      year: a.premiered
+                        ? parseInt(a.premiered.split("-")[0])
+                        : undefined,
+                    },
+                    tasteProfile,
+                    a.rating?.average,
+                  ),
               );
 
-              results = good.slice(0, 20).map((item) => ({
+              results = good.slice(0, 50).map((item) => ({
                 title: item.name,
                 poster: item.image?.original || item.image?.medium || "",
                 genres: item.genres || [],
@@ -4514,25 +4623,39 @@
               }));
             } else {
               // movies
-              const rSkip = Math.floor(Math.random() * 4) * 50;
-              const p1 = fetch(
-                `https://v3-cinemeta.strem.io/catalog/movie/top/skip=${rSkip}.json`,
-              ).then((r) => r.json());
-              const p2 = fetch(
-                `https://v3-cinemeta.strem.io/catalog/movie/top/skip=${rSkip + 50}.json`,
-              ).then((r) => r.json());
-              const [d1, d2] = await Promise.all([p1, p2]);
-              let pool = [];
-              if (d1 && d1.metas) pool = pool.concat(d1.metas);
-              if (d2 && d2.metas) pool = pool.concat(d2.metas);
+              const rSkip = Math.floor(Math.random() * 10) * 50;
+              const promises = [0, 50, 100, 150].map((skipVal) =>
+                fetch(
+                  `https://v3-cinemeta.strem.io/catalog/movie/top/skip=${rSkip + skipVal}.json`,
+                )
+                  .then((r) => r.json())
+                  .catch(() => ({})),
+              );
+              const res = await Promise.all(promises);
+              res.forEach((d) => {
+                if (d && d.metas) pool = pool.concat(d.metas);
+              });
+
+              pool = pool.filter((item) => {
+                const t = (item.name || "").toLowerCase().trim();
+                return t && !libraryTitles.has(t);
+              });
 
               pool.sort(
                 (a, b) =>
-                  window.scoreItemAgainstTaste(b.genre, tasteProfile) -
-                  window.scoreItemAgainstTaste(a.genre, tasteProfile),
+                  window.scoreItemAgainstTaste(
+                    { genres: b.genre, year: parseInt(b.year) },
+                    tasteProfile,
+                    parseFloat(b.imdbRating) || 5,
+                  ) -
+                  window.scoreItemAgainstTaste(
+                    { genres: a.genre, year: parseInt(a.year) },
+                    tasteProfile,
+                    parseFloat(a.imdbRating) || 5,
+                  ),
               );
 
-              results = pool.slice(0, 20).map((item) => ({
+              results = pool.slice(0, 50).map((item) => ({
                 title: item.name || "Unknown Title",
                 poster: item.poster || "",
                 genres: item.genre || [],
@@ -4541,12 +4664,16 @@
             }
           } else {
             results = DEFAULT_DISCOVER[currentDiscoverType] || [];
-            if (results.length > 20) results = results.slice(0, 20);
+            results = results.filter((item) => {
+              const t = (item.title || "").toLowerCase().trim();
+              return t && !libraryTitles.has(t);
+            });
+            if (results.length > 50) results = results.slice(0, 50);
           }
 
           if (!results.length && !forceRefresh) {
             grid.innerHTML =
-              '<div style="color:var(--text-muted);grid-column:1/-1">No recommendations available.</div>';
+              '<div style="color:var(--text-muted);grid-column:1/-1">No recommendations available or all default recommendations are already in your library. Try Refresh Picks.</div>';
             return;
           }
 
@@ -4556,7 +4683,7 @@
           grid.innerHTML = results
             .map((r) => {
               const exists = window.library.find(
-                (l) => l.title.toLowerCase() === r.title.toLowerCase(),
+                (l) => (l.title || "").toLowerCase() === (r.title || "").toLowerCase(),
               );
               return `
       <div class="rec-card">
@@ -4585,18 +4712,21 @@
           grid.innerHTML =
             '<div style="color:var(--danger);grid-column:1/-1;text-align:center;padding:40px">Network error fetching recommendations. Click Refresh Picks to try again.</div>';
         }
-      };
+      });
 
-      const prepareAddFromDiscover = window.prepareAddFromDiscover = (title, poster) => {
+      const prepareAddFromDiscover = (window.prepareAddFromDiscover = (
+        title,
+        poster,
+      ) => {
         openAddModal();
         document.getElementById("field-title").value = title;
         document.getElementById("field-poster").value = poster;
         // trigger auto search
         onTitleInput();
-      };
+      });
 
       // DETAILS MODAL
-      const openDetailModal = window.openDetailModal = (id) => {
+      const openDetailModal = (window.openDetailModal = (id) => {
         const entry = window.library.find((l) => l.id === String(id));
         if (!entry) return;
 
@@ -4664,16 +4794,85 @@
     `;
 
         document.getElementById("detailModalOverlay").classList.add("open");
-      };
-      const closeDetailModal = window.closeDetailModal = () =>
-        document.getElementById("detailModalOverlay").classList.remove("open");
+      });
+      const closeDetailModal = (window.closeDetailModal = () =>
+        document.getElementById("detailModalOverlay").classList.remove("open"));
 
       // CLOSE MODALS ON OUTSIDE CLICK
-      const handleOverlayClick = window.handleOverlayClick = (e, id) => {
+      const handleOverlayClick = (window.handleOverlayClick = (e, id) => {
         if (e.target.id === id) {
           document.getElementById(id).classList.remove("open");
         }
-      };
+      });
+
+      // GLOBAL SHORTCUTS
+      document.addEventListener("keydown", (e) => {
+        // Prevent shortcuts when user is typing in inputs or textareas
+        if (
+          ["INPUT", "TEXTAREA"].includes(e.target.tagName) ||
+          e.target.isContentEditable
+        )
+          return;
+
+        // / - focus search
+        if (e.key === "/") {
+          e.preventDefault();
+          document.getElementById("searchInput")?.focus();
+        }
+
+        // n or a - Open Add modal
+        if (e.key === "a" || e.key === "A" || e.key === "n" || e.key === "N") {
+          e.preventDefault();
+          openAddModal();
+        }
+
+        // Shift + 1/2/3/4 or just 1/2/3/4 for navigation, like Shift+D for Discover
+        if (e.key === "D" || e.key === "d") {
+          if (e.shiftKey) {
+            e.preventDefault();
+            navigateTo("discover");
+          }
+        }
+        if (e.key === "L" || e.key === "l") {
+          if (e.shiftKey) {
+            e.preventDefault();
+            navigateTo("library");
+          }
+        }
+        if (e.key === "T" || e.key === "t") {
+          if (e.shiftKey) {
+            e.preventDefault();
+            navigateTo("tierlist");
+          }
+        }
+        if (e.key === "S" || e.key === "s") {
+          if (e.shiftKey) {
+            e.preventDefault();
+            navigateTo("stats");
+          }
+        }
+
+        if (e.key === "1") {
+          e.preventDefault();
+          navigateTo("library");
+        }
+        if (e.key === "2") {
+          e.preventDefault();
+          navigateTo("tierlist");
+        }
+        if (e.key === "3") {
+          e.preventDefault();
+          navigateTo("stats");
+        }
+        if (e.key === "4") {
+          e.preventDefault();
+          navigateTo("discover");
+        }
+        if (e.key === "5") {
+          e.preventDefault();
+          navigateTo("seasonal");
+        }
+      });
 
       // INIT APP
       document.addEventListener("DOMContentLoaded", () => {
