@@ -2719,7 +2719,7 @@
       style="
         position: fixed;
         inset: 0;
-        background: radial-gradient(circle at center, var(--bg-surface), var(--bg-base));
+        background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.05), transparent 40%), var(--bg-base);
         z-index: 10000;
         display: none;
         align-items: center;
@@ -2728,18 +2728,20 @@
         gap: 24px;
       "
     >
-      <div style="text-align: center; animation: fadeInUp 0.8s var(--ease)">
-        <svg style="width: 80px; height: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 20px var(--accent));" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-          <path d="M8 7h6"/>
-          <path d="M8 11h8"/>
-        </svg>
-        <div class="logo-title" style="font-size: 36px">THE CURATOR'S</div>
-        <div class="logo-title" style="font-size: 48px; margin-bottom: 8px">
+      <div style="text-align: center; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1)">
+        <div style="position:relative; width: 90px; height: 90px; margin: 0 auto 24px auto;">
+          <svg style="width: 100%; height: 100%; filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.5));" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+            <path d="M8 7h6"/>
+            <path d="M8 11h8"/>
+          </svg>
+        </div>
+        <div class="logo-title" style="font-size: 32px; letter-spacing: 4px; font-weight: 300;">THE CURATOR'S</div>
+        <div class="logo-title" style="font-size: 56px; margin-bottom: 12px; font-weight: 700; text-shadow: 0 0 30px rgba(212, 175, 55, 0.2);">
           CODEX
         </div>
-        <div class="logo-sub" style="font-size: 15px; margin-top: 8px; color: var(--text-muted)">
-          Sign in to your Personal Archive
+        <div class="logo-sub" style="font-size: 16px; margin-top: 12px; color: var(--text-muted); max-width: 300px; line-height: 1.5; margin-left: auto; margin-right: auto;">
+          Your digital archive for Anime, Series, and Cinema.
         </div>
       </div>
       <button
@@ -2747,14 +2749,19 @@
         id="googleSignInBtn"
         onclick="signInWithGoogle()"
         style="
-          padding: 14px 28px;
+          padding: 16px 32px;
+          border-radius: 50px;
           font-size: 16px;
+          font-weight: 600;
           display: flex;
           align-items: center;
           gap: 12px;
-          animation: fadeInUp 1s var(--ease);
-          box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+          animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
+          transition: all 0.3s ease;
         "
+        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 50px rgba(212, 175, 55, 0.4)'"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 40px rgba(212, 175, 55, 0.3)'"
       >
         <svg style="width:20px;height:20px" viewBox="0 0 24 24" fill="currentColor">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -2819,13 +2826,13 @@
       } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
       const firebaseConfig = {
-        apiKey: "AIzaSyDfUlBlXzp234sGq46NcMoA8gNPzySTU98",
-        authDomain: "the-curator-s-codex.firebaseapp.com",
-        projectId: "the-curator-s-codex",
-        storageBucket: "the-curator-s-codex.firebasestorage.app",
-        messagingSenderId: "1084054404961",
-        appId: "1:1084054404961:web:4497a802b8f63a1c640f20",
-        measurementId: "G-T2G2NZ9FPG",
+        apiKey: "AIzaSyB0ZU4QqvQA-KjO7FKxUCUYtam6lG_nFhA",
+        authDomain: "the-codex-7ccde.firebaseapp.com",
+        projectId: "the-codex-7ccde",
+        storageBucket: "the-codex-7ccde.firebasestorage.app",
+        messagingSenderId: "31401164820",
+        appId: "1:31401164820:web:7b5a3252079498c151a701",
+        measurementId: "G-QY7616MVDH"
       };
 
       const app = initializeApp(firebaseConfig);
@@ -3339,11 +3346,16 @@
           try {
             const batch = writeBatch(db);
             const uid = auth.currentUser.uid;
+            
             bulkSelection.forEach((id) => {
               batch.delete(doc(db, "users", uid, "library", String(id)));
             });
             await batch.commit();
+            
+            window.library = window.library.filter((l) => !bulkSelection.has(l.id));
             clearSelection();
+            refreshGenreFilter();
+            updateNavBadges();
             showToast("Batch deleted", "success");
           } catch (err) {
             handleFirestoreError(err, "delete", "users/.../library");
@@ -3413,16 +3425,29 @@
 
               const batch = writeBatch(db);
               const uid = auth.currentUser.uid;
+              
               parsed.forEach((item, index) => {
                 if (!item.id) item.id = Date.now().toString() + index;
+                const existingIdx = window.library.findIndex((l) => l.id === item.id);
+                if (existingIdx !== -1) window.library[existingIdx] = { ...window.library[existingIdx], ...item };
+                else window.library.unshift(item);
+                
                 batch.set(
                   doc(db, "users", uid, "library", String(item.id)),
                   item,
                   { merge: true },
                 );
               });
-              await batch.commit();
+              
+              batch.commit().catch(err => {
+                handleFirestoreError(err, "write", "users/.../library");
+                showToast("Failed to restore to cloud.", "error");
+              });
+              
               closeBackupMenu();
+              refreshGenreFilter();
+              updateNavBadges();
+              renderLibrary();
               showToast("Backup Restored", "success");
             }
           } catch (err) {
@@ -3752,7 +3777,7 @@
         document.getElementById("autofillStatus").innerHTML = "";
         document.getElementById("searchDropdown").style.display = "none";
         currentDraftGenres = [];
-        selectTier(""); // reset tier
+        window.selectTier(""); // reset tier
         document.getElementById("entryModalOverlay").classList.add("open");
       };
       window.closeEntryModal = () =>
@@ -3778,7 +3803,7 @@
         currentDraftGenres = [...(entry.genres || [])];
         renderDraftGenres();
         currentDraftTier = "";
-        selectTier(entry.tier || "");
+        window.selectTier(entry.tier || "");
 
         document.getElementById("autofillStatus").innerHTML = "";
         document.getElementById("searchDropdown").style.display = "none";
@@ -3891,17 +3916,31 @@
           try {
             if (window.editingId) {
               payload.id = String(window.editingId);
-              await setDoc(doc(colRef, payload.id), payload, { merge: true });
+              setDoc(doc(colRef, payload.id), payload, { merge: true }).catch(err => {
+                handleFirestoreError(err, "write", "users/.../library");
+                showToast("Failed to sync to cloud. Retrying...", "error");
+              });
+              
+              const i = window.library.findIndex((l) => l.id === payload.id);
+              if (i !== -1) window.library[i] = { ...window.library[i], ...payload };
+              
               showToast("Entry updated successfully!", "success");
             } else {
-              const newId =
-                Date.now().toString() + Math.floor(Math.random() * 1000);
+              const newId = Date.now().toString() + Math.floor(Math.random() * 1000);
               payload.id = newId;
               payload.dateAdded = new Date().toISOString();
-              await setDoc(doc(colRef, newId), payload);
+              setDoc(doc(colRef, newId), payload).catch(err => {
+                handleFirestoreError(err, "write", "users/.../library");
+                showToast("Failed to sync to cloud. Retrying...", "error");
+              });
+              
+              window.library.unshift(payload);
               showToast("Entry Saved successfully!", "success");
             }
             closeEntryModal();
+            refreshGenreFilter();
+            updateNavBadges();
+            renderLibrary();
           } catch (err) {
             handleFirestoreError(err, "write", "users/.../library");
             showToast("Failed to save entry", "error");
@@ -3928,9 +3967,14 @@
           }
 
           try {
-            await deleteDoc(
-              doc(db, "users", auth.currentUser.uid, "library", String(id)),
-            );
+            const uid = auth.currentUser.uid;
+            await deleteDoc(doc(db, "users", uid, "library", String(id)));
+            
+            window.library = window.library.filter((l) => l.id !== String(id));
+            refreshGenreFilter();
+            updateNavBadges();
+            renderLibrary();
+            closeDetailModal();
             showToast("Entry deleted", "success");
           } catch (err) {
             handleFirestoreError(err, "delete", "users/.../library");
@@ -4549,5 +4593,6 @@
         navigateTo("library"); // Start on library
       });
     </script>
+    <div id="toastContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 100000; display: flex; flex-direction: column; gap: 10px;"></div>
   </body>
 </html>
