@@ -2719,7 +2719,18 @@
       style="
         position: fixed;
         inset: 0;
-        background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.05), transparent 40%), var(--bg-base);
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(212, 175, 55, 0.15),
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at bottom left,
+            rgba(212, 175, 55, 0.05),
+            transparent 40%
+          ),
+          var(--bg-base);
         z-index: 10000;
         display: none;
         align-items: center;
@@ -2728,19 +2739,69 @@
         gap: 24px;
       "
     >
-      <div style="text-align: center; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1)">
-        <div style="position:relative; width: 90px; height: 90px; margin: 0 auto 24px auto;">
-          <svg style="width: 100%; height: 100%; filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.5));" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-            <path d="M8 7h6"/>
-            <path d="M8 11h8"/>
+      <div
+        style="
+          text-align: center;
+          animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        "
+      >
+        <div
+          style="
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 24px auto;
+          "
+        >
+          <svg
+            style="
+              width: 100%;
+              height: 100%;
+              filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.5));
+            "
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--accent)"
+            stroke-width="1.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"
+            />
+            <path d="M8 7h6" />
+            <path d="M8 11h8" />
           </svg>
         </div>
-        <div class="logo-title" style="font-size: 32px; letter-spacing: 4px; font-weight: 300;">THE CURATOR'S</div>
-        <div class="logo-title" style="font-size: 56px; margin-bottom: 12px; font-weight: 700; text-shadow: 0 0 30px rgba(212, 175, 55, 0.2);">
+        <div
+          class="logo-title"
+          style="font-size: 32px; letter-spacing: 4px; font-weight: 300"
+        >
+          THE CURATOR'S
+        </div>
+        <div
+          class="logo-title"
+          style="
+            font-size: 56px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+          "
+        >
           CODEX
         </div>
-        <div class="logo-sub" style="font-size: 16px; margin-top: 12px; color: var(--text-muted); max-width: 300px; line-height: 1.5; margin-left: auto; margin-right: auto;">
+        <div
+          class="logo-sub"
+          style="
+            font-size: 16px;
+            margin-top: 12px;
+            color: var(--text-muted);
+            max-width: 300px;
+            line-height: 1.5;
+            margin-left: auto;
+            margin-right: auto;
+          "
+        >
           Your digital archive for Anime, Series, and Cinema.
         </div>
       </div>
@@ -2760,14 +2821,36 @@
           box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
           transition: all 0.3s ease;
         "
-        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 50px rgba(212, 175, 55, 0.4)'"
-        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 40px rgba(212, 175, 55, 0.3)'"
+        onmouseover="
+          this.style.transform = 'translateY(-3px)';
+          this.style.boxShadow = '0 15px 50px rgba(212, 175, 55, 0.4)';
+        "
+        onmouseout="
+          this.style.transform = 'translateY(0)';
+          this.style.boxShadow = '0 10px 40px rgba(212, 175, 55, 0.3)';
+        "
       >
-        <svg style="width:20px;height:20px" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        <svg
+          style="width: 20px; height: 20px"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path
+            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            fill="#4285F4"
+          />
+          <path
+            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            fill="#34A853"
+          />
+          <path
+            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+            fill="#FBBC05"
+          />
+          <path
+            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+            fill="#EA4335"
+          />
         </svg>
         Sign in with Google
       </button>
@@ -2801,9 +2884,25 @@
         gap: 20px;
       "
     >
-        <div class="loader" style="width: 48px; height: 48px; border: 4px solid var(--border-light); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;"></div>
-        <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
-        <div class="logo-sub">Initializing Codex...</div>
+      <div
+        class="loader"
+        style="
+          width: 48px;
+          height: 48px;
+          border: 4px solid var(--border-light);
+          border-top-color: var(--accent);
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        "
+      ></div>
+      <style>
+        @keyframes spin {
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      </style>
+      <div class="logo-sub">Initializing Codex...</div>
     </div>
 
     <script type="module">
@@ -2826,18 +2925,19 @@
       } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
       const firebaseConfig = {
-        apiKey: "AIzaSyB0ZU4QqvQA-KjO7FKxUCUYtam6lG_nFhA",
-        authDomain: "the-codex-7ccde.firebaseapp.com",
-        projectId: "the-codex-7ccde",
-        storageBucket: "the-codex-7ccde.firebasestorage.app",
-        messagingSenderId: "31401164820",
-        appId: "1:31401164820:web:7b5a3252079498c151a701",
-        measurementId: "G-QY7616MVDH"
+        projectId: "gen-lang-client-0148267833",
+        appId: "1:496148193699:web:4f33725a5d3176e80dba16",
+        apiKey: "AIzaSyAzHmpajxhbE4WVAaHbngZzcquhYfJMGrY",
+        authDomain: "gen-lang-client-0148267833.firebaseapp.com",
+        firestoreDatabaseId: "ai-studio-e20fe8a3-51eb-4c70-b5e2-be2681714950",
+        storageBucket: "gen-lang-client-0148267833.firebasestorage.app",
+        messagingSenderId: "496148193699",
+        measurementId: ""
       };
 
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
-      const db = getFirestore(app);
+      const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 
       window.library = [];
       let unsubscribeLibrary = null;
@@ -2870,9 +2970,10 @@
         } else {
           alert(`Firestore Error (${operationType}): ` + errInfo.error);
         }
+        throw new Error(JSON.stringify(errInfo));
       }
 
-      window.signInWithGoogle = () => {
+      const signInWithGoogle = window.signInWithGoogle = () => {
         const provider = new GoogleAuthProvider();
         document.getElementById("googleSignInBtn").textContent = "Loading...";
         signInWithPopup(auth, provider).catch((err) => {
@@ -2891,7 +2992,7 @@
 
       window.isGuestMode = false;
 
-      window.useAsGuest = () => {
+      const useAsGuest = window.useAsGuest = () => {
         localStorage.setItem("codex_guestMode", "true");
         window.isGuestMode = true;
         document.getElementById("loginOverlay").style.display = "none";
@@ -2928,7 +3029,7 @@
           renderSeasonal();
       };
 
-      window.signOutUser = () => {
+      const signOutUser = window.signOutUser = () => {
         if (window.isGuestMode) {
           localStorage.removeItem("codex_guestMode");
           window.isGuestMode = false;
@@ -2991,23 +3092,23 @@
 
       // src/renderers.js
 
-      window.toggleSidebar = () => {
+      const toggleSidebar = window.toggleSidebar = () => {
         document.getElementById("sidebar").classList.toggle("open");
         document.getElementById("sidebar-overlay").classList.toggle("visible");
       };
-      window.closeSidebar = () => {
+      const closeSidebar = window.closeSidebar = () => {
         document.getElementById("sidebar").classList.remove("open");
         document.getElementById("sidebar-overlay").classList.remove("visible");
       };
 
       // TIER LIST RENDERER
-      window.renderTierList = () => {
+      const renderTierList = window.renderTierList = () => {
         const c = document.getElementById("tierListContainer");
         const tiers = ["S", "A", "B", "C", "D", "E", "F"];
 
         let html = "";
         tiers.forEach((t) => {
-          const items = library.filter((l) => l.tier === t);
+          const items = window.library.filter((l) => l.tier === t);
           html += `
             <div class="tier-row">
                 <div class="tier-row-header">
@@ -3040,19 +3141,19 @@
       let tierChartInstance = null;
       let statusChartInstance = null;
 
-      window.renderStats = () => {
-        document.getElementById("stat-total").textContent = library.length;
-        document.getElementById("stat-completed").textContent = library.filter(
+      const renderStats = window.renderStats = () => {
+        document.getElementById("stat-total").textContent = window.library.length;
+        document.getElementById("stat-completed").textContent = window.library.filter(
           (l) => l.status === "Completed",
         ).length;
-        document.getElementById("stat-episodes").textContent = library.reduce(
+        document.getElementById("stat-episodes").textContent = window.library.reduce(
           (acc, l) => acc + (parseInt(l.episodes) || 0),
           0,
         );
 
         // Top genre
         const gCount = {};
-        library.forEach((l) => {
+        window.library.forEach((l) => {
           if (l.genres)
             l.genres.forEach((g) => {
               gCount[g] = (gCount[g] || 0) + 1;
@@ -3070,21 +3171,21 @@
         }
 
         // Generate Analysis Context
-        const activeEntries = library.filter(
+        const activeEntries = window.library.filter(
           (l) => l.status === "Completed" || l.status === "Watching",
         );
-        const sTierCount = library.filter(
+        const sTierCount = window.library.filter(
           (l) => l.tier === "S" || l.tier === "A",
         ).length;
         let analysisStr = "";
-        if (library.length === 0) {
+        if (window.library.length === 0) {
           analysisStr =
             "Your codex is empty. Add some entries to start discovering your unique taste profile.";
         } else if (sortedG.length >= 2) {
-          analysisStr = `Based on your library of ${library.length} entries, you have a strong affinity for <strong style="color:var(--accent)">${sortedG[0][0]}</strong> and <strong style="color:var(--accent)">${sortedG[1][0]}</strong>. `;
+          analysisStr = `Based on your library of ${window.library.length} entries, you have a strong affinity for <strong style="color:var(--accent)">${sortedG[0][0]}</strong> and <strong style="color:var(--accent)">${sortedG[1][0]}</strong>. `;
           if (sTierCount > 0)
             analysisStr += `You've reserved top ratings (S/A tier) for ${sTierCount} titles, suggesting a refined standard for quality. `;
-          let planCount = library.filter(
+          let planCount = window.library.filter(
             (l) => l.status === "Plan to Watch",
           ).length;
           if (planCount > 0)
@@ -3128,7 +3229,7 @@
                 {
                   label: "Entries",
                   data: tiers.map(
-                    (t) => library.filter((l) => l.tier === t).length,
+                    (t) => window.library.filter((l) => l.tier === t).length,
                   ),
                   backgroundColor: tiers.map((t) => tParams[t] + "AA"),
                   borderColor: tiers.map((t) => tParams[t]),
@@ -3173,7 +3274,7 @@
               datasets: [
                 {
                   data: statuses.map(
-                    (s) => library.filter((l) => l.status === s).length,
+                    (s) => window.library.filter((l) => l.status === s).length,
                   ),
                   backgroundColor: sColors.map((c) => c + "CC"),
                   borderColor: "#161B22",
@@ -3202,9 +3303,9 @@
           const types = ["Anime", "Movie", "Web Series", "OVA", "Special"];
           let typeHtml = "";
           types.forEach((t) => {
-            const count = library.filter((l) => l.type === t).length;
-            const pct = library.length
-              ? Math.round((count / library.length) * 100)
+            const count = window.library.filter((l) => l.type === t).length;
+            const pct = window.library.length
+              ? Math.round((count / window.library.length) * 100)
               : 0;
             typeHtml += `
                 <div class="breakdown-row">
@@ -3223,8 +3324,8 @@
           // Genre Breakdown
           let genreHtml = "";
           sortedG.slice(0, 5).forEach((g) => {
-            const pct = library.length
-              ? Math.round((g[1] / library.length) * 100)
+            const pct = window.library.length
+              ? Math.round((g[1] / window.library.length) * 100)
               : 0;
             genreHtml += `
                 <div class="breakdown-row">
@@ -3243,13 +3344,13 @@
       };
 
       // SEASONAL RENDERER
-      window.renderSeasonal = () => {
+      const renderSeasonal = window.renderSeasonal = () => {
         const c = document.getElementById("seasonalContainer");
         const fSeason = document.getElementById("seasonalFilter").value;
 
         // gather seasons
         const seasons = {};
-        library.forEach((l) => {
+        window.library.forEach((l) => {
           if (l.season) {
             if (!seasons[l.season]) seasons[l.season] = [];
             seasons[l.season].push(l);
@@ -3305,13 +3406,14 @@
       };
 
       // MULTI-SELECTION STUB (For Bulk Delete Feature in index.html)
-      window.bulkSelection = new Set();
-      window.toggleSelection = (id) => {
+      const bulkSelection = new Set();
+      window.bulkSelection = bulkSelection;
+      const toggleSelection = window.toggleSelection = (id) => {
         if (bulkSelection.has(id)) bulkSelection.delete(id);
         else bulkSelection.add(id);
         updateBulkBar();
       };
-      window.updateBulkBar = () => {
+      const updateBulkBar = window.updateBulkBar = () => {
         const bar = document.getElementById("bulkBar");
         const cnt = document.getElementById("bulkCount");
         if (bulkSelection.size > 0) {
@@ -3321,12 +3423,12 @@
           bar.classList.remove("visible");
         }
       };
-      window.clearSelection = () => {
+      const clearSelection = window.clearSelection = () => {
         bulkSelection.clear();
         renderLibrary();
         updateBulkBar();
       };
-      window.bulkDelete = async () => {
+      const bulkDelete = window.bulkDelete = async () => {
         if (confirm(`Delete ${bulkSelection.size} entries permanently?`)) {
           if (window.isGuestMode) {
             window.library = window.library.filter(
@@ -3346,33 +3448,35 @@
           try {
             const batch = writeBatch(db);
             const uid = auth.currentUser.uid;
-            
+
             bulkSelection.forEach((id) => {
               batch.delete(doc(db, "users", uid, "library", String(id)));
             });
             await batch.commit();
-            
-            window.library = window.library.filter((l) => !bulkSelection.has(l.id));
+
+            window.library = window.library.filter(
+              (l) => !bulkSelection.has(l.id),
+            );
             clearSelection();
             refreshGenreFilter();
             updateNavBadges();
             showToast("Batch deleted", "success");
           } catch (err) {
-            handleFirestoreError(err, "delete", "users/.../library");
-            showToast("Failed to batch delete", "error");
+            try { handleFirestoreError(err, "delete", "users/.../library"); } catch(e) {}
+            showToast("Failed to batch delete: " + err.message, "error");
           }
         }
       };
 
       // Removed Sync Modal since it is no longer used
-      window.openSyncModal = () => {};
-      window.closeSyncModal = () => {};
-      window.switchSyncTab = () => {};
-      window.generateCodexKey = () => {};
-      window.copyCodexKey = () => {};
-      window.loadCodexKey = () => {};
+      const openSyncModal = window.openSyncModal = () => {};
+      const closeSyncModal = window.closeSyncModal = () => {};
+      const switchSyncTab = window.switchSyncTab = () => {};
+      const generateCodexKey = window.generateCodexKey = () => {};
+      const copyCodexKey = window.copyCodexKey = () => {};
+      const loadCodexKey = window.loadCodexKey = () => {};
 
-      window.exportBackup = () => {
+      const exportBackup = window.exportBackup = () => {
         const dataStr =
           "data:text/json;charset=utf-8," +
           encodeURIComponent(JSON.stringify(window.library));
@@ -3385,7 +3489,7 @@
         dlAnchorElem.click();
       };
 
-      window.importBackup = (e) => {
+      const importBackup = window.importBackup = (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
@@ -3425,25 +3529,31 @@
 
               const batch = writeBatch(db);
               const uid = auth.currentUser.uid;
-              
+
               parsed.forEach((item, index) => {
                 if (!item.id) item.id = Date.now().toString() + index;
-                const existingIdx = window.library.findIndex((l) => l.id === item.id);
-                if (existingIdx !== -1) window.library[existingIdx] = { ...window.library[existingIdx], ...item };
+                const existingIdx = window.library.findIndex(
+                  (l) => l.id === item.id,
+                );
+                if (existingIdx !== -1)
+                  window.library[existingIdx] = {
+                    ...window.library[existingIdx],
+                    ...item,
+                  };
                 else window.library.unshift(item);
-                
+
                 batch.set(
                   doc(db, "users", uid, "library", String(item.id)),
                   item,
                   { merge: true },
                 );
               });
-              
-              batch.commit().catch(err => {
+
+              batch.commit().catch((err) => {
                 handleFirestoreError(err, "write", "users/.../library");
                 showToast("Failed to restore to cloud.", "error");
               });
-              
+
               closeBackupMenu();
               refreshGenreFilter();
               updateNavBadges();
@@ -3457,7 +3567,7 @@
         };
         reader.readAsText(file);
       };
-      window.toggleBackupMenu = (e) => {
+      const toggleBackupMenu = window.toggleBackupMenu = (e) => {
         e.stopPropagation();
         const menu = document.getElementById("backupMenu");
         if (menu.style.display === "block") menu.style.display = "none";
@@ -3468,7 +3578,7 @@
           menu.style.right = window.innerWidth - rect.right + "px";
         }
       };
-      window.closeBackupMenu = () =>
+      const closeBackupMenu = window.closeBackupMenu = () =>
         (document.getElementById("backupMenu").style.display = "none");
       document.addEventListener("click", () => {
         closeBackupMenu();
@@ -3476,10 +3586,10 @@
       });
 
       // SURPRISE MATCHING
-      window.openSurpriseModal = () => {
+      const openSurpriseModal = window.openSurpriseModal = () => {
         const wrap = document.getElementById("surpriseGenrePills");
         const genres = new Set();
-        library.forEach((e) => {
+        window.library.forEach((e) => {
           if (e.genres) e.genres.forEach((g) => genres.add(g));
         });
 
@@ -3494,17 +3604,17 @@
         document.getElementById("surpriseResult").innerHTML = "";
         document.getElementById("surpriseModalOverlay").classList.add("open");
       };
-      window.closeSurpriseModal = () =>
+      const closeSurpriseModal = window.closeSurpriseModal = () =>
         document
           .getElementById("surpriseModalOverlay")
           .classList.remove("open");
-      window.pickSurprise = () => {
+      const pickSurprise = window.pickSurprise = () => {
         const status = document.getElementById("surpriseStatus").value;
         const selectedGenres = Array.from(
           document.querySelectorAll(".genre-toggle-pill.selected"),
         ).map((el) => el.textContent);
 
-        let pool = library.filter((l) => {
+        let pool = window.library.filter((l) => {
           if (status && l.status !== status) return false;
           if (
             selectedGenres.length > 0 &&
@@ -3642,7 +3752,7 @@
         ],
       };
 
-      window.navigateTo = (page) => {
+      const navigateTo = window.navigateTo = (page) => {
         document
           .querySelectorAll(".page-section")
           .forEach((el) => el.classList.remove("active"));
@@ -3667,7 +3777,7 @@
 
       window._currentView = "grid";
 
-      window.setView = (v) => {
+      const setView = window.setView = (v) => {
         window._currentView = v;
         document
           .getElementById("gridViewBtn")
@@ -3687,7 +3797,7 @@
         }
       };
 
-      window.saveLibrary = () => {
+      const saveLibrary = window.saveLibrary = () => {
         // Obsolete: data is managed directly via Firestore docs
       };
 
@@ -3708,17 +3818,17 @@
 
       function updateNavBadges() {
         document.getElementById("nav-badge-library").textContent =
-          library.length;
+          window.library.length;
         document.getElementById("nav-badge-tierlist").textContent =
-          library.filter((l) => l.tier && l.tier !== "").length || 0;
+          window.library.filter((l) => l.tier && l.tier !== "").length || 0;
 
         const seasonalSet = new Set(
-          library.map((l) => l.season).filter(Boolean),
+          window.library.map((l) => l.season).filter(Boolean),
         );
         document.getElementById("nav-badge-seasonal").textContent =
           seasonalSet.size || 0;
 
-        document.getElementById("sf-all").textContent = library.length;
+        document.getElementById("sf-all").textContent = window.library.length;
         [
           "Plan to Watch",
           "Watching",
@@ -3731,14 +3841,14 @@
           );
           if (el)
             el.textContent =
-              library.filter((l) => l.status === status).length || 0;
+              window.library.filter((l) => l.status === status).length || 0;
         });
       }
 
       function refreshGenreFilter() {
         const select = document.getElementById("filterGenre");
         const genres = new Set();
-        library.forEach((e) => {
+        window.library.forEach((e) => {
           if (e.genres) e.genres.forEach((g) => genres.add(g));
         });
         select.innerHTML =
@@ -3749,7 +3859,7 @@
             .join("");
       }
 
-      window.quickFilterStatus = (status) => {
+      const quickFilterStatus = window.quickFilterStatus = (status) => {
         document
           .querySelectorAll(".status-filter-btn")
           .forEach((btn) =>
@@ -3762,7 +3872,7 @@
 
       window.editingId = null;
 
-      window.openAddModal = () => {
+      const openAddModal = window.openAddModal = () => {
         window.editingId = null;
         document.getElementById("entryModalTitle").textContent = "ADD ENTRY";
         document.getElementById("field-title").value = "";
@@ -3780,11 +3890,11 @@
         window.selectTier(""); // reset tier
         document.getElementById("entryModalOverlay").classList.add("open");
       };
-      window.closeEntryModal = () =>
+      const closeEntryModal = window.closeEntryModal = () =>
         document.getElementById("entryModalOverlay").classList.remove("open");
 
-      window.editEntry = (id) => {
-        const entry = library.find((l) => l.id === String(id));
+      const editEntry = window.editEntry = (id) => {
+        const entry = window.library.find((l) => l.id === String(id));
         if (!entry) return;
         window.editingId = entry.id;
         document.getElementById("entryModalTitle").textContent = "EDIT ENTRY";
@@ -3813,7 +3923,7 @@
       let currentDraftGenres = [];
       let currentDraftTier = "";
 
-      window.selectTier = (t) => {
+      const selectTier = window.selectTier = (t) => {
         if (currentDraftTier === t && t !== "") {
           currentDraftTier = "";
           document
@@ -3827,7 +3937,7 @@
           .forEach((el) => el.classList.remove("selected"));
         if (t)
           document.getElementById(`tierTile-${t}`).classList.add("selected");
-      }
+      };
 
       function setupTierSelector() {
         const c = document.getElementById("tierSelector");
@@ -3841,7 +3951,7 @@
       }
       setupTierSelector();
 
-      window.handleGenreKey = (e) => {
+      const handleGenreKey = window.handleGenreKey = (e) => {
         if (e.key === "Enter" || e.key === ",") {
           e.preventDefault();
           const val = e.target.value.trim().replace(",", "");
@@ -3852,7 +3962,7 @@
           e.target.value = "";
         }
       };
-      window.removeDraftGenre = (idx) => {
+      const removeDraftGenre = window.removeDraftGenre = (idx) => {
         currentDraftGenres.splice(idx, 1);
         renderDraftGenres();
       };
@@ -3865,7 +3975,7 @@
           .join("");
       }
 
-      window.saveEntry = async () => {
+      const saveEntry = window.saveEntry = async () => {
         try {
           if (!auth.currentUser && !window.isGuestMode)
             return showToast("You must be logged in!", "error");
@@ -3902,7 +4012,10 @@
               window.library.unshift(payload);
               showToast("Entry Saved successfully!", "success");
             }
-            localStorage.setItem("codex_library", JSON.stringify(window.library));
+            localStorage.setItem(
+              "codex_library",
+              JSON.stringify(window.library),
+            );
             closeEntryModal();
             refreshGenreFilter();
             updateNavBadges();
@@ -3916,24 +4029,28 @@
           try {
             if (window.editingId) {
               payload.id = String(window.editingId);
-              setDoc(doc(colRef, payload.id), payload, { merge: true }).catch(err => {
-                handleFirestoreError(err, "write", "users/.../library");
-                showToast("Failed to sync to cloud. Retrying...", "error");
-              });
-              
+              setDoc(doc(colRef, payload.id), payload, { merge: true }).catch(
+                (err) => {
+                  handleFirestoreError(err, "write", "users/.../library");
+                  showToast("Failed to sync to cloud. Retrying...", "error");
+                },
+              );
+
               const i = window.library.findIndex((l) => l.id === payload.id);
-              if (i !== -1) window.library[i] = { ...window.library[i], ...payload };
-              
+              if (i !== -1)
+                window.library[i] = { ...window.library[i], ...payload };
+
               showToast("Entry updated successfully!", "success");
             } else {
-              const newId = Date.now().toString() + Math.floor(Math.random() * 1000);
+              const newId =
+                Date.now().toString() + Math.floor(Math.random() * 1000);
               payload.id = newId;
               payload.dateAdded = new Date().toISOString();
-              setDoc(doc(colRef, newId), payload).catch(err => {
+              setDoc(doc(colRef, newId), payload).catch((err) => {
                 handleFirestoreError(err, "write", "users/.../library");
                 showToast("Failed to sync to cloud. Retrying...", "error");
               });
-              
+
               window.library.unshift(payload);
               showToast("Entry Saved successfully!", "success");
             }
@@ -3951,7 +4068,7 @@
         }
       };
 
-      window.deleteEntry = async (id) => {
+      const deleteEntry = window.deleteEntry = async (id) => {
         if (confirm("Delete this entry permanently?")) {
           if (window.isGuestMode) {
             window.library = window.library.filter((l) => l.id !== String(id));
@@ -3962,6 +4079,7 @@
             refreshGenreFilter();
             updateNavBadges();
             renderLibrary();
+            closeDetailModal();
             showToast("Entry deleted", "success");
             return;
           }
@@ -3969,7 +4087,7 @@
           try {
             const uid = auth.currentUser.uid;
             await deleteDoc(doc(db, "users", uid, "library", String(id)));
-            
+
             window.library = window.library.filter((l) => l.id !== String(id));
             refreshGenreFilter();
             updateNavBadges();
@@ -3977,13 +4095,13 @@
             closeDetailModal();
             showToast("Entry deleted", "success");
           } catch (err) {
-            handleFirestoreError(err, "delete", "users/.../library");
-            showToast("Failed to delete", "error");
+            try { handleFirestoreError(err, "delete", "users/.../library"); } catch(e) {}
+            showToast("Failed to delete: " + err.message, "error");
           }
         }
       };
 
-      window.renderLibrary = () => {
+      const renderLibrary = window.renderLibrary = () => {
         const qs = document.getElementById("searchInput").value.toLowerCase();
         const fType = document.getElementById("filterType").value;
         const fStatus = document.getElementById("filterStatus").value;
@@ -3991,7 +4109,7 @@
         const fGenre = document.getElementById("filterGenre").value;
         const sBy = document.getElementById("sortBy").value;
 
-        let filtered = library.filter((e) => {
+        let filtered = window.library.filter((e) => {
           if (qs && !e.title.toLowerCase().includes(qs)) return false;
           if (fType && e.type !== fType) return false;
           if (fStatus && e.status !== fStatus) return false;
@@ -4069,14 +4187,14 @@
           .join("");
       };
 
-      window.selectAllFiltered = () => {
+      const selectAllFiltered = window.selectAllFiltered = () => {
         if (!window._currentFiltered) return;
         window._currentFiltered.forEach((e) => bulkSelection.add(e.id));
         updateBulkBar();
         renderLibrary();
       };
 
-      window.onSearchInput = () => {
+      const onSearchInput = window.onSearchInput = () => {
         if (
           document.getElementById("page-library").classList.contains("active")
         ) {
@@ -4087,14 +4205,14 @@
         }
       };
 
-      window.handleTitleKey = (e) => {
+      const handleTitleKey = window.handleTitleKey = (e) => {
         if (e.key === "Escape") {
           document.getElementById("searchDropdown").style.display = "none";
         }
       };
 
       // AUTOCOMPLETE SEARCH FOR ADD ENTRY
-      window.onTitleInput = () => {
+      const onTitleInput = window.onTitleInput = () => {
         const q = document.getElementById("field-title").value.trim();
         const spin = document.getElementById("titleSpinner");
         document.getElementById("autofillStatus").innerHTML = "";
@@ -4231,7 +4349,7 @@
         }, 600); // 600ms debounce
       };
 
-      window.selectSearch = (idx) => {
+      const selectSearch = window.selectSearch = (idx) => {
         const r = window._tempSearchResults[idx];
         if (!r) return;
         document.getElementById("field-title").value = r.title;
@@ -4251,12 +4369,12 @@
           '<span style="color:var(--success);font-size:11px;font-weight:600">✨ Auto-filled from database</span>';
       };
 
-      window.onTypeChange = () => {
+      const onTypeChange = window.onTypeChange = () => {
         // Left empty as search is now universal and does not depend on type dropdown
       };
 
       // DISCOVER LOGIC
-      window.switchDiscoverType = (type) => {
+      const switchDiscoverType = window.switchDiscoverType = (type) => {
         currentDiscoverType = type;
         document
           .querySelectorAll(".discover-pill")
@@ -4266,7 +4384,7 @@
         renderDiscover(true);
       };
 
-      window.getTasteProfile = () => {
+      const getTasteProfile = window.getTasteProfile = () => {
         const scores = {};
         const statuses = {
           Completed: 1.5,
@@ -4278,7 +4396,7 @@
         };
         const tiers = { S: 5, A: 4, B: 3, C: 2, D: 1, E: 0, F: 0, "": 2 };
 
-        library.forEach((l) => {
+        window.library.forEach((l) => {
           let w =
             (tiers[l.tier] !== undefined ? tiers[l.tier] : 2) *
             (statuses[l.status] !== undefined ? statuses[l.status] : 1.0);
@@ -4291,7 +4409,7 @@
         return Object.entries(scores).sort((a, b) => b[1] - a[1]);
       };
 
-      window.scoreItemAgainstTaste = (itemGenres, tasteProfile) => {
+      const scoreItemAgainstTaste = window.scoreItemAgainstTaste = (itemGenres, tasteProfile) => {
         if (!itemGenres || !itemGenres.length || !tasteProfile.length)
           return Math.random(); // shuffle if no genres or taste
         let score = 0;
@@ -4304,7 +4422,7 @@
         return score + Math.random() * 0.1; // Add slight randomness to prevent exact same order
       };
 
-      window.renderDiscover = async (forceRefresh = false) => {
+      const renderDiscover = window.renderDiscover = async (forceRefresh = false) => {
         const grid = document.getElementById("discoverGrid");
         const sourceLabel = document.getElementById("discoverSourceLabel");
         const tasteProfile = window.getTasteProfile();
@@ -4437,7 +4555,7 @@
 
           grid.innerHTML = results
             .map((r) => {
-              const exists = library.find(
+              const exists = window.library.find(
                 (l) => l.title.toLowerCase() === r.title.toLowerCase(),
               );
               return `
@@ -4469,7 +4587,7 @@
         }
       };
 
-      window.prepareAddFromDiscover = (title, poster) => {
+      const prepareAddFromDiscover = window.prepareAddFromDiscover = (title, poster) => {
         openAddModal();
         document.getElementById("field-title").value = title;
         document.getElementById("field-poster").value = poster;
@@ -4478,8 +4596,8 @@
       };
 
       // DETAILS MODAL
-      window.openDetailModal = (id) => {
-        const entry = library.find((l) => l.id === String(id));
+      const openDetailModal = window.openDetailModal = (id) => {
+        const entry = window.library.find((l) => l.id === String(id));
         if (!entry) return;
 
         const hero = document.getElementById("detailHero");
@@ -4547,11 +4665,11 @@
 
         document.getElementById("detailModalOverlay").classList.add("open");
       };
-      window.closeDetailModal = () =>
+      const closeDetailModal = window.closeDetailModal = () =>
         document.getElementById("detailModalOverlay").classList.remove("open");
 
       // CLOSE MODALS ON OUTSIDE CLICK
-      window.handleOverlayClick = (e, id) => {
+      const handleOverlayClick = window.handleOverlayClick = (e, id) => {
         if (e.target.id === id) {
           document.getElementById(id).classList.remove("open");
         }
@@ -4593,6 +4711,17 @@
         navigateTo("library"); // Start on library
       });
     </script>
-    <div id="toastContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 100000; display: flex; flex-direction: column; gap: 10px;"></div>
+    <div
+      id="toastContainer"
+      style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 100000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      "
+    ></div>
   </body>
 </html>
