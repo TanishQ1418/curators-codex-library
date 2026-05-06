@@ -2889,7 +2889,7 @@
         style="
           width: 48px;
           height: 48px;
-          border: 4px solid var(--border);
+          border: 4px solid var(--border-light);
           border-top-color: var(--accent);
           border-radius: 50%;
           animation: spin 1s linear infinite;
@@ -3361,16 +3361,17 @@
         // Sort keys descending ideally if format is correct, but simple sort works
         const sortedKeys = Object.keys(seasons).sort().reverse();
 
-        // Build select dropdown — always repopulate so new seasonal tags appear immediately
+        // Build select dropdown
         const sel = document.getElementById("seasonalFilter");
-        const prevVal = sel.value; // remember current selection
-        sel.innerHTML =
-          '<option value="">All Seasons</option>' +
-          sortedKeys
-            .map((k) => `<option value="${esc(k)}">${esc(k)}</option>`)
-            .join("");
-        // Restore previous selection if it still exists
-        if (prevVal && sortedKeys.includes(prevVal)) sel.value = prevVal;
+        if (sel.options.length <= 1) {
+          // populate once
+          sel.innerHTML =
+            '<option value="">All Seasons</option>' +
+            sortedKeys
+              .map((k) => `<option value="${k}">${k}</option>`)
+              .join("");
+          sel.value = fSeason;
+        }
 
         let html = "";
         sortedKeys.forEach((k) => {
@@ -3648,48 +3649,6 @@
       let searchDebounce = null;
       let currentDiscoverType = "anime";
 
-      // ── GLOBAL XSS-SAFE ESCAPE ─────────────────────────────────────────
-      // EVERY piece of user data going into innerHTML must pass through esc().
-      // It converts < > " & characters so they render as text, not as HTML tags.
-      // Example: esc('<script>') → '&lt;script&gt;'
-      function esc(s) {
-        const d = document.createElement('div');
-        d.textContent = String(s == null ? '' : s);
-        return d.innerHTML;
-      }
-
-      // ── SEASONS TRACKER STATE ───────────────────────────────────────────
-      let currentWatchedSeasons = []; // tracks which seasons are marked watched
-
-      // Render season chips based on total season count input
-      const renderSeasonChips = (window.renderSeasonChips = () => {
-        const count = parseInt(document.getElementById('field-seasonCount').value) || 0;
-        const container = document.getElementById('seasonChipsContainer');
-        if (count < 1) { container.innerHTML = ''; return; }
-        container.innerHTML = Array.from({length: count}, (_, i) => {
-          const n = i + 1;
-          const watched = currentWatchedSeasons.includes(n);
-          return `<div class="season-chip ${watched ? 'watched' : ''}"
-            onclick="toggleSeasonChip(${n}, this)">
-            S${n} ${watched ? '✓' : '○'}
-          </div>`;
-        }).join('');
-      });
-
-      // Toggle a season chip between watched/unwatched when clicked
-      const toggleSeasonChip = (window.toggleSeasonChip = (n, el) => {
-        const idx = currentWatchedSeasons.indexOf(n);
-        if (idx > -1) {
-          currentWatchedSeasons.splice(idx, 1);
-          el.classList.remove('watched');
-          el.textContent = `S${n} ○`;
-        } else {
-          currentWatchedSeasons.push(n);
-          el.classList.add('watched');
-          el.textContent = `S${n} ✓`;
-        }
-      });
-
       const DEFAULT_DISCOVER = {
         anime: [
           {
@@ -3811,8 +3770,7 @@
           .replace("TIERLIST", "TIER LIST");
 
         if (page === "library") renderLibrary();
-        // forceRefresh=false → uses cache if available, only fetches if first visit or type switched
-        else if (page === "discover") renderDiscover(false);
+        else if (page === "discover") renderDiscover(true);
         else if (page === "tierlist") renderTierList();
         else if (page === "stats") renderStats();
         else if (page === "seasonal") renderSeasonal();
@@ -3958,7 +3916,8 @@
         document.getElementById("field-link").value = entry.link || "";
         document.getElementById("field-season").value = entry.season || "";
         document.getElementById("field-notes").value = entry.notes || "";
-        document.getElementById("field-seasonCount").value = entry.seasonCount || "";
+        document.getElementById("field-seasonCount").value =
+          entry.seasonCount || "";
 
         currentDraftGenres = [...(entry.genres || [])];
         currentWatchedSeasons = [...(entry.watchedSeasons || [])]; // restore watched seasons
@@ -4048,8 +4007,9 @@
             season: document.getElementById("field-season").value.trim(),
             genres: [...currentDraftGenres],
             notes: document.getElementById("field-notes").value.trim(),
-            // Seasons tracker fields — previously missing from payload
-            seasonCount: parseInt(document.getElementById("field-seasonCount").value) || 0,
+            // Seasons tracker fields
+            seasonCount:
+              parseInt(document.getElementById("field-seasonCount").value) || 0,
             watchedSeasons: [...currentWatchedSeasons],
           };
 
@@ -4428,10 +4388,57 @@
 
       const onTypeChange = (window.onTypeChange = () => {
         // Show the seasons tracker only for Anime and Web Series types
-        const t = document.getElementById('field-type').value;
-        const showSeasons = t === 'Anime' || t === 'Web Series';
-        document.getElementById('seasonsTrackerGroup').style.display = showSeasons ? 'block' : 'none';
+        const t = document.getElementById("field-type").value;
+        const showSeasons = t === "Anime" || t === "Web Series";
+        document.getElementById("seasonsTrackerGroup").style.display =
+          showSeasons ? "block" : "none";
         if (showSeasons) renderSeasonChips();
+      });
+
+      // ── GLOBAL XSS-SAFE ESCAPE ─────────────────────────────────────────
+      // EVERY piece of user data going into innerHTML must pass through esc().
+      // It converts < > " & characters so they render as text, not as HTML tags.
+      // Example: esc('<script>') → '&lt;script&gt;'
+      function esc(s) {
+        const d = document.createElement("div");
+        d.textContent = String(s == null ? "" : s);
+        return d.innerHTML;
+      }
+
+      // ── SEASONS TRACKER STATE ───────────────────────────────────────────
+      let currentWatchedSeasons = []; // tracks which seasons are marked watched
+
+      // Render season chips based on total season count input
+      const renderSeasonChips = (window.renderSeasonChips = () => {
+        const count =
+          parseInt(document.getElementById("field-seasonCount").value) || 0;
+        const container = document.getElementById("seasonChipsContainer");
+        if (count < 1) {
+          container.innerHTML = "";
+          return;
+        }
+        container.innerHTML = Array.from({ length: count }, (_, i) => {
+          const n = i + 1;
+          const watched = currentWatchedSeasons.includes(n);
+          return `<div class="season-chip ${watched ? "watched" : ""}"
+            onclick="toggleSeasonChip(${n}, this)">
+            S${n} ${watched ? "✓" : "○"}
+          </div>`;
+        }).join("");
+      });
+
+      // Toggle a season chip between watched/unwatched when clicked
+      const toggleSeasonChip = (window.toggleSeasonChip = (n, el) => {
+        const idx = currentWatchedSeasons.indexOf(n);
+        if (idx > -1) {
+          currentWatchedSeasons.splice(idx, 1);
+          el.classList.remove("watched");
+          el.textContent = `S${n} ○`;
+        } else {
+          currentWatchedSeasons.push(n);
+          el.classList.add("watched");
+          el.textContent = `S${n} ✓`;
+        }
       });
 
       // DISCOVER LOGIC
@@ -4739,7 +4746,9 @@
           grid.innerHTML = results
             .map((r) => {
               const exists = window.library.find(
-                (l) => (l.title || "").toLowerCase() === (r.title || "").toLowerCase(),
+                (l) =>
+                  (l.title || "").toLowerCase() ===
+                  (r.title || "").toLowerCase(),
               );
               return `
       <div class="rec-card">
@@ -4966,6 +4975,17 @@
         navigateTo("library"); // Start on library
       });
     </script>
-<!-- toast-container is at #toast-container in body -->
+    <div
+      id="toastContainer"
+      style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 100000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      "
+    ></div>
   </body>
 </html>
