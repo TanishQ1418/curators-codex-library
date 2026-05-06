@@ -313,6 +313,10 @@
         display: flex;
         flex-direction: column;
         min-height: 100vh;
+        min-width: 0;
+      }
+      #discoverRowsContainer {
+        min-width: 0;
       }
       #topbar {
         height: var(--topbar-h);
@@ -352,9 +356,12 @@
       #page-content {
         padding: 28px 28px 60px;
         flex: 1;
+        min-width: 0;
+        max-width: 100vw;
       }
       .page-section {
         display: none;
+        width: 100%;
         animation: pageFadeIn 0.25s var(--ease) both;
       }
       .page-section.active {
@@ -975,32 +982,195 @@
       }
       .discover-controls {
         display: flex;
-        gap: 10px;
-        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
         margin-bottom: 20px;
         flex-wrap: wrap;
       }
-      #discoverGrid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 16px;
+      .discover-controls-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: var(--text-muted);
+        cursor: pointer;
+        background: var(--bg-elevated);
+        padding: 6px 14px;
+        border-radius: 20px;
+        border: 1px solid var(--border-active);
+      }
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        flex-shrink: 0;
+      }
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--bg-elevated);
+        transition: 0.4s;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+      }
+      .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        bottom: 3px;
+        background-color: var(--text-muted);
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+      input:checked + .toggle-slider {
+        background-color: var(--accent);
+        border-color: var(--accent);
+      }
+      input:checked + .toggle-slider:before {
+        transform: translateX(20px);
+        background-color: var(--bg-base);
+      }
+      .discover-row {
+        margin-bottom: 32px;
+        position: relative;
+        min-width: 0;
+        width: 100%;
+      }
+      .discover-row-title {
+        font-family: var(--font-display);
+        letter-spacing: 2px;
+        font-size: 18px;
+        margin-bottom: 12px;
+        color: var(--text-primary);
+        text-transform: uppercase;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .row-track-container {
+        position: relative;
+        width: 100%;
+      }
+      .row-nav-controls {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 12px;
+        padding-right: 12px;
+      }
+      .row-nav-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-active);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        color: white;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .row-nav-btn:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        transform: scale(1.1);
+      }
+      .row-track {
+        display: flex;
+        overflow-x: auto;
+        gap: 12px;
+        padding-bottom: 12px;
+        mask-image: linear-gradient(to right, black 85%, transparent);
+        -webkit-mask-image: linear-gradient(to right, black 85%, transparent);
+      }
+      .row-track::-webkit-scrollbar {
+        display: none;
       }
       .rec-card {
+        flex-shrink: 0;
+        width: 155px;
         background: var(--bg-card);
         border: 1px solid var(--border);
         border-radius: 10px;
         overflow: hidden;
         cursor: pointer;
         position: relative;
-        transition: all 0.22s;
+        transition: all 0.22s ease;
         animation: fadeInUp 0.35s both;
       }
       .rec-card:hover {
         border-color: var(--accent);
-        box-shadow:
-          0 0 24px rgba(212, 175, 55, 0.12),
-          0 6px 24px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 20px var(--accent-glow);
         transform: translateY(-3px);
+      }
+      .not-interested-btn {
+        position: absolute;
+        top: 7px;
+        left: 7px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: rgba(11, 15, 20, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: var(--text-muted);
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition:
+          opacity 0.15s ease,
+          color 0.15s ease,
+          border-color 0.15s ease;
+        z-index: 10;
+        cursor: pointer;
+      }
+      .rec-card:hover .not-interested-btn {
+        opacity: 1;
+      }
+      .not-interested-btn:hover {
+        color: white;
+        border-color: rgba(248, 113, 113, 0.4);
+        background: rgba(11, 15, 20, 0.95);
+      }
+      .row-sentinel {
+        width: 1px;
+        height: 1px;
+        flex-shrink: 0;
+      }
+      .row-exhausted-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        color: var(--text-muted);
+        font-size: 11px;
+        letter-spacing: 1px;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        border-left: 1px dashed var(--border);
+        margin-left: 12px;
       }
       .rec-card-poster {
         width: 100%;
@@ -1204,7 +1374,7 @@
       /* STATS */
       .stats-top-row {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         gap: 16px;
         margin-bottom: 28px;
       }
@@ -1766,14 +1936,8 @@
 
       /* RESPONSIVE */
       @media (max-width: 1200px) {
-        #discoverGrid {
-          grid-template-columns: repeat(4, 1fr);
-        }
       }
       @media (max-width: 900px) {
-        #discoverGrid {
-          grid-template-columns: repeat(3, 1fr);
-        }
       }
       @media (max-width: 768px) {
         #sidebar {
@@ -1815,9 +1979,6 @@
         }
         .topbar-actions .btn span {
           display: none;
-        }
-        #discoverGrid {
-          grid-template-columns: repeat(2, 1fr);
         }
       }
       @media (max-width: 480px) {
@@ -2258,6 +2419,11 @@
                 <div class="stat-sub">finished titles</div>
               </div>
               <div class="stat-card">
+                <div class="stat-label">Time Watched</div>
+                <div class="stat-value" id="stat-time">0h</div>
+                <div class="stat-sub">estimated total</div>
+              </div>
+              <div class="stat-card">
                 <div class="stat-label">Episodes Watched</div>
                 <div class="stat-value" id="stat-episodes">0</div>
                 <div class="stat-sub">total episodes</div>
@@ -2364,21 +2530,34 @@
               </button>
             </div>
             <div class="discover-controls">
-              <button
-                class="btn btn-ghost btn-sm"
-                onclick="renderDiscover(true)"
-              >
-                ↺ Refresh Picks</button
-              ><span
-                id="discoverSourceLabel"
-                style="
-                  font-size: 12px;
-                  color: var(--text-muted);
-                  margin-left: 4px;
-                "
-              ></span>
+              <div style="display: flex; align-items: center; gap: 8px">
+                <button
+                  class="btn btn-ghost btn-sm"
+                  onclick="renderDiscover(true)"
+                >
+                  ↺ Refresh Picks</button
+                ><span
+                  id="discoverSourceLabel"
+                  style="
+                    font-size: 12px;
+                    color: var(--text-muted);
+                    margin-left: 4px;
+                  "
+                ></span>
+              </div>
+              <label class="discover-controls-right">
+                Allow Sequels
+                <div class="toggle-switch">
+                  <input
+                    type="checkbox"
+                    id="allowSequelsToggle"
+                    onchange="renderDiscover(true)"
+                  />
+                  <span class="toggle-slider"></span>
+                </div>
+              </label>
             </div>
-            <div id="discoverGrid"></div>
+            <div id="discoverRowsContainer"></div>
           </section>
         </div>
       </main>
@@ -2542,16 +2721,44 @@
               id="seasonsTrackerGroup"
               style="display: none"
             >
-              <label class="form-label">Seasons Tracker</label
-              ><input
-                type="number"
-                class="form-input"
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  margin-bottom: 4px;
+                "
+              >
+                <label class="form-label" style="margin-bottom: 0"
+                  >Seasons Tracker</label
+                >
+                <div
+                  style="
+                    font-size: 13px;
+                    color: var(--accent);
+                    font-weight: 600;
+                  "
+                  id="seasonCountLabel"
+                >
+                  0
+                </div>
+              </div>
+              <input
+                type="range"
                 id="field-seasonCount"
-                placeholder="Total seasons (e.g. 3)"
-                min="1"
+                min="0"
                 max="50"
-                oninput="renderSeasonChips()"
-                style="margin-bottom: 8px"
+                value="0"
+                oninput="
+                  document.getElementById('seasonCountLabel').textContent =
+                    this.value;
+                  renderSeasonChips();
+                "
+                style="
+                  width: 100%;
+                  margin-bottom: 12px;
+                  accent-color: var(--accent);
+                  cursor: pointer;
+                "
               />
               <div class="seasons-grid" id="seasonChipsContainer"></div>
             </div>
@@ -3146,11 +3353,37 @@
           window.library.length;
         document.getElementById("stat-completed").textContent =
           window.library.filter((l) => l.status === "Completed").length;
-        document.getElementById("stat-episodes").textContent =
-          window.library.reduce(
-            (acc, l) => acc + (parseInt(l.episodes) || 0),
-            0,
-          );
+
+        let totalEpisodes = 0;
+        let totalMinutes = 0;
+
+        window.library.forEach((l) => {
+          let eps = parseInt(l.episodes) || 0;
+          totalEpisodes += eps;
+
+          if (eps === 0 && l.status === "Completed") {
+            eps = 1; // Fallback for completed titles without episode count
+          }
+
+          if (l.type === "Movie") {
+            totalMinutes += eps > 0 ? eps * 120 : 120; // Avg 120min
+          } else if (l.type === "Web Series" || l.type === "Series") {
+            totalMinutes += eps * 45; // Avg 45min
+          } else {
+            totalMinutes += eps * 24; // Avg 24min for Anime, OVA, Special
+          }
+        });
+
+        document.getElementById("stat-episodes").textContent = totalEpisodes;
+
+        const statTime = document.getElementById("stat-time");
+        if (statTime) {
+          if (totalMinutes > 60 * 24) {
+            statTime.textContent = (totalMinutes / (60 * 24)).toFixed(1) + "d";
+          } else {
+            statTime.textContent = Math.round(totalMinutes / 60) + "h";
+          }
+        }
 
         // Top genre
         const gCount = {};
@@ -3363,15 +3596,10 @@
 
         // Build select dropdown
         const sel = document.getElementById("seasonalFilter");
-        if (sel.options.length <= 1) {
-          // populate once
-          sel.innerHTML =
-            '<option value="">All Seasons</option>' +
-            sortedKeys
-              .map((k) => `<option value="${k}">${k}</option>`)
-              .join("");
-          sel.value = fSeason;
-        }
+        sel.innerHTML =
+          '<option value="">All Seasons</option>' +
+          sortedKeys.map((k) => `<option value="${k}">${k}</option>`).join("");
+        sel.value = fSeason;
 
         let html = "";
         sortedKeys.forEach((k) => {
@@ -3885,7 +4113,8 @@
         document.getElementById("field-link").value = "";
         document.getElementById("field-season").value = "";
         document.getElementById("field-notes").value = "";
-        document.getElementById("field-seasonCount").value = "";
+        document.getElementById("field-seasonCount").value = "0";
+        document.getElementById("seasonCountLabel").textContent = "0";
         document.getElementById("genreTags").innerHTML = "";
         document.getElementById("field-status").value = "Plan to Watch";
         document.getElementById("autofillStatus").innerHTML = "";
@@ -3917,7 +4146,9 @@
         document.getElementById("field-season").value = entry.season || "";
         document.getElementById("field-notes").value = entry.notes || "";
         document.getElementById("field-seasonCount").value =
-          entry.seasonCount || "";
+          entry.seasonCount || "0";
+        document.getElementById("seasonCountLabel").textContent =
+          entry.seasonCount || "0";
 
         currentDraftGenres = [...(entry.genres || [])];
         currentWatchedSeasons = [...(entry.watchedSeasons || [])]; // restore watched seasons
@@ -4152,6 +4383,9 @@
         const grid = document.getElementById("gridView");
         const list = document.getElementById("listView");
 
+        document.getElementById("librarySubtitle").textContent =
+          `Showing ${filtered.length} of ${window.library.length} entries`;
+
         if (!filtered.length) {
           grid.innerHTML =
             '<div class="empty-state"><div class="empty-icon">📂</div><h3>No entries found</h3><p>Try adjusting your search or filters.</p></div>';
@@ -4205,8 +4439,12 @@
       });
 
       const selectAllFiltered = (window.selectAllFiltered = () => {
-        if (!window._currentFiltered) return;
-        window._currentFiltered.forEach((e) => bulkSelection.add(e.id));
+        const itemsToSelect =
+          window._currentFiltered ||
+          window._currentSearchData ||
+          window.library ||
+          [];
+        itemsToSelect.forEach((e) => bulkSelection.add(e.id));
         updateBulkBar();
         renderLibrary();
       });
@@ -4381,19 +4619,25 @@
           currentDraftGenres = [...r.genres];
           renderDraftGenres();
         }
+        onTypeChange();
         document.getElementById("searchDropdown").style.display = "none";
         document.getElementById("autofillStatus").innerHTML =
           '<span style="color:var(--success);font-size:11px;font-weight:600">✨ Auto-filled from database</span>';
       });
 
-      const onTypeChange = (window.onTypeChange = () => {
-        // Show the seasons tracker only for Anime and Web Series types
+      function onTypeChange() {
+        // Show the seasons tracker for Anime and Web Series only
         const t = document.getElementById("field-type").value;
         const showSeasons = t === "Anime" || t === "Web Series";
-        document.getElementById("seasonsTrackerGroup").style.display =
-          showSeasons ? "block" : "none";
-        if (showSeasons) renderSeasonChips();
-      });
+        const group = document.getElementById("seasonsTrackerGroup");
+        if (group) {
+          group.style.display = showSeasons ? "block" : "none";
+        }
+        if (showSeasons) {
+          renderSeasonChips();
+        }
+      }
+      window.onTypeChange = onTypeChange;
 
       // ── GLOBAL XSS-SAFE ESCAPE ─────────────────────────────────────────
       // EVERY piece of user data going into innerHTML must pass through esc().
@@ -4409,7 +4653,7 @@
       let currentWatchedSeasons = []; // tracks which seasons are marked watched
 
       // Render season chips based on total season count input
-      const renderSeasonChips = (window.renderSeasonChips = () => {
+      function renderSeasonChips() {
         const count =
           parseInt(document.getElementById("field-seasonCount").value) || 0;
         const container = document.getElementById("seasonChipsContainer");
@@ -4425,10 +4669,11 @@
             S${n} ${watched ? "✓" : "○"}
           </div>`;
         }).join("");
-      });
+      }
+      window.renderSeasonChips = renderSeasonChips;
 
       // Toggle a season chip between watched/unwatched when clicked
-      const toggleSeasonChip = (window.toggleSeasonChip = (n, el) => {
+      function toggleSeasonChip(n, el) {
         const idx = currentWatchedSeasons.indexOf(n);
         if (idx > -1) {
           currentWatchedSeasons.splice(idx, 1);
@@ -4439,7 +4684,8 @@
           el.classList.add("watched");
           el.textContent = `S${n} ✓`;
         }
-      });
+      }
+      window.toggleSeasonChip = toggleSeasonChip;
 
       // DISCOVER LOGIC
       const switchDiscoverType = (window.switchDiscoverType = (type) => {
@@ -4488,6 +4734,23 @@
             else yearBuckets["recent (>=2020)"] += w;
           }
         });
+
+        // Apply Rejection Penalties
+        const rejections = window.getRejections
+          ? window.getRejections()
+          : { genres: {}, timestamps: {} };
+        const now = Date.now();
+        Object.keys(rejections.genres).forEach((g) => {
+          if (scores[g]) {
+            let penalty = rejections.genres[g] * 1.5;
+            const ts = rejections.timestamps[g] || 0;
+            if (now - ts > 60 * 24 * 60 * 60 * 1000) {
+              penalty = penalty * 0.5; // decay 50% after 60 days
+            }
+            scores[g] -= penalty;
+          }
+        });
+
         return {
           genres: Object.entries(scores).sort((a, b) => b[1] - a[1]),
           years: yearBuckets,
@@ -4546,216 +4809,199 @@
         return score * 0.6 + normalizedRating * 0.4 + randomJitter;
       });
 
-      const renderDiscover = (window.renderDiscover = async (
-        forceRefresh = false,
-      ) => {
-        const grid = document.getElementById("discoverGrid");
-        const sourceLabel = document.getElementById("discoverSourceLabel");
-        const tasteProfile = window.getTasteProfile();
+      window.isSequelOrRelated = (title, libraryTitlesSet) => {
+        if (!title) return false;
+        const tLower = title.toLowerCase().trim();
+        if (libraryTitlesSet.has(tLower)) return true;
 
-        if (currentDiscoverType === "anime")
-          sourceLabel.textContent = "Sourced from MyAnimeList (Jikan v4)";
-        else if (currentDiscoverType === "movie")
-          sourceLabel.textContent = "Sourced from iTunes Store / TMDb";
-        else sourceLabel.textContent = "Sourced from TVMaze / Trakt";
+        const getBase = (str) => {
+          return str
+            .replace(
+              /(?:\s*(?:the\s+)?\d+(?:st|nd|rd|th)\s+)?(?:season|part|cour|chapter|movie)(?:\s+\d+)?(?:\s*p(?:ar)?t\s*\d+)?/gi,
+              "",
+            )
+            .replace(/:\s*.*$/, "") // Try to remove subtitles after colon
+            .replace(/[-~]\s*.*$/, "") // Try to remove after dashes/tildes
+            .replace(/\s+(?:ii|iii|iv|v|vi|vii|\d+)(?:\s+part\s+\d+)?$/i, "") // Remove trailing numerals
+            .replace(/!+$/, "")
+            .trim();
+        };
+        const baseNew = getBase(tLower);
+        if (baseNew.length < 4) return false;
 
-        if (tasteProfile.genres.length > 0) {
-          document.getElementById("tasteEmpty").style.display = "none";
-          document.getElementById("tasteTagsContainer").innerHTML =
-            tasteProfile.genres
-              .slice(0, 5)
-              .map(
-                (t) =>
-                  `<span style="font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px; background:var(--bg-elevated); border:1px solid var(--border-active); color:var(--text-primary)">${t[0]}</span>`,
-              )
-              .join("");
-        } else {
-          document.getElementById("tasteEmpty").style.display = "inline";
-          document.getElementById("tasteTagsContainer").innerHTML = "";
+        for (const libTit of libraryTitlesSet) {
+          const baseLib = getBase(libTit);
+          if (
+            baseLib === baseNew ||
+            (baseLib.length > 5 &&
+              (tLower.startsWith(baseLib) || libTit.startsWith(baseNew)))
+          ) {
+            return true;
+          }
         }
+        return false;
+      };
 
-        grid.innerHTML =
-          '<div style="color:var(--text-muted);grid-column:1/-1;text-align:center;padding:60px 0;"><div class="spinner" style="margin:0 auto 16px;width:30px;height:30px"></div>Fetching personalized recommendations...</div>';
+      // Discover Rejections
+      const getRejections = (window.getRejections = () => {
+        const stored = localStorage.getItem("codex_rejected");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            return {
+              ids: new Set(parsed.ids || []),
+              genres: parsed.genres || {},
+              timestamps: parsed.timestamps || {},
+            };
+          } catch (e) {}
+        }
+        return { ids: new Set(), genres: {}, timestamps: {} };
+      });
 
-        try {
-          let results = [];
-          const libraryTitles = new Set(
-            window.library.map((l) => (l.title || "").toLowerCase().trim()),
-          );
+      const saveRejections = (rej) => {
+        if (rej.ids.size > 500) {
+          const idsArray = Array.from(rej.ids);
+          const oldest = idsArray.slice(0, idsArray.length - 500);
+          oldest.forEach((id) => rej.ids.delete(id));
+        }
+        localStorage.setItem(
+          "codex_rejected",
+          JSON.stringify({
+            ids: Array.from(rej.ids),
+            genres: rej.genres,
+            timestamps: rej.timestamps,
+          }),
+        );
+      };
 
-          if (forceRefresh) {
-            let pool = [];
-            // FETCH FROM API
-            if (currentDiscoverType === "anime") {
-              const pages = [1, 2, 3, 4, 5]
-                .sort(() => 0.5 - Math.random())
-                .slice(0, 3);
-              const promises = pages.map((p) =>
-                fetch(
-                  `https://api.jikan.moe/v4/top/anime?type=tv&page=${p}&limit=25`,
-                )
-                  .then((r) => r.json())
-                  .catch(() => ({})),
-              );
-              const res = await Promise.all(promises);
-              res.forEach((d) => {
-                if (d && d.data) pool = pool.concat(d.data);
-              });
+      window.rejectItem = (e, cardEl, itemSrcId, genresStr) => {
+        if (e) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+        cardEl.style.pointerEvents = "none";
+        cardEl.style.transform = "scale(0.92)";
+        cardEl.style.opacity = "0";
 
-              pool = pool.filter((item) => {
-                const t1 = (item.title_english || "").toLowerCase().trim();
-                const t2 = (item.title || "").toLowerCase().trim();
-                return (
-                  t1 && !libraryTitles.has(t1) && t2 && !libraryTitles.has(t2)
-                );
-              });
+        setTimeout(() => {
+          cardEl.remove();
+        }, 260);
 
-              pool.sort(
-                (a, b) =>
-                  window.scoreItemAgainstTaste(
-                    {
-                      genres: b.genres?.map((g) => g.name),
-                      year: b.aired?.prop?.from?.year || b.year,
-                    },
-                    tasteProfile,
-                    b.score,
-                  ) -
-                  window.scoreItemAgainstTaste(
-                    {
-                      genres: a.genres?.map((g) => g.name),
-                      year: a.aired?.prop?.from?.year || a.year,
-                    },
-                    tasteProfile,
-                    a.score,
-                  ),
-              );
+        const rej = getRejections();
+        rej.ids.add(itemSrcId);
+        const genres = genresStr ? genresStr.split(",") : [];
+        genres.forEach((g) => {
+          rej.genres[g] = (rej.genres[g] || 0) + 1;
+          rej.timestamps[g] = Date.now();
+        });
+        saveRejections(rej);
 
-              results = pool.slice(0, 50).map((item) => ({
-                title: item.title_english || item.title,
-                poster: item.images?.jpg?.large_image_url || "",
-                genres: item.genres?.map((g) => g.name) || [],
-                score: (item.score || 0).toFixed(1),
-              }));
-            } else if (currentDiscoverType === "series") {
-              const rPage = Math.floor(Math.random() * 10);
-              const promises = [rPage, rPage + 1, rPage + 2].map((p) =>
-                fetch(`https://api.tvmaze.com/shows?page=${p}`)
-                  .then((r) => r.json())
-                  .catch(() => []),
-              );
-              const res = await Promise.all(promises);
-              res.forEach((d) => {
-                if (d && Array.isArray(d)) pool = pool.concat(d);
-              });
-
-              pool = pool.filter((item) => {
-                const t = (item.name || "").toLowerCase().trim();
-                return t && !libraryTitles.has(t);
-              });
-
-              let good = pool.filter((d) => d.rating?.average >= 6.5);
-              good.sort(
-                (a, b) =>
-                  window.scoreItemAgainstTaste(
-                    {
-                      genres: b.genres,
-                      year: b.premiered
-                        ? parseInt(b.premiered.split("-")[0])
-                        : undefined,
-                    },
-                    tasteProfile,
-                    b.rating?.average,
-                  ) -
-                  window.scoreItemAgainstTaste(
-                    {
-                      genres: a.genres,
-                      year: a.premiered
-                        ? parseInt(a.premiered.split("-")[0])
-                        : undefined,
-                    },
-                    tasteProfile,
-                    a.rating?.average,
-                  ),
-              );
-
-              results = good.slice(0, 50).map((item) => ({
-                title: item.name,
-                poster: item.image?.original || item.image?.medium || "",
-                genres: item.genres || [],
-                score: (item.rating?.average || 0).toFixed(1),
-              }));
-            } else {
-              // movies
-              const rSkip = Math.floor(Math.random() * 10) * 50;
-              const promises = [0, 50, 100, 150].map((skipVal) =>
-                fetch(
-                  `https://v3-cinemeta.strem.io/catalog/movie/top/skip=${rSkip + skipVal}.json`,
-                )
-                  .then((r) => r.json())
-                  .catch(() => ({})),
-              );
-              const res = await Promise.all(promises);
-              res.forEach((d) => {
-                if (d && d.metas) pool = pool.concat(d.metas);
-              });
-
-              pool = pool.filter((item) => {
-                const t = (item.name || "").toLowerCase().trim();
-                return t && !libraryTitles.has(t);
-              });
-
-              pool.sort(
-                (a, b) =>
-                  window.scoreItemAgainstTaste(
-                    { genres: b.genre, year: parseInt(b.year) },
-                    tasteProfile,
-                    parseFloat(b.imdbRating) || 5,
-                  ) -
-                  window.scoreItemAgainstTaste(
-                    { genres: a.genre, year: parseInt(a.year) },
-                    tasteProfile,
-                    parseFloat(a.imdbRating) || 5,
-                  ),
-              );
-
-              results = pool.slice(0, 50).map((item) => ({
-                title: item.name || "Unknown Title",
-                poster: item.poster || "",
-                genres: item.genre || [],
-                score: item.imdbRating || "N/A",
-              }));
-            }
-          } else {
-            results = DEFAULT_DISCOVER[currentDiscoverType] || [];
-            results = results.filter((item) => {
-              const t = (item.title || "").toLowerCase().trim();
-              return t && !libraryTitles.has(t);
-            });
-            if (results.length > 50) results = results.slice(0, 50);
+        // Show toast with undo
+        const t = document.createElement("div");
+        t.className = "toast toast-success";
+        t.innerHTML = `Removed. <span style="text-decoration:underline; cursor:pointer;" onclick="window.undoRejectItem('${itemSrcId}', '${genresStr}', this)">Undo?</span>`;
+        document.getElementById("toast-container").appendChild(t);
+        setTimeout(() => {
+          if (t.parentElement) {
+            t.classList.add("toast-dismiss");
+            setTimeout(() => t.remove(), 300);
           }
+        }, 4000);
+      };
 
-          if (!results.length && !forceRefresh) {
-            grid.innerHTML =
-              '<div style="color:var(--text-muted);grid-column:1/-1">No recommendations available or all default recommendations are already in your library. Try Refresh Picks.</div>';
-            return;
+      window.undoRejectItem = (itemSrcId, genresStr, el) => {
+        const rej = getRejections();
+        rej.ids.delete(itemSrcId);
+        const genres = genresStr ? genresStr.split(",") : [];
+        genres.forEach((g) => {
+          if (rej.genres[g]) {
+            rej.genres[g] = Math.max(0, rej.genres[g] - 1);
           }
+        });
+        saveRejections(rej);
 
-          // Sort slightly randomly but favoring score
-          results.sort(() => 0.5 - Math.random());
+        if (el) {
+          el.parentElement.innerHTML =
+            "Restored. Refresh Picks to see it again.";
+        }
+      };
 
-          grid.innerHTML = results
-            .map((r) => {
-              const exists = window.library.find(
-                (l) =>
-                  (l.title || "").toLowerCase() ===
-                  (r.title || "").toLowerCase(),
-              );
-              return `
-      <div class="rec-card">
+      let discoverObserver = null;
+      let discoverCache = {};
+      let tasteCache = null;
+
+      window.scrollRow = (rowId, direction) => {
+        const track = document.getElementById(`track-${rowId}`);
+        if (track) {
+          const scrollAmount = track.clientWidth * 0.8;
+          track.scrollBy({
+            left: scrollAmount * direction,
+            behavior: "smooth",
+          });
+        }
+      };
+
+      window.handleRowWheel = (e) => {
+        const track = e.currentTarget;
+        // Only hijack pure vertical scrolling (like a mouse wheel)
+        if (
+          Math.abs(e.deltaX) === 0 &&
+          Math.abs(e.deltaY) > 0 &&
+          track.scrollWidth > track.clientWidth
+        ) {
+          const atLeft = track.scrollLeft <= 0;
+          const atRight =
+            Math.ceil(track.scrollLeft + track.clientWidth) >=
+            track.scrollWidth - 1;
+
+          if (!((atLeft && e.deltaY < 0) || (atRight && e.deltaY > 0))) {
+            e.preventDefault();
+            track.scrollLeft += e.deltaY;
+          }
+        }
+      };
+
+      const createRowHTML = (rowId, title) => {
+        return `
+            <div class="discover-row" id="row-${rowId}" data-type="${rowId}" data-page="1" data-loading="false" data-exhausted="false">
+               <div class="discover-row-title">${title}</div>
+               <div class="row-track-container">
+                   <div class="row-track" id="track-${rowId}" onwheel="window.handleRowWheel(event)">
+                       ${Array(6)
+                         .fill()
+                         .map(
+                           () =>
+                             `<div class="rec-card dom-skel" style="background:var(--bg-elevated);border-color:transparent;"><div style="padding:10px;text-align:center;color:gray;margin-top:60px;">•••</div></div>`,
+                         )
+                         .join("")}
+                   </div>
+               </div>
+               <div class="row-nav-controls">
+                   <button class="row-nav-btn" onclick="window.scrollRow('${rowId}', -1)">‹</button>
+                   <button class="row-nav-btn" onclick="window.scrollRow('${rowId}', 1)">›</button>
+               </div>
+            </div>
+          `;
+      };
+
+      const createCardHTML = (r) => {
+        const titleSafe = r.title
+          .replace(/'/g, "&#39;")
+          .replace(/"/g, "&quot;");
+        const genresStr = r.genres.join(",");
+        const srcId = r.id; // required for Not Interested
+        const exists = window.library.find(
+          (l) =>
+            (l.title || "").toLowerCase() === (r.title || "").toLowerCase(),
+        );
+
+        return `
+      <div class="rec-card" data-srcid="${srcId}">
+        ${!exists ? `<div class="not-interested-btn" onclick="window.rejectItem(event, this.closest('.rec-card'), '${srcId}', '${genresStr}')">✕</div>` : ""}
         ${r.score && r.score !== "0.0" && r.score !== "N/A" ? `<div class="rec-score">⭐ ${r.score}</div>` : ""}
         ${exists ? `<div class="rec-owned">✓ IN LIBRARY</div>` : ""}
-        <div class="rec-card-poster"><img src="${r.poster}" onerror="this.outerHTML='🎬'" /></div>
-        <div class="rec-card-overlay">
+        <div class="rec-card-poster"><img src="${r.poster}" loading="lazy" onerror="this.outerHTML='🎬'" /></div>
+        <div class="rec-card-overlay" onclick="window.prepareAddFromDiscover('${titleSafe}', '${r.poster}')">
           <div class="rec-overlay-title">${r.title}</div>
           <div class="rec-overlay-genres">${r.genres
             .slice(0, 3)
@@ -4765,18 +5011,609 @@
             )
             .join("")}</div>
           <button class="rec-overlay-add ${exists ? "added" : ""}" 
-                  onclick="event.stopPropagation();${exists ? "" : `prepareAddFromDiscover('${r.title.replace(/'/g, "\\'")}', '${r.poster}')`}">
+                  onclick="event.stopPropagation();${exists ? "" : `prepareAddFromDiscover('${titleSafe}', '${r.poster}')`}">
             ${exists ? "Already Added" : "Add to Codex"}
           </button>
         </div>
       </div>
     `;
-            })
-            .join("");
-        } catch (e) {
-          grid.innerHTML =
-            '<div style="color:var(--danger);grid-column:1/-1;text-align:center;padding:40px">Network error fetching recommendations. Click Refresh Picks to try again.</div>';
+      };
+
+      const getTopSTier = () => {
+        let sTier = window.library.filter((l) => l.tier === "S");
+        if (currentDiscoverType === "movie") {
+          let mTier = sTier.filter(l => l.type === "Movie");
+          if (mTier.length > 0) sTier = mTier;
+        } else if (currentDiscoverType === "series") {
+          let sTierFiltered = sTier.filter(l => l.type === "Web Series" || l.type === "Series");
+          if (sTierFiltered.length > 0) sTier = sTierFiltered;
+        } else {
+          let aTier = sTier.filter(l => l.type !== "Movie" && l.type !== "Web Series" && l.type !== "Series");
+          if (aTier.length > 0) sTier = aTier;
         }
+
+        if (sTier.length === 0) sTier = window.library.filter(l => {
+          if (currentDiscoverType === "movie") return l.type === "Movie";
+          if (currentDiscoverType === "series") return l.type === "Web Series" || l.type === "Series";
+          return l.type !== "Movie" && l.type !== "Web Series" && l.type !== "Series";
+        });
+
+        if (sTier.length === 0) return null; // Final fallback to null when nothing of this type exists
+        return [...sTier].sort(() => 0.5 - Math.random())[0];
+      };
+
+      const getGenreIdsMap = () => {
+        return {
+          action: 1,
+          adventure: 2,
+          comedy: 4,
+          drama: 8,
+          fantasy: 10,
+          horror: 14,
+          mystery: 17,
+          romance: 22,
+          "sci-fi": 24,
+          "slice of life": 36,
+          sports: 30,
+          supernatural: 37,
+          suspense: 41,
+          thriller: 41,
+        };
+      };
+
+      const buildNonAnimeBuckets = async (type) => {
+        let pool = [];
+        if (type === "series") {
+          const rPage = Math.floor(Math.random() * 5);
+          const promises = [
+            rPage,
+            rPage + 1,
+            rPage + 2,
+            rPage + 3,
+            rPage + 4,
+            rPage + 5,
+          ].map((p) =>
+            fetch(`https://api.tvmaze.com/shows?page=${p}`)
+              .then((r) => r.json())
+              .catch(() => []),
+          );
+          const res = await Promise.all(promises);
+          res.forEach((d) => {
+            if (d && Array.isArray(d)) {
+              pool = pool.concat(
+                d.map((item) => ({
+                  id: `tvmaze_${item.id}`,
+                  title: item.name,
+                  poster: item.image?.original || item.image?.medium || "",
+                  genres: item.genres || [],
+                  score: (item.rating?.average || 0).toFixed(1),
+                  year: item.premiered
+                    ? parseInt(item.premiered.split("-")[0])
+                    : 2000,
+                })),
+              );
+            }
+          });
+        } else {
+          const rSkip = Math.floor(Math.random() * 5) * 50;
+          const promises = [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550].map((skipVal) =>
+            fetch(
+              `https://v3-cinemeta.strem.io/catalog/movie/top/skip=${rSkip + skipVal}.json`,
+            )
+              .then((r) => r.json())
+              .catch(() => ({})),
+          );
+          const res = await Promise.all(promises);
+          res.forEach((d) => {
+            if (d && d.metas) {
+              pool = pool.concat(
+                d.metas.map((item) => ({
+                  id: item.imdb_id
+                    ? `imdb_${item.imdb_id}`
+                    : `cinemeta_${item.id}`,
+                  title: item.name || "Unknown Title",
+                  poster: item.poster || "",
+                  genres: item.genre || [],
+                  score: item.imdbRating || "0.0",
+                  year: parseInt(item.year) || 2000,
+                })),
+              );
+            }
+          });
+        }
+
+        const buckets = {
+          r0_personalized: [],
+          r1_loved: [],
+          r2_trending: [],
+          r3_top_genre1: [],
+          r4_top_genre2: [],
+          r5_hidden: [],
+          r6_expand: [],
+          r7_era: [],
+          r8_acclaimed: [],
+        };
+
+        const tp = tasteCache || window.getTasteProfile();
+        const topG1 = (tp.genres[0] ? tp.genres[0][0] : "").toLowerCase();
+        const topG2 = (tp.genres[1] ? tp.genres[1][0] : "").toLowerCase();
+        const sTierMatch = getTopSTier();
+        const lovedGenres =
+          sTierMatch && sTierMatch.genres
+            ? sTierMatch.genres.map((g) => g.toLowerCase())
+            : [];
+            
+        const personalizedGenresSet = new Set();
+        window.library.forEach(l => {
+          let matchType = false;
+          if (type === "movie" && l.type === "Movie") matchType = true;
+          else if (type === "series" && (l.type === "Web Series" || l.type === "Series")) matchType = true;
+          else if (type === "anime" && l.type !== "Movie" && l.type !== "Web Series" && l.type !== "Series") matchType = true;
+          else if (type !== "anime" && type !== "movie" && type !== "series") matchType = true;
+
+          if (matchType) {
+            if (
+              (l.status === "Completed" && (l.tier === "S" || l.tier === "A")) ||
+              l.status === "Plan to Watch"
+            ) {
+              (l.genres || []).forEach(g => personalizedGenresSet.add(g.toLowerCase()));
+            }
+          }
+        });
+        const personalizedGenres = Array.from(personalizedGenresSet);
+
+        pool.sort(
+          (a, b) => parseFloat(b.score || 0) - parseFloat(a.score || 0),
+        );
+
+        pool.forEach((item) => {
+          const ig = (item.genres || []).map((g) => g.toLowerCase());
+          
+          if (
+            ig.some((g) => personalizedGenres.includes(g)) &&
+            buckets["r0_personalized"].length < 300
+          )
+            buckets["r0_personalized"].push(item);
+
+          if (
+            ig.some((g) => lovedGenres.includes(g)) &&
+            buckets["r1_loved"].length < 300
+          )
+            buckets["r1_loved"].push(item);
+          if (item.year >= 2023 && buckets["r2_trending"].length < 300)
+            buckets["r2_trending"].push(item);
+          if (ig.includes(topG1) && buckets["r3_top_genre1"].length < 300)
+            buckets["r3_top_genre1"].push(item);
+          if (ig.includes(topG2) && buckets["r4_top_genre2"].length < 300)
+            buckets["r4_top_genre2"].push(item);
+
+          const sc = parseFloat(item.score || 0);
+          if (sc >= 7.5 && sc <= 8.5 && buckets["r5_hidden"].length < 300)
+            buckets["r5_hidden"].push(item);
+
+          const excluded = tp.genres.slice(0, 3).map((g) => g[0].toLowerCase());
+          if (
+            !ig.some((g) => excluded.includes(g)) &&
+            sc >= 7.0 &&
+            buckets["r6_expand"].length < 300
+          )
+            buckets["r6_expand"].push(item);
+
+          let highestBucket = Object.keys(tp.years).reduce(
+            (a, b) => (tp.years[a] > tp.years[b] ? a : b),
+            "recent (>=2020)",
+          );
+          let targetYear = 2021;
+          if (highestBucket.includes("classic")) targetYear = 1995;
+          else if (highestBucket.includes("2000s")) targetYear = 2005;
+          else if (highestBucket.includes("2010s")) targetYear = 2015;
+          if (
+            item.year >= targetYear - 4 &&
+            item.year <= targetYear + 4 &&
+            buckets["r7_era"].length < 300
+          )
+            buckets["r7_era"].push(item);
+
+          if (sc >= 8.5 && buckets["r8_acclaimed"].length < 300)
+            buckets["r8_acclaimed"].push(item);
+        });
+
+        Object.values(buckets).forEach((b) =>
+          b.sort(() => 0.5 - Math.random()),
+        );
+        return buckets;
+      };
+
+      const fetchDiscoverRow = async (rowType, page) => {
+        if (currentDiscoverType !== "anime") {
+          if (!discoverCache[currentDiscoverType + "_buckets"]) {
+            discoverCache[currentDiscoverType + "_buckets"] =
+              await buildNonAnimeBuckets(currentDiscoverType);
+          }
+          const bucket =
+            discoverCache[currentDiscoverType + "_buckets"][rowType] || [];
+          return bucket.slice((page - 1) * 25, page * 25);
+        }
+
+        const tP = tasteCache || window.getTasteProfile();
+        tasteCache = tP;
+
+        const topGenres = tP.genres.map((g) => g[0].toLowerCase());
+        const gMap = getGenreIdsMap();
+
+        let url = "";
+        
+        if (rowType === "r0_personalized") {
+            const freq = {};
+            window.library.forEach(l => {
+                let matchType = false;
+                if (currentDiscoverType === "movie" && l.type === "Movie") matchType = true;
+                else if (currentDiscoverType === "series" && (l.type === "Web Series" || l.type === "Series")) matchType = true;
+                else if (currentDiscoverType === "anime" && l.type !== "Movie" && l.type !== "Web Series" && l.type !== "Series") matchType = true;
+
+                if (matchType) {
+                    if (
+                        (l.status === "Completed" && (l.tier === "S" || l.tier === "A")) ||
+                        l.status === "Plan to Watch"
+                    ) {
+                        (l.genres || []).forEach(g => {
+                            const gLower = g.toLowerCase();
+                            freq[gLower] = (freq[gLower] || 0) + 1;
+                        });
+                    }
+                }
+            });
+            const sorted = Object.keys(freq).sort((a,b) => freq[b] - freq[a]);
+            const gIds = sorted.slice(0, 3).map(g => gMap[g]).filter(Boolean).join(",");
+            if (!gIds) {
+                // fallback to Top Genres
+                if (topGenres.length > 0) {
+                     url = `https://api.jikan.moe/v4/anime?genres=${gMap[topGenres[0]]}&order_by=score&sort=desc&limit=25&page=${page}`;
+                } else {
+                     return [];
+                }
+            } else {
+                 url = `https://api.jikan.moe/v4/anime?genres=${gIds}&order_by=popularity&sort=asc&limit=25&page=${page}`;
+            }
+        } else if (rowType === "r1_loved") {
+          const topTitle = getTopSTier();
+          if (!topTitle || !topTitle.genres || topTitle.genres.length === 0)
+            return [];
+          const gIds = topTitle.genres
+            .map((g) => gMap[g.toLowerCase()])
+            .filter((x) => x)
+            .join(",");
+          if (!gIds) return [];
+          url = `https://api.jikan.moe/v4/anime?genres=${gIds}&order_by=score&sort=desc&limit=25&page=${page}`;
+        } else if (rowType === "r2_trending") {
+          url = `https://api.jikan.moe/v4/seasons/now?page=${page}&limit=25`;
+        } else if (rowType === "r3_top_genre1") {
+          if (topGenres.length < 1) return [];
+          const gid = gMap[topGenres[0]];
+          if (!gid) return [];
+          url = `https://api.jikan.moe/v4/anime?genres=${gid}&order_by=score&sort=desc&min_score=7.5&limit=25&page=${page}`;
+        } else if (rowType === "r4_top_genre2") {
+          if (topGenres.length < 2) return [];
+          const gid = gMap[topGenres[1]];
+          if (!gid) return [];
+          url = `https://api.jikan.moe/v4/anime?genres=${gid}&order_by=score&sort=desc&min_score=7.5&limit=25&page=${page}`;
+        } else if (rowType === "r5_hidden") {
+          url = `https://api.jikan.moe/v4/anime?order_by=score&sort=desc&min_score=8.0&max_score=8.5&limit=25&page=${page}`;
+        } else if (rowType === "r6_expand") {
+          const excluded = topGenres.slice(0, 3);
+          const allG = Object.keys(gMap);
+          const avail = allG.filter((g) => !excluded.includes(g));
+          if (avail.length === 0) return [];
+          const ran = avail[Math.floor(Math.random() * avail.length)];
+          const gid = gMap[ran];
+          url = `https://api.jikan.moe/v4/anime?genres=${gid}&order_by=score&sort=desc&min_score=8.0&limit=25&page=${page}`;
+        } else if (rowType === "r7_era") {
+          let buckets = tP.years;
+          // find highest bucket
+          let highest = Object.keys(buckets).reduce(
+            (a, b) => (buckets[a] > buckets[b] ? a : b),
+            "recent (>=2020)",
+          );
+          let targetYear = 2021;
+          if (highest.includes("classic")) targetYear = 1995;
+          else if (highest.includes("2000s")) targetYear = 2005;
+          else if (highest.includes("2010s")) targetYear = 2015;
+
+          url = `https://api.jikan.moe/v4/anime?start_date=${targetYear - 3}-01-01&end_date=${targetYear + 3}-12-31&order_by=score&sort=desc&limit=25&page=${page}`;
+        } else if (rowType === "r8_acclaimed") {
+          url = `https://api.jikan.moe/v4/top/anime?type=tv&limit=25&page=${page}`;
+        } else {
+          return [];
+        }
+
+        const key = url;
+        if (discoverCache[key]) {
+          return discoverCache[key];
+        }
+
+        try {
+          // Basic rate limiting for jikan
+          await new Promise((r) => setTimeout(r, 400));
+          const res = await fetch(url);
+          let rawData = [];
+          if (res.status === 429) {
+            await new Promise((r) => setTimeout(r, 1000));
+            const resRetry = await fetch(url);
+            const data = await resRetry.json();
+            rawData = data.data || [];
+          } else {
+            const data = await res.json();
+            rawData = data.data || [];
+          }
+
+          const mapped = rawData.map((item) => ({
+            id: `mal_${item.mal_id}`,
+            title: item.title_english || item.title,
+            poster: item.images?.jpg?.large_image_url || "",
+            genres: item.genres?.map((g) => g.name) || [],
+            score: (item.score || 0).toFixed(1),
+          }));
+
+          discoverCache[key] = mapped;
+          return mapped;
+        } catch (e) {
+          console.error(e);
+          return [];
+        }
+      };
+
+      const loadMoreForRow = async (rowObj) => {
+        if (
+          rowObj.dataset.loading === "true" ||
+          rowObj.dataset.exhausted === "true"
+        )
+          return;
+
+        const rowType = rowObj.dataset.type;
+        let page = parseInt(rowObj.dataset.page);
+
+        rowObj.dataset.loading = "true";
+
+        const track = rowObj.querySelector(".row-track");
+
+        if (page > 1) {
+          for (let i = 0; i < 3; i++) {
+            let skel = document.createElement("div");
+            skel.className = "rec-card dom-skel";
+            skel.style.background = "var(--bg-elevated)";
+            skel.style.borderColor = "transparent";
+            skel.innerHTML = `<div style="padding:10px;text-align:center;color:gray;margin-top:60px;">•••</div>`;
+            track.insertBefore(skel, track.querySelector(".row-sentinel"));
+          }
+        }
+
+        const items = await fetchDiscoverRow(rowType, page);
+
+        if (page === 1) track.innerHTML = "";
+        track.querySelectorAll(".dom-skel").forEach((e) => e.remove());
+
+        const rejections = window.getRejections
+          ? window.getRejections()
+          : { ids: new Set() };
+        const libTitles = new Set(
+          window.library.map((l) => (l.title || "").toLowerCase().trim()),
+        );
+        const allowSequels =
+          document.getElementById("allowSequelsToggle")?.checked;
+
+        let usable = [];
+        if (items && items.length > 0) {
+          usable = items.filter((it) => {
+            let t = (it.title || "").toLowerCase().trim();
+            let srcId = it.id;
+            if (rejections.ids.has(srcId)) return false;
+
+            // Global deduplication check using _discoverSeenIds
+            if (window._discoverSeenIds && window._discoverSeenIds.has(srcId)) {
+                return false;
+            }
+
+            // Always prevent related discoveries within the discover view (prevent showing multiple seasons of same anime in recs)
+            if (window._discoverSeenBases && window.isSequelOrRelated(t, window._discoverSeenBases)) {
+                return false;
+            }
+
+            if (allowSequels) {
+              if (libTitles.has(t)) return false;
+            } else {
+              if (window.isSequelOrRelated(t, libTitles)) {
+                  return false;
+              }
+            }
+            
+            // Mark as seen
+            if (window._discoverSeenIds) window._discoverSeenIds.add(srcId);
+            if (window._discoverSeenBases) window._discoverSeenBases.add(t);
+            return true;
+          });
+        }
+
+        if (usable.length > 0) {
+          const sentinel = track.querySelector(".row-sentinel");
+          usable.forEach((u) => {
+            const tpl = document.createElement("template");
+            tpl.innerHTML = createCardHTML(u).trim();
+            if (sentinel) track.insertBefore(tpl.content.firstChild, sentinel);
+            else track.appendChild(tpl.content.firstChild);
+          });
+          rowObj.dataset.page = (page + 1).toString();
+        }
+
+        if (!track.querySelector(".row-sentinel")) {
+          let sent = document.createElement("div");
+          sent.className = "row-sentinel";
+          track.appendChild(sent);
+          if (discoverObserver) discoverObserver.observe(sent);
+        }
+
+        const cardsLimit = rowObj.querySelectorAll(
+          ".rec-card:not(.dom-skel)",
+        ).length;
+        if (
+          items.length === 0 ||
+          cardsLimit >= 200 ||
+          (usable.length === 0 && items.length < 20)
+        ) {
+          rowObj.dataset.exhausted = "true";
+          const sent = track.querySelector(".row-sentinel");
+          if (sent) sent.remove(); // stop observing
+
+          let end = document.createElement("div");
+          end.className = "row-exhausted-indicator";
+          end.innerText = "· end ·";
+          track.appendChild(end);
+
+          if (page === 1 && cardsLimit === 0) {
+            rowObj.style.display = "none";
+          }
+        } else if (usable.length === 0 && items.length > 0) {
+          rowObj.dataset.page = (page + 1).toString();
+          rowObj.dataset.loading = "false";
+          loadMoreForRow(rowObj);
+          return;
+        }
+
+        rowObj.dataset.loading = "false";
+      };
+
+      const renderDiscover = (window.renderDiscover = async (
+        forceRefresh = false,
+      ) => {
+        const container = document.getElementById("discoverRowsContainer");
+        const sourceLabel = document.getElementById("discoverSourceLabel");
+
+        if (currentDiscoverType === "anime") {
+          sourceLabel.textContent = "Sourced from MyAnimeList (Jikan v4)";
+        } else if (currentDiscoverType === "movie") {
+          sourceLabel.textContent = "Sourced from iTunes Store / TMDb";
+        } else {
+          sourceLabel.textContent = "Sourced from TVMaze / Trakt";
+        }
+
+        if (forceRefresh) {
+          discoverCache = {};
+          tasteCache = null;
+        }
+
+        window._discoverSeenIds = new Set();
+        window._discoverSeenBases = new Set();
+
+        const tp = window.getTasteProfile();
+        tasteCache = tp;
+
+        if (tp.genres.length > 0) {
+          document.getElementById("tasteEmpty").style.display = "none";
+          document.getElementById("tasteTagsContainer").innerHTML = tp.genres
+            .slice(0, 5)
+            .map(
+              (t) =>
+                `<span style="font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px; background:var(--bg-elevated); border:1px solid var(--border-active); color:var(--text-primary)">${t[0]}</span>`,
+            )
+            .join("");
+        } else {
+          document.getElementById("tasteEmpty").style.display = "inline";
+          document.getElementById("tasteTagsContainer").innerHTML = "";
+        }
+
+        const sTierMatch = getTopSTier();
+        const topG1 = tp.genres[0] ? tp.genres[0][0] : "Favorites";
+        const topG2 = tp.genres[1] ? tp.genres[1][0] : "Hits";
+
+        const rowsToBuild = [
+          {
+            id: "r0_personalized",
+            title: "PERSONALIZED FOR YOU",
+          },
+          {
+            id: "r1_loved",
+            title: sTierMatch
+              ? `BECAUSE YOU LOVED ${sTierMatch.title}`
+              : "BECAUSE YOU MIGHT LIKE",
+          },
+          { id: "r2_trending", title: "TRENDING THIS SEASON" },
+          { id: "r3_top_genre1", title: `TOP ${topG1.toUpperCase()} PICKS` },
+          { id: "r4_top_genre2", title: `TOP ${topG2.toUpperCase()} PICKS` },
+          {
+            id: "r5_hidden",
+            title: "HIDDEN GEMS — Rated 8+ But Under the Radar",
+          },
+          {
+            id: "r6_expand",
+            title: "EXPAND YOUR RANGE — Outside Your Usual Genres",
+          },
+          { id: "r7_era", title: "FROM YOUR FAVORITE ERA" },
+          {
+            id: "r8_acclaimed",
+            title: "CRITICALLY ACCLAIMED — All-Time Essentials",
+          },
+        ];
+
+        container.innerHTML = rowsToBuild
+          .map((r) => createRowHTML(r.id, r.title))
+          .join("");
+
+        if (discoverObserver) discoverObserver.disconnect();
+
+        discoverObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const rowContainer = entry.target.closest(".discover-row");
+                if (
+                  rowContainer &&
+                  rowContainer.dataset.loading === "false" &&
+                  rowContainer.dataset.exhausted === "false"
+                ) {
+                  loadMoreForRow(rowContainer);
+                }
+              }
+            });
+          },
+          { root: null, rootMargin: "0px", threshold: 0.1 },
+        );
+
+        const rowKeys = rowsToBuild.map((r) => r.id);
+        const top3 = rowKeys.slice(0, 3);
+        const lazies = rowKeys.slice(3);
+
+        top3.forEach((key) => {
+          const el = document.getElementById(`row-${key}`);
+          if (el) {
+            // Initialize sentinel for top3
+            if (!el.querySelector(".row-sentinel")) {
+              const sent = document.createElement("div");
+              sent.className = "row-sentinel";
+              el.querySelector(".row-track").appendChild(sent);
+            }
+            loadMoreForRow(el);
+          }
+        });
+
+        const rowObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((ent) => {
+              if (ent.isIntersecting) {
+                const rId = ent.target.id;
+                const targetEl = document.getElementById(rId);
+                if (targetEl && targetEl.dataset.page === "1") {
+                  loadMoreForRow(targetEl);
+                }
+                rowObserver.unobserve(ent.target);
+              }
+            });
+          },
+          { rootMargin: "200px" },
+        );
+
+        lazies.forEach((key) => {
+          const el = document.getElementById(`row-${key}`);
+          if (el) rowObserver.observe(el);
+        });
       });
 
       const prepareAddFromDiscover = (window.prepareAddFromDiscover = (
@@ -4975,17 +5812,5 @@
         navigateTo("library"); // Start on library
       });
     </script>
-    <div
-      id="toastContainer"
-      style="
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 100000;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      "
-    ></div>
   </body>
 </html>
