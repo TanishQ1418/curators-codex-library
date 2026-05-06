@@ -4578,6 +4578,7 @@
                   genres: item.genre || [],
                   season: "",
                   type: "Movie",
+                  stremioId: item.id,
                 })),
               );
             }
@@ -4625,9 +4626,27 @@
         }, 600); // 600ms debounce
       });
 
-      const selectSearch = (window.selectSearch = (idx) => {
+      const selectSearch = (window.selectSearch = async (idx) => {
         const r = window._tempSearchResults[idx];
         if (!r) return;
+        
+        document.getElementById("autofillStatus").innerHTML =
+          '<span style="color:var(--accent);font-size:11px;font-weight:600">⏳ Fetching detailed info...</span>';
+          
+        let genresToUse = r.genres || [];
+        
+        if (r.type === "Movie" && (!genresToUse || !genresToUse.length) && r.stremioId) {
+            try {
+                const metaRes = await fetch(`https://v3-cinemeta.strem.io/meta/movie/${r.stremioId}.json`);
+                const metaData = await metaRes.json();
+                if (metaData && metaData.meta && metaData.meta.genre) {
+                    genresToUse = metaData.meta.genre;
+                }
+            } catch(e) {
+                console.error("Failed to fetch detailed movie metadata:", e);
+            }
+        }
+
         document.getElementById("field-title").value = r.title;
         if (r.type) document.getElementById("field-type").value = r.type;
         if (r.poster) document.getElementById("field-poster").value = r.poster;
@@ -4636,8 +4655,8 @@
           document.getElementById("field-episodes").value = r.episodes;
         if (r.link) document.getElementById("field-link").value = r.link;
         if (r.season) document.getElementById("field-season").value = r.season;
-        if (r.genres && r.genres.length) {
-          currentDraftGenres = [...r.genres];
+        if (genresToUse && genresToUse.length) {
+          currentDraftGenres = [...genresToUse];
           renderDraftGenres();
         }
         onTypeChange();
