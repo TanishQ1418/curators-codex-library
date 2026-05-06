@@ -3876,6 +3876,27 @@
 
       let searchDebounce = null;
       let currentDiscoverType = "anime";
+      let pendingBucketPromise = null;
+      let jikanQueue = Promise.resolve();
+
+      const fetchJikan = (url) => {
+        return new Promise((resolve, reject) => {
+          jikanQueue = jikanQueue.then(async () => {
+            await new Promise(r => setTimeout(r, 400));
+            try {
+              const res = await fetch(url);
+              if (res.status === 429) {
+                await new Promise(r => setTimeout(r, 1000));
+                resolve(await fetch(url));
+              } else {
+                resolve(res);
+              }
+            } catch(e) {
+              reject(e);
+            }
+          });
+        });
+      };
 
       const DEFAULT_DISCOVER = {
         anime: [
@@ -5123,6 +5144,7 @@
         }
 
         const buckets = {
+          r_recommended: [],
           r0_personalized: [],
           r1_loved: [],
           r2_trending: [],
@@ -5168,6 +5190,15 @@
 
         pool.forEach((item) => {
           const ig = (item.genres || []).map((g) => g.toLowerCase());
+          const sc = parseFloat(item.score || 0);
+
+          if (
+            (ig.includes(topG1) || ig.includes(topG2)) &&
+            sc >= 8.0 &&
+            buckets["r_recommended"].length < 300
+          ) {
+            buckets["r_recommended"].push(item);
+          }
           
           if (
             ig.some((g) => personalizedGenres.includes(g)) &&
@@ -5187,7 +5218,6 @@
           if (ig.includes(topG2) && buckets["r4_top_genre2"].length < 300)
             buckets["r4_top_genre2"].push(item);
 
-          const sc = parseFloat(item.score || 0);
           if (sc >= 7.5 && sc <= 8.5 && buckets["r5_hidden"].length < 300)
             buckets["r5_hidden"].push(item);
 
@@ -5227,8 +5257,14 @@
       const fetchDiscoverRow = async (rowType, page) => {
         if (currentDiscoverType !== "anime") {
           if (!discoverCache[currentDiscoverType + "_buckets"]) {
-            discoverCache[currentDiscoverType + "_buckets"] =
-              await buildNonAnimeBuckets(currentDiscoverType);
+            if (!pendingBucketPromise) {
+              pendingBucketPromise = buildNonAnimeBuckets(currentDiscoverType).then(res => {
+                discoverCache[currentDiscoverType + "_buckets"] = res;
+                pendingBucketPromise = null;
+                return res;
+              });
+            }
+            await pendingBucketPromise;
           }
           const bucket =
             discoverCache[currentDiscoverType + "_buckets"][rowType] || [];
@@ -5240,10 +5276,15 @@
 
         const topGenres = tP.genres.map((g) => g[0].toLowerCase());
         const gMap = getGenreIdsMap();
+        const pMod = page + (window.animeBasePages?.[rowType] || 0);
 
         let url = "";
         
-        if (rowType === "r0_personalized") {
+        if (rowType === "r_recommended") {
+            const g1 = gMap[topGenres[0]];
+            if (!g1) return [];
+            url = `https://api.jikan.moe/v4/anime?type=tv&genres=${g1}&order_by=score&sort=desc&min_score=8.0&limit=25&page=${pMod}`;
+        } else if (rowType === "r0_personalized") {
             const freq = {};
             window.library.forEach(l => {
                 let matchType = false;
@@ -5268,12 +5309,12 @@
             if (!gIds) {
                 // fallback to Top Genres
                 if (topGenres.length > 0) {
-                     url = `https://api.jikan.moe/v4/anime?genres=${gMap[topGenres[0]]}&order_by=score&sort=desc&limit=25&page=${page}`;
+                     url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gMap[topGenres[0]]}&order_by=popularity&sort=asc&min_score=7.0&limit=25&page=${pMod}`;
                 } else {
                      return [];
                 }
             } else {
-                 url = `https://api.jikan.moe/v4/anime?genres=${gIds}&order_by=popularity&sort=asc&limit=25&page=${page}`;
+                 url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gIds}&order_by=popularity&sort=asc&min_score=7.0&limit=25&page=${pMod}`;
             }
         } else if (rowType === "r1_loved") {
           const topTitle = getTopSTier();
@@ -5284,21 +5325,21 @@
             .filter((x) => x)
             .join(",");
           if (!gIds) return [];
-          url = `https://api.jikan.moe/v4/anime?genres=${gIds}&order_by=score&sort=desc&limit=25&page=${page}`;
+          url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gIds}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
         } else if (rowType === "r2_trending") {
-          url = `https://api.jikan.moe/v4/seasons/now?page=${page}&limit=25`;
+          url = `https://api.jikan.moe/v4/seasons/now?page=${pMod}&limit=25`;
         } else if (rowType === "r3_top_genre1") {
           if (topGenres.length < 1) return [];
           const gid = gMap[topGenres[0]];
           if (!gid) return [];
-          url = `https://api.jikan.moe/v4/anime?genres=${gid}&order_by=score&sort=desc&min_score=7.5&limit=25&page=${page}`;
+          url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gid}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
         } else if (rowType === "r4_top_genre2") {
           if (topGenres.length < 2) return [];
           const gid = gMap[topGenres[1]];
           if (!gid) return [];
-          url = `https://api.jikan.moe/v4/anime?genres=${gid}&order_by=score&sort=desc&min_score=7.5&limit=25&page=${page}`;
+          url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gid}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
         } else if (rowType === "r5_hidden") {
-          url = `https://api.jikan.moe/v4/anime?order_by=score&sort=desc&min_score=8.0&max_score=8.5&limit=25&page=${page}`;
+          url = `https://api.jikan.moe/v4/anime?type=tv&order_by=score&sort=desc&min_score=8.2&max_score=8.8&limit=25&page=${pMod}`;
         } else if (rowType === "r6_expand") {
           const excluded = topGenres.slice(0, 3);
           const allG = Object.keys(gMap);
@@ -5306,7 +5347,7 @@
           if (avail.length === 0) return [];
           const ran = avail[Math.floor(Math.random() * avail.length)];
           const gid = gMap[ran];
-          url = `https://api.jikan.moe/v4/anime?genres=${gid}&order_by=score&sort=desc&min_score=8.0&limit=25&page=${page}`;
+          url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gid}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
         } else if (rowType === "r7_era") {
           let buckets = tP.years;
           // find highest bucket
@@ -5319,9 +5360,9 @@
           else if (highest.includes("2000s")) targetYear = 2005;
           else if (highest.includes("2010s")) targetYear = 2015;
 
-          url = `https://api.jikan.moe/v4/anime?start_date=${targetYear - 3}-01-01&end_date=${targetYear + 3}-12-31&order_by=score&sort=desc&limit=25&page=${page}`;
+          url = `https://api.jikan.moe/v4/anime?type=tv&start_date=${targetYear - 3}-01-01&end_date=${targetYear + 3}-12-31&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
         } else if (rowType === "r8_acclaimed") {
-          url = `https://api.jikan.moe/v4/top/anime?type=tv&limit=25&page=${page}`;
+          url = `https://api.jikan.moe/v4/top/anime?type=tv&limit=25&page=${pMod}`;
         } else {
           return [];
         }
@@ -5332,19 +5373,9 @@
         }
 
         try {
-          // Basic rate limiting for jikan
-          await new Promise((r) => setTimeout(r, 400));
-          const res = await fetch(url);
-          let rawData = [];
-          if (res.status === 429) {
-            await new Promise((r) => setTimeout(r, 1000));
-            const resRetry = await fetch(url);
-            const data = await resRetry.json();
-            rawData = data.data || [];
-          } else {
-            const data = await res.json();
-            rawData = data.data || [];
-          }
+          const res = await fetchJikan(url);
+          const data = await res.json();
+          let rawData = data.data || [];
 
           const mapped = rawData.map((item) => ({
             id: `mal_${item.mal_id}`,
@@ -5498,6 +5529,18 @@
         if (forceRefresh) {
           discoverCache = {};
           tasteCache = null;
+          window.animeBasePages = {
+            r_recommended: Math.floor(Math.random() * 5) + 1,
+            r0_personalized: Math.floor(Math.random() * 8) + 1,
+            r1_loved: Math.floor(Math.random() * 8) + 1,
+            r2_trending: Math.floor(Math.random() * 2) + 1,
+            r3_top_genre1: Math.floor(Math.random() * 10) + 1,
+            r4_top_genre2: Math.floor(Math.random() * 10) + 1,
+            r5_hidden: Math.floor(Math.random() * 15) + 1,
+            r6_expand: Math.floor(Math.random() * 20) + 1,
+            r7_era: Math.floor(Math.random() * 10) + 1,
+            r8_acclaimed: Math.floor(Math.random() * 10) + 1,
+          };
         }
 
         window._discoverSeenIds = new Set();
@@ -5505,6 +5548,21 @@
 
         const tp = window.getTasteProfile();
         tasteCache = tp;
+
+        if (!window.animeBasePages) {
+          window.animeBasePages = {
+            r_recommended: Math.floor(Math.random() * 5) + 1,
+            r0_personalized: Math.floor(Math.random() * 8) + 1,
+            r1_loved: Math.floor(Math.random() * 8) + 1,
+            r2_trending: Math.floor(Math.random() * 2) + 1,
+            r3_top_genre1: Math.floor(Math.random() * 10) + 1,
+            r4_top_genre2: Math.floor(Math.random() * 10) + 1,
+            r5_hidden: Math.floor(Math.random() * 15) + 1,
+            r6_expand: Math.floor(Math.random() * 20) + 1,
+            r7_era: Math.floor(Math.random() * 10) + 1,
+            r8_acclaimed: Math.floor(Math.random() * 10) + 1,
+          };
+        }
 
         if (tp.genres.length > 0) {
           document.getElementById("tasteEmpty").style.display = "none";
@@ -5525,6 +5583,10 @@
         const topG2 = tp.genres[1] ? tp.genres[1][0] : "Hits";
 
         const rowsToBuild = [
+          {
+            id: "r_recommended",
+            title: "RECOMMENDED FOR YOU",
+          },
           {
             id: "r0_personalized",
             title: "PERSONALIZED FOR YOU",
