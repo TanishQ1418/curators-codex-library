@@ -2010,25 +2010,26 @@
          background: var(--bg-card);
          border: 1px solid var(--border);
          border-radius: 12px;
-         padding: 20px;
+         padding: 24px 20px 20px;
          display: flex;
          flex-direction: column;
          align-items: center;
          text-align: center;
-         transition: transform 0.2s, box-shadow 0.2s;
+         transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
          overflow: hidden;
       }
       .friend-card:hover {
          transform: translateY(-4px);
-         box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+         box-shadow: 0 12px 24px rgba(0,0,0,0.5);
+         border-color: var(--primary);
       }
       .friend-card.favorite {
          border-color: var(--warning);
-         box-shadow: 0 0 12px rgba(251, 191, 36, 0.2);
+         box-shadow: 0 0 12px rgba(251, 191, 36, 0.1);
       }
       .friend-avatar {
-         width: 64px;
-         height: 64px;
+         width: 60px;
+         height: 60px;
          border-radius: 50%;
          display: flex;
          align-items: center;
@@ -2039,21 +2040,67 @@
          margin-bottom: 12px;
          font-family: var(--font-display);
          letter-spacing: 1px;
+         box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       }
-      .friend-overlay {
+      .friend-card-top {
          position: absolute;
-         top: 0; left: 0; right: 0; bottom: 0;
-         background: rgba(15, 15, 15, 0.9);
-         backdrop-filter: blur(4px);
-         display: none;
-         flex-direction: column;
-         justify-content: center;
-         align-items: center;
-         gap: 8px;
-         padding: 10px;
-      }
-      .friend-card:hover .friend-overlay {
+         top: 10px;
+         left: 10px;
+         right: 10px;
          display: flex;
+         justify-content: space-between;
+         opacity: 0;
+         transition: opacity 0.2s;
+      }
+      .friend-card:hover .friend-card-top {
+         opacity: 1;
+      }
+      .friend-card-top .icon-btn {
+         background: transparent;
+         border: none;
+         color: var(--text-muted);
+         cursor: pointer;
+         font-size: 16px;
+         padding: 4px;
+         border-radius: 50%;
+         transition: color 0.2s, background 0.2s;
+      }
+      .friend-card-top .icon-btn:hover {
+         background: rgba(255, 255, 255, 0.1);
+         color: var(--text-base);
+      }
+      .friend-card-top .icon-btn.favorite-btn.active {
+         color: var(--warning);
+         opacity: 1;
+      }
+      .friend-card.favorite .friend-card-top {
+         opacity: 1;
+      }
+      .friend-actions {
+         display: flex;
+         flex-direction: column;
+         gap: 8px;
+         width: 100%;
+         margin-top: 16px;
+         opacity: 0;
+         transform: translateY(10px);
+         transition: all 0.2s;
+      }
+      .friend-card:hover .friend-actions {
+         opacity: 1;
+         transform: translateY(0);
+      }
+      .friend-action-row {
+         display: flex;
+         gap: 4px;
+         justify-content: center;
+      }
+      .btn-icon {
+         padding: 6px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         border-radius: 8px;
       }
       .notification-card {
          background: var(--bg-card);
@@ -2221,9 +2268,21 @@
         <div class="sidebar-footer">
           <div
             style="
-              font-size: 12px;
+              font-weight: 700;
+              font-size: 14px;
+              color: var(--text-base);
+              margin-bottom: 2px;
+              text-align: center;
+              font-family: var(--font-display);
+              letter-spacing: 0.5px;
+            "
+            id="userUsernameDisplay"
+          ></div>
+          <div
+            style="
+              font-size: 11px;
               color: var(--text-muted);
-              margin-bottom: 8px;
+              margin-bottom: 12px;
               text-align: center;
             "
             id="userEmailDisplay"
@@ -2687,12 +2746,12 @@
             <div id="socialSetupPrompt" class="empty-state" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
                <div class="empty-icon">👋</div>
                <h3>Welcome to Social</h3>
-               <p style="margin-bottom: 4px;">Please choose a username to get started.</p>
-               <p style="font-size: 13px; color: var(--text-muted);">(3-20 characters, alphanumeric and underscore)</p>
-               <input type="text" class="form-input" id="setupUsername" style="max-width:300px; margin:20px auto; text-align:center; display:block;" placeholder="e.g. the_curator" />
+               <p style="margin-bottom: 4px;">Please choose a User ID to get started.</p>
+               <p style="font-size: 13px; color: var(--text-muted);">(3-20 digits only)</p>
+               <input type="text" class="form-input" id="setupUsername" style="max-width:300px; margin:20px auto; text-align:center; display:block;" placeholder="e.g. 123456" />
                <div id="setupUsernameStatus" style="font-size:13px; margin-bottom:20px; font-weight:600; min-height:20px;"></div>
                <div style="display:flex; gap: 10px; justify-content: center; align-items: center;">
-                 <button class="btn btn-primary btn-sm" id="btnSetUsername" disabled style="padding: 8px 24px; font-size: 14px;">Claim Username</button>
+                 <button class="btn btn-primary btn-sm" id="btnSetUsername" disabled style="padding: 8px 24px; font-size: 14px;">Claim User ID</button>
                  <button class="btn btn-ghost btn-sm" onclick="navigateTo('library')" style="padding: 8px 24px; font-size: 14px;">Go to Library</button>
                </div>
             </div>
@@ -2707,6 +2766,13 @@
                         <button class="btn btn-ghost" id="tabSentRequests" onclick="window.switchPendingTab('sent')">Sent</button>
                    </div>
                    <div id="pendingRequestsContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;"></div>
+               </div>
+
+               <div id="friendRecommendationsSection" style="margin-bottom:30px; display:none;">
+                   <div style="font-family:var(--font-display); font-size:18px; letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                       RECOMMENDED BY FRIENDS
+                   </div>
+                   <div id="friendRecommendationsContainer" class="discover-row-track discover-track" style="gap: 16px;"></div>
                </div>
 
                <div style="font-family:var(--font-display); font-size:18px; letter-spacing:1px; margin-bottom:12px;">FRIENDS</div>
@@ -2797,15 +2863,37 @@
     <div
       class="modal-overlay"
       id="friendLibraryOverlay"
-      style="background: var(--bg-base); z-index: 1000;"
+      style="background: var(--bg-base); z-index: 1000; padding: 0; align-items: stretch;"
     >
-      <div style="display: flex; flex-direction: column; height: 100vh; width: 100vw; max-width: 1200px; margin: 0 auto;">
-         <div style="height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px;">
+      <div style="display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1200px; margin: 0 auto;">
+         <div style="min-height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; flex-wrap: wrap; gap: 10px;">
             <button class="btn btn-ghost" onclick="window.closeFriendLibrary()">← Back</button>
             <div id="friendLibraryTitle" style="font-family: var(--font-display); font-size: 20px; letter-spacing: 1px;">LIBRARY</div>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <select class="filter-select" id="friendFilterType" onchange="window.renderFriendLibrary()">
-                    <option value="">All Types</option><option>Anime</option><option>Movie</option><option>Web Series</option><option>Special</option>
+                    <option value="">All Types</option>
+                    <option value="Anime">Anime</option>
+                    <option value="Movie">Movie</option>
+                    <option value="Web Series">Web Series</option>
+                    <option value="Series">Series</option>
+                    <option value="Special">Special</option>
+                </select>
+                <select class="filter-select" id="friendFilterStatus" onchange="window.renderFriendLibrary()">
+                    <option value="">All Statuses</option>
+                    <option value="Plan to Watch">Plan to Watch</option>
+                    <option value="Watching">Watching</option>
+                    <option value="Completed">Completed</option>
+                    <option value="On Hold">On Hold</option>
+                    <option value="Dropped">Dropped</option>
+                </select>
+                <select class="filter-select" id="friendFilterTier" onchange="window.renderFriendLibrary()">
+                    <option value="">All Tiers</option>
+                    <option value="S">S Tier</option>
+                    <option value="A">A Tier</option>
+                    <option value="B">B Tier</option>
+                    <option value="C">C Tier</option>
+                    <option value="D">D Tier</option>
+                    <option value="F">F Tier</option>
                 </select>
             </div>
          </div>
@@ -3506,6 +3594,7 @@
 
         document.getElementById("userEmailDisplay").textContent =
           "Guest Mode (Local Only)";
+        if (document.getElementById("userUsernameDisplay")) document.getElementById("userUsernameDisplay").textContent = "Guest";
         document.getElementById("librarySubtitle").textContent =
           `Total Entries: ${window.library.length}`;
 
@@ -3536,6 +3625,7 @@
           window.isGuestMode = false;
           document.getElementById("loginOverlay").style.display = "flex";
           document.getElementById("userEmailDisplay").textContent = "";
+          if (document.getElementById("userUsernameDisplay")) document.getElementById("userUsernameDisplay").textContent = "";
           window.library = [];
           renderLibrary();
         } else {
@@ -4438,6 +4528,9 @@
 
       const openAddModal = (window.openAddModal = () => {
         window.editingId = null;
+        window._draftStremioId = null;
+        window._draftJikanId = null;
+        window._draftMalId = null;
         document.getElementById("entryModalTitle").textContent = "ADD ENTRY";
         document.getElementById("field-title").value = "";
         document.getElementById("field-poster").value = "";
@@ -4482,6 +4575,10 @@
           entry.seasonCount || "0";
         document.getElementById("seasonCountLabel").textContent =
           entry.seasonCount || "0";
+
+        window._draftStremioId = entry.stremioId || null;
+        window._draftJikanId = entry.jikanId || null;
+        window._draftMalId = entry.malId || null;
 
         currentDraftGenres = [...(entry.genres || [])];
         currentWatchedSeasons = [...(entry.watchedSeasons || [])]; // restore watched seasons
@@ -4575,6 +4672,9 @@
             seasonCount:
               parseInt(document.getElementById("field-seasonCount").value) || 0,
             watchedSeasons: [...currentWatchedSeasons],
+            stremioId: window._draftStremioId || null,
+            jikanId: window._draftJikanId || null,
+            malId: window._draftMalId || null,
           };
 
           if (window.isGuestMode) {
@@ -4853,6 +4953,8 @@
                       ? `${item.season.charAt(0).toUpperCase() + item.season.slice(1)} ${item.year}`
                       : "",
                   type: "Anime",
+                  jikanId: item.mal_id ? `mal_${item.mal_id}` : null,
+                  malId: item.mal_id || null,
                 })),
               );
             }
@@ -4969,6 +5071,11 @@
           document.getElementById("field-episodes").value = r.episodes;
         if (r.link) document.getElementById("field-link").value = r.link;
         if (r.season) document.getElementById("field-season").value = r.season;
+        
+        window._draftStremioId = r.stremioId || null;
+        window._draftJikanId = r.jikanId || null;
+        window._draftMalId = r.malId || null;
+
         if (genresToUse && genresToUse.length) {
           currentDraftGenres = [...genresToUse];
           renderDraftGenres();
@@ -5614,9 +5721,12 @@
         let url = "";
         
         if (rowType === "r_recommended") {
-            const g1 = gMap[topGenres[0]];
-            if (!g1) return [];
-            url = `https://api.jikan.moe/v4/anime?type=tv&genres=${g1}&order_by=score&sort=desc&min_score=8.0&limit=25&page=${pMod}`;
+            const g1 = topGenres.length > 0 ? gMap[topGenres[0]] : null;
+            if (g1) {
+                url = `https://api.jikan.moe/v4/anime?type=tv&genres=${g1}&order_by=score&sort=desc&min_score=8.0&limit=25&page=${pMod}`;
+            } else {
+                url = `https://api.jikan.moe/v4/top/anime?type=tv&limit=25&page=${pMod}`;
+            }
         } else if (rowType === "r0_personalized") {
             const freq = {};
             window.library.forEach(l => {
@@ -5640,59 +5750,71 @@
             const sorted = Object.keys(freq).sort((a,b) => freq[b] - freq[a]);
             const gIds = sorted.slice(0, 3).map(g => gMap[g]).filter(Boolean).join(",");
             if (!gIds) {
-                // fallback to Top Genres
-                if (topGenres.length > 0) {
+                // fallback to Top Genres or just Popular
+                if (topGenres.length > 0 && gMap[topGenres[0]]) {
                      url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gMap[topGenres[0]]}&order_by=popularity&sort=asc&min_score=7.0&limit=25&page=${pMod}`;
                 } else {
-                     return [];
+                     url = `https://api.jikan.moe/v4/anime?type=tv&order_by=popularity&sort=asc&min_score=8.5&limit=25&page=${pMod}`;
                 }
             } else {
                  url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gIds}&order_by=popularity&sort=asc&min_score=7.0&limit=25&page=${pMod}`;
             }
         } else if (rowType === "r1_loved") {
           const topTitle = getTopSTier();
-          if (!topTitle || !topTitle.genres || topTitle.genres.length === 0)
-            return [];
-          const gIds = topTitle.genres
-            .map((g) => gMap[g.toLowerCase()])
-            .filter((x) => x)
-            .join(",");
-          if (!gIds) return [];
-          url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gIds}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
+          if (!topTitle || !topTitle.genres || topTitle.genres.length === 0) {
+            url = `https://api.jikan.moe/v4/seasons/now?page=${pMod}&limit=25`;
+          } else {
+            const gIds = topTitle.genres
+              .map((g) => gMap[g.toLowerCase()])
+              .filter((x) => x)
+              .join(",");
+            if (!gIds) {
+              url = `https://api.jikan.moe/v4/seasons/now?page=${pMod}&limit=25`;
+            } else {
+              url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gIds}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
+            }
+          }
         } else if (rowType === "r2_trending") {
           url = `https://api.jikan.moe/v4/seasons/now?page=${pMod}&limit=25`;
         } else if (rowType === "r3_top_genre1") {
-          if (topGenres.length < 1) return [];
-          const gid = gMap[topGenres[0]];
-          if (!gid) return [];
-          url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gid}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
+          if (topGenres.length < 1 || !gMap[topGenres[0]]) {
+            url = `https://api.jikan.moe/v4/anime?type=tv&order_by=score&sort=desc&min_score=8.0&limit=25&page=${pMod}`;
+          } else {
+            const gid = gMap[topGenres[0]];
+            url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gid}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
+          }
         } else if (rowType === "r4_top_genre2") {
-          if (topGenres.length < 2) return [];
-          const gid = gMap[topGenres[1]];
-          if (!gid) return [];
-          url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gid}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
+          if (topGenres.length < 2 || !gMap[topGenres[1]]) {
+            url = `https://api.jikan.moe/v4/anime?type=tv&order_by=favorites&sort=desc&limit=25&page=${pMod}`;
+          } else {
+            const gid = gMap[topGenres[1]];
+            url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gid}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
+          }
         } else if (rowType === "r5_hidden") {
           url = `https://api.jikan.moe/v4/anime?type=tv&order_by=score&sort=desc&min_score=8.2&max_score=8.8&limit=25&page=${pMod}`;
         } else if (rowType === "r6_expand") {
           const excluded = topGenres.slice(0, 3);
           const allG = Object.keys(gMap);
           const avail = allG.filter((g) => !excluded.includes(g));
-          if (avail.length === 0) return [];
-          const ran = avail[Math.floor(Math.random() * avail.length)];
-          const gid = gMap[ran];
-          url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gid}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
+          if (avail.length === 0) {
+            url = `https://api.jikan.moe/v4/anime?type=tv&order_by=popularity&sort=asc&min_score=8.0&limit=25&page=${pMod}`;
+          } else {
+            const ran = avail[Math.floor(Math.random() * avail.length)];
+            const gid = gMap[ran];
+            url = `https://api.jikan.moe/v4/anime?type=tv&genres=${gid}&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
+          }
         } else if (rowType === "r7_era") {
-          let buckets = tP.years;
-          // find highest bucket
-          let highest = Object.keys(buckets).reduce(
-            (a, b) => (buckets[a] > buckets[b] ? a : b),
-            "recent (>=2020)",
-          );
+          let buckets = tP.years || {};
           let targetYear = 2021;
-          if (highest.includes("classic")) targetYear = 1995;
-          else if (highest.includes("2000s")) targetYear = 2005;
-          else if (highest.includes("2010s")) targetYear = 2015;
-
+          if (Object.keys(buckets).length > 0) {
+            let highest = Object.keys(buckets).reduce(
+              (a, b) => (buckets[a] > buckets[b] ? a : b),
+              "recent (>=2020)",
+            );
+            if (highest.includes("classic")) targetYear = 1995;
+            else if (highest.includes("2000s")) targetYear = 2005;
+            else if (highest.includes("2010s")) targetYear = 2015;
+          }
           url = `https://api.jikan.moe/v4/anime?type=tv&start_date=${targetYear - 3}-01-01&end_date=${targetYear + 3}-12-31&order_by=popularity&sort=asc&min_score=7.5&limit=25&page=${pMod}`;
         } else if (rowType === "r8_acclaimed") {
           url = `https://api.jikan.moe/v4/top/anime?type=tv&limit=25&page=${pMod}`;
@@ -5918,33 +6040,33 @@
         const rowsToBuild = [
           {
             id: "r_recommended",
-            title: "RECOMMENDED FOR YOU",
+            title: tp.genres.length > 0 ? "RECOMMENDED FOR YOU" : "BEST OF ALL TIME",
           },
           {
             id: "r0_personalized",
-            title: "PERSONALIZED FOR YOU",
+            title: tp.genres.length > 0 ? "PERSONALIZED FOR YOU" : "HIGHLY RATED PICKS",
           },
           {
             id: "r1_loved",
             title: sTierMatch
               ? `BECAUSE YOU LOVED ${sTierMatch.title}`
-              : "BECAUSE YOU MIGHT LIKE",
+              : "POPULAR RELEASES",
           },
           { id: "r2_trending", title: "TRENDING THIS SEASON" },
-          { id: "r3_top_genre1", title: `TOP ${topG1.toUpperCase()} PICKS` },
-          { id: "r4_top_genre2", title: `TOP ${topG2.toUpperCase()} PICKS` },
+          { id: "r3_top_genre1", title: tp.genres[0] ? `TOP ${topG1.toUpperCase()} PICKS` : "CRITICALLY ACCLAIMED" },
+          { id: "r4_top_genre2", title: tp.genres[1] ? `TOP ${topG2.toUpperCase()} PICKS` : "MOST FAVORITED" },
           {
             id: "r5_hidden",
             title: "HIDDEN GEMS — Rated 8+ But Under the Radar",
           },
           {
             id: "r6_expand",
-            title: "EXPAND YOUR RANGE — Outside Your Usual Genres",
+            title: tp.genres.length >= 3 ? "EXPAND YOUR RANGE — Outside Your Usual Genres" : "TRENDING NOW",
           },
           { id: "r7_era", title: "FROM YOUR FAVORITE ERA" },
           {
             id: "r8_acclaimed",
-            title: "CRITICALLY ACCLAIMED — All-Time Essentials",
+            title: "ALL-TIME ESSENTIALS",
           },
         ];
 
@@ -6023,8 +6145,9 @@
       });
 
       // DETAILS MODAL
-      const openDetailModal = (window.openDetailModal = (id) => {
-        const entry = window.library.find((l) => l.id === String(id));
+      const openDetailModal = (window.openDetailModal = (id, friendMode = false) => {
+        const sourceLib = friendMode ? window.currentFriendLibrary : window.library;
+        const entry = sourceLib.find((l) => l.id === String(id));
         if (!entry) return;
 
         const hero = document.getElementById("detailHero");
@@ -6090,9 +6213,13 @@
         }
         
         <div style="display:flex;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
-            <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.editEntry('${entry.id}')">✏️ Edit Entry</button>
-            <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.openRecommendModal(${JSON.stringify(entry).replace(/"/g, '&quot;')}, null)">🎁 Recommend</button>
-            <button class="btn btn-danger" style="flex:1;justify-content:center" onclick="window.deleteEntry('${entry.id}')">🗑️ Delete</button>
+            ${friendMode ? `
+                <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.addFriendLibToCodex('${entry.id}')">Add to Codex</button>
+            ` : `
+                <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.editEntry('${entry.id}')">✏️ Edit Entry</button>
+                <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.openRecommendModal(${JSON.stringify(entry).replace(/"/g, '&quot;')}, null)">🎁 Recommend</button>
+                <button class="btn btn-danger" style="flex:1;justify-content:center" onclick="window.deleteEntry('${entry.id}')">🗑️ Delete</button>
+            `}
         </div>
     `;
 
@@ -6204,6 +6331,9 @@
               document.getElementById("loginOverlay").style.display = "flex";
               if (document.getElementById("userEmailDisplay")) {
                 document.getElementById("userEmailDisplay").textContent = "";
+              }
+              if (document.getElementById("userUsernameDisplay")) {
+                document.getElementById("userUsernameDisplay").textContent = "";
               }
               if (unsubscribeLibrary) unsubscribeLibrary();
               if (window.unsubscribeProfile) { window.unsubscribeProfile(); window.unsubscribeProfile = null; }
@@ -6445,25 +6575,62 @@ const renderFriendsGrid = () => {
         const subDisplay = f.nickname ? `@${f.username}` : `Friend`;
         return `
             <div class="friend-card ${f.isFavorite ? 'favorite' : ''}">
+                <div class="friend-card-top">
+                    <button class="icon-btn favorite-btn ${f.isFavorite ? 'active' : ''}" title="${f.isFavorite ? 'Unfavorite' : 'Favorite'}" onclick="window.toggleFavoriteFriend('${f.id}', ${!!f.isFavorite})">
+                        ${f.isFavorite ? '⭐' : '☆'}
+                    </button>
+                    <button class="icon-btn remove-btn" title="Remove Friend" onclick="window.removeFriend('${f.id}', '${f.username||''}')">×</button>
+                </div>
                 <div class="friend-avatar" style="background:${hue}">${(nameDisplay)[0].toUpperCase()}</div>
                 <div style="font-weight:700; font-size:16px; margin-bottom:2px;">${nameDisplay}</div>
                 <div style="font-size:12px; color:var(--text-muted); margin-bottom: 8px;">${subDisplay}</div>
                 
-                <div class="friend-overlay">
-                    <button class="btn btn-ghost btn-sm" style="width:100%; justify-content:center" onclick="window.toggleFavoriteFriend('${f.id}', ${!!f.isFavorite})">
-                        ${f.isFavorite ? '⭐ Unfavorite' : '⭐ Favorite'}
-                    </button>
-                    <button class="btn btn-ghost btn-sm" style="width:100%; justify-content:center" onclick="window.viewFriendLibrary('${f.id}', '${nameDisplay}')">📚 View Library</button>
-                    <button class="btn btn-ghost btn-sm" style="width:100%; justify-content:center" onclick="window.openRecommendModal(null, '${f.id}')">🎁 Recommend</button>
-                    <button class="btn btn-ghost btn-sm" style="width:100%; justify-content:center" onclick="window.setFriendNickname('${f.id}')">✏️ Nickname</button>
-                    <button class="btn btn-ghost btn-sm" style="width:100%; justify-content:center; color:var(--danger)" onclick="window.removeFriend('${f.id}', '${f.username||''}')">👋 Remove</button>
+                <div class="friend-actions">
+                    <button class="btn btn-primary btn-sm" style="width:100%; justify-content:center" onclick="window.viewFriendLibrary('${f.id}', '${nameDisplay}')">📚 View Codex</button>
+                    <div class="friend-action-row">
+                        <button class="btn btn-ghost btn-sm btn-icon" title="Recommend" onclick="window.openRecommendModal(null, '${f.id}')">🎁</button>
+                        <button class="btn btn-ghost btn-sm btn-icon" title="Set Nickname" onclick="window.setFriendNickname('${f.id}')">✏️</button>
+                    </div>
                 </div>
             </div>
         `;
     }).join("");
 };
 
+const renderFriendRecommendations = (window.renderFriendRecommendations = () => {
+    const section = document.getElementById("friendRecommendationsSection");
+    const container = document.getElementById("friendRecommendationsContainer");
+    if(!window.socialNotifications) return;
+
+    const recommendations = window.socialNotifications.filter(n => n.type === 'recommendation');
+    if(recommendations.length === 0) {
+        section.style.display = "none";
+        return;
+    }
+    section.style.display = "block";
+
+    container.innerHTML = recommendations.map(n => {
+        const hasLib = window.library.some(l => l.title === n.itemTitle && l.type === n.itemType);
+        return `
+            <div class="discover-card" style="flex: 0 0 calc(20% - 13px); min-width: 140px; max-width: 200px;">
+                <div class="discover-poster">
+                    <img src="${n.itemPoster}" onerror="this.src=''; this.style.display='none';">
+                </div>
+                <div class="discover-info">
+                    <div class="discover-title">${n.itemTitle}</div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Rec by ${n.fromUsername}</div>
+                    ${n.itemTier ? `<div style="font-size: 11px; color: var(--accent); margin-bottom: 4px;">Rated: ${n.itemTier}</div>` : ''}
+                    <div style="font-size: 11px; color: var(--text-muted); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px;">"${n.senderNote || ''}"</div>
+                    ${hasLib ? `<div style="color:var(--success); font-size:11px; font-weight:700; text-align:center;">✓ In Codex</div>` 
+                             : `<button class="btn btn-primary btn-sm btn-full" onclick="window.addRecToLibrary('${n.id}')">Add to Codex</button>`}
+                </div>
+            </div>
+        `;
+    }).join("");
+});
+
 const renderNotificationsDrawer = () => {
+    if (window.renderFriendRecommendations) window.renderFriendRecommendations();
     const list = document.getElementById("notificationsList");
     const notifs = window.socialNotifications || [];
     notifs.sort((a,b) => b.sentAt - a.sentAt);
@@ -6533,9 +6700,44 @@ window.addRecToLibrary = (notifId) => {
     document.getElementById("field-title").value = n.itemTitle || "";
     document.getElementById("field-type").value = n.itemType || "Anime";
     document.getElementById("field-poster").value = n.itemPoster || "";
+    document.getElementById("field-link").value = n.itemLink || "";
+    if (n.itemStremioId) window._draftStremioId = n.itemStremioId;
+    if (n.itemJikanId) window._draftJikanId = n.itemJikanId;
+    if (n.itemMalId) window._draftMalId = n.itemMalId;
     document.getElementById("field-notes").value = `Recommended by ${n.fromUsername}${n.senderNote ? ': "' + n.senderNote + '"' : ''}`;
-    // Cannot pre-fill genres easily from this array format into pills visually, so leave blank or basic
+    
+    if (n.itemGenres && n.itemGenres.length > 0) {
+        currentDraftGenres.length = 0;
+        n.itemGenres.forEach(g => currentDraftGenres.push(g));
+        renderDraftGenres();
+    }
     window.toggleNotificationsDrawer();
+};
+
+window.addFriendLibToCodex = (entryId) => {
+    const n = window.currentFriendLibrary.find(x => x.id === entryId);
+    if(!n) return;
+    window.openAddModal();
+    document.getElementById("field-title").value = n.title || "";
+    document.getElementById("field-type").value = n.type || "Anime";
+    document.getElementById("field-poster").value = n.poster || "";
+    document.getElementById("field-link").value = n.link || "";
+    document.getElementById("field-season").value = n.season || "";
+    document.getElementById("field-episodes").value = n.episodes || "";
+    document.getElementById("field-year").value = n.year || "";
+    document.getElementById("field-seasonCount").value = n.seasonCount || "0";
+    document.getElementById("seasonCountLabel").textContent = n.seasonCount || "0";
+    if (n.stremioId) window._draftStremioId = n.stremioId;
+    if (n.jikanId) window._draftJikanId = n.jikanId;
+    if (n.malId) window._draftMalId = n.malId;
+    document.getElementById("field-notes").value = `Found in friend's codex`;
+
+    if (n.genres && n.genres.length > 0) {
+        currentDraftGenres.length = 0;
+        n.genres.forEach(g => currentDraftGenres.push(g));
+        renderDraftGenres();
+    }
+    // we don't need to close drawer because they clicked from detail modal but detail modal is closed beforehand
 };
 
 window.viewFriendLibrary = async (friendUid, displayName) => {
@@ -6575,8 +6777,13 @@ window.closeFriendLibrary = () => {
 window.renderFriendLibrary = () => {
     const c = document.getElementById("friendLibraryContainer");
     const t = document.getElementById("friendFilterType").value;
+    const s = document.getElementById("friendFilterStatus").value;
+    const tier = document.getElementById("friendFilterTier").value;
     let items = window.currentFriendLibrary || [];
+    
     if(t) items = items.filter(x => x.type === t);
+    if(s) items = items.filter(x => x.status === s);
+    if(tier) items = items.filter(x => x.tier === tier);
     
     if(items.length === 0) {
         c.innerHTML = `<div style="text-align:center; padding:40px; width:100%; color:var(--text-muted)">Library is empty</div>`;
@@ -6584,7 +6791,7 @@ window.renderFriendLibrary = () => {
     }
     
     c.innerHTML = items.map(e => `
-        <div class="entry-card" onclick="showToast('Read-only view', 'warning')">
+        <div class="entry-card" onclick="window.openDetailModal('${e.id}', true)">
           <div class="card-poster"><img src="${e.poster}" onerror="this.outerHTML='🎬'" /></div>
           <div class="card-info">
             <div class="card-title">${e.title}</div>
@@ -6705,6 +6912,10 @@ window.sendRecommendation = async () => {
             itemTier: item.tier||"",
             itemType: item.type||"",
             itemGenres: item.genres||[],
+            itemStremioId: item.stremioId||null,
+            itemJikanId: item.jikanId||null,
+            itemMalId: item.malId||null,
+            itemLink: item.link||"",
             senderNote: note
         });
         await batch.commit();
@@ -6797,8 +7008,8 @@ document.getElementById("setupUsername").addEventListener("input", (e) => {
     const val = e.target.value.toLowerCase().trim();
     const stat = document.getElementById("setupUsernameStatus");
     const btn = document.getElementById("btnSetUsername");
-    if(val.length < 3 || val.length > 20 || !/^[a-z0-9_]+$/.test(val)) {
-        stat.textContent = "Must be 3-20 chars (letters, numbers, underscores).";
+    if(val.length < 3 || val.length > 20 || !/^[0-9]+$/.test(val)) {
+        stat.textContent = "Must be 3-20 digits.";
         stat.style.color = "var(--danger)";
         btn.disabled = true;
         return;
@@ -6860,10 +7071,12 @@ window.initSocial = () => {
             document.getElementById("socialSetupPrompt").style.display = "flex";
             document.getElementById("socialAppContent").style.display = "none";
             window.socialProfile = null;
+            if (document.getElementById("userUsernameDisplay")) document.getElementById("userUsernameDisplay").textContent = "";
         } else {
             window.socialProfile = snap.data();
             document.getElementById("socialSetupPrompt").style.display = "none";
             document.getElementById("socialAppContent").style.display = "block";
+            if (document.getElementById("userUsernameDisplay")) document.getElementById("userUsernameDisplay").textContent = "@" + window.socialProfile.username;
             
             // fetch usernames friends
             if(window.unsubscribeFriends) window.unsubscribeFriends();
