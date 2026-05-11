@@ -459,6 +459,7 @@
       #gridView {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        grid-auto-rows: max-content;
         gap: 16px;
       }
       #listView {
@@ -473,6 +474,8 @@
         transition: all 0.22s;
         position: relative;
         animation: fadeInUp 0.35s both;
+        display: flex;
+        flex-direction: column;
       }
       .entry-card:hover {
         border-color: var(--border-active);
@@ -488,6 +491,7 @@
         justify-content: center;
         color: var(--text-muted);
         font-size: 40px;
+        flex-shrink: 0;
       }
       .card-poster img {
         width: 100%;
@@ -498,6 +502,9 @@
         padding: 10px;
         z-index: 1;
         position: relative;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
       }
       .card-title {
         font-size: 15px;
@@ -2768,14 +2775,10 @@
                    <div id="pendingRequestsContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;"></div>
                </div>
 
-               <div id="friendRecommendationsSection" style="margin-bottom:30px; display:none;">
-                   <div style="font-family:var(--font-display); font-size:18px; letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
-                       RECOMMENDED BY FRIENDS
-                   </div>
-                   <div id="friendRecommendationsContainer" class="discover-row-track discover-track" style="gap: 16px;"></div>
+               <div style="font-family:var(--font-display); font-size:18px; letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center;">
+                   FRIENDS
+                   <button class="btn btn-secondary btn-sm" id="btnViewRecommendations" onclick="window.openRecommendationsViewer()" style="margin-left:auto; display:none;">🎁 View Recommendations</button>
                </div>
-
-               <div style="font-family:var(--font-display); font-size:18px; letter-spacing:1px; margin-bottom:12px;">FRIENDS</div>
                <div id="friendsGrid" class="discover-rows-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px;"></div>
                <div id="friendsEmpty" class="empty-state" style="display:none">
                    <div class="empty-icon">🤝</div>
@@ -2865,7 +2868,7 @@
       id="friendLibraryOverlay"
       style="background: var(--bg-base); z-index: 1000; padding: 0; align-items: stretch;"
     >
-      <div style="display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1200px; margin: 0 auto;">
+      <div style="display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1200px; margin: 0 auto; overflow: hidden;">
          <div style="min-height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; flex-wrap: wrap; gap: 10px;">
             <button class="btn btn-ghost" onclick="window.closeFriendLibrary()">← Back</button>
             <div id="friendLibraryTitle" style="font-family: var(--font-display); font-size: 20px; letter-spacing: 1px;">LIBRARY</div>
@@ -2879,7 +2882,7 @@
                     <option value="Special">Special</option>
                 </select>
                 <select class="filter-select" id="friendFilterStatus" onchange="window.renderFriendLibrary()">
-                    <option value="">All Statuses</option>
+                    <option value="">All Status</option>
                     <option value="Plan to Watch">Plan to Watch</option>
                     <option value="Watching">Watching</option>
                     <option value="Completed">Completed</option>
@@ -2897,7 +2900,23 @@
                 </select>
             </div>
          </div>
-         <div id="friendLibraryContainer" style="flex: 1; overflow-y: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; align-content: flex-start;"></div>
+         <div id="friendLibraryContainer" style="flex: 1; height: 0; min-height: 200px; overflow-y: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); grid-auto-rows: max-content; gap: 16px;"></div>
+      </div>
+    </div>
+
+    <!-- RECOMMENDATIONS VIEWER -->
+    <div
+      class="modal-overlay"
+      id="recommendationsOverlay"
+      style="background: var(--bg-base); z-index: 1000; padding: 0; align-items: stretch;"
+    >
+      <div style="display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1200px; margin: 0 auto; overflow: hidden;">
+         <div style="min-height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; flex-wrap: wrap; gap: 10px;">
+            <button class="btn btn-ghost" onclick="window.closeRecommendationsViewer()">← Back</button>
+            <div style="font-family: var(--font-display); font-size: 20px; letter-spacing: 1px;">RECOMMENDED BY FRIENDS</div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+         </div>
+         <div id="recommendationsContainerGrid" style="flex: 1; height: 0; min-height: 200px; overflow-y: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); grid-auto-rows: max-content; gap: 16px;"></div>
       </div>
     </div>
 
@@ -2916,7 +2935,7 @@
             <div id="recommendTargetInfo"></div>
             
             <div id="recommendSearchContainer">
-                <input type="text" id="recommendSearchInput" class="form-input" placeholder="Search..." autocomplete="off" oninput="window.onRecommendSearchInput()" />
+                <input type="text" id="recommendSearchInput" class="form-input" placeholder="Search..." autocomplete="off" oninput="window.onRecommendSearchInput()" onfocus="window.onRecommendSearchInput()" />
                 <div id="recommendSearchResults" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-top: none; display: none;"></div>
             </div>
 
@@ -6146,8 +6165,13 @@
 
       // DETAILS MODAL
       const openDetailModal = (window.openDetailModal = (id, friendMode = false) => {
-        const sourceLib = friendMode ? window.currentFriendLibrary : window.library;
-        const entry = sourceLib.find((l) => l.id === String(id));
+        let entry;
+        if (typeof id === 'object' && id !== null) {
+            entry = id;
+        } else {
+            const sourceLib = friendMode ? window.currentFriendLibrary : window.library;
+            entry = sourceLib.find((l) => l.id === String(id));
+        }
         if (!entry) return;
 
         const hero = document.getElementById("detailHero");
@@ -6213,8 +6237,10 @@
         }
         
         <div style="display:flex;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
-            ${friendMode ? `
+            ${friendMode === true ? `
                 <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.addFriendLibToCodex('${entry.id}')">Add to Codex</button>
+            ` : entry.isRec ? `
+                <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.addRecToLibrary('${entry.notifId}')">Add to Codex</button>
             ` : `
                 <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.editEntry('${entry.id}')">✏️ Edit Entry</button>
                 <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.openRecommendModal(${JSON.stringify(entry).replace(/"/g, '&quot;')}, null)">🎁 Recommend</button>
@@ -6597,36 +6623,77 @@ const renderFriendsGrid = () => {
     }).join("");
 };
 
+window.openDetailModalForRec = (notifId) => {
+    const n = window.socialNotifications.find(x => x.id === notifId);
+    if (!n) return;
+    const mockEntry = {
+        title: n.itemTitle || "",
+        poster: n.itemPoster || "",
+        type: n.itemType || "Anime",
+        tier: n.itemTier || "",
+        genres: n.itemGenres || [],
+        stremioId: n.itemStremioId,
+        jikanId: n.itemJikanId,
+        malId: n.itemMalId,
+        link: n.itemLink || "",
+        status: "Recommended",
+        notes: n.senderNote ? `Rec from ${n.fromUsername}: "${n.senderNote}"` : `Rec from ${n.fromUsername}`,
+        isRec: true,
+        notifId: n.id
+    };
+    window.openDetailModal(mockEntry);
+};
+
+window.openRecommendationsViewer = () => {
+    document.getElementById("recommendationsOverlay").classList.add("open");
+    window.renderRecommendationsViewer();
+};
+
+window.closeRecommendationsViewer = () => {
+    document.getElementById("recommendationsOverlay").classList.remove("open");
+};
+
+window.renderRecommendationsViewer = () => {
+    const container = document.getElementById("recommendationsContainerGrid");
+    if(!container) return;
+    const recommendations = (window.socialNotifications || []).filter(n => n.type === 'recommendation');
+    
+    container.innerHTML = recommendations.map(n => {
+        const hasLib = window.library.some(l => l.title === n.itemTitle && l.type === n.itemType);
+        return `
+    <div class="entry-card" onclick="window.openDetailModalForRec('${n.id}')">
+      <div class="card-poster"><img src="${n.itemPoster}" onerror="this.outerHTML='🎬'" /></div>
+      <div class="card-info">
+        <div class="card-title">${n.itemTitle}</div>
+        <div class="card-meta">
+          <span class="badge badge-type">${n.itemType}</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Rec by ${n.fromUsername}</div>
+        ${n.itemTier ? `<div style="margin-top:8px"><span class="badge tier-${n.itemTier}">${n.itemTier} TIER</span></div>` : ""}
+        <div style="font-size: 11px; color: var(--text-muted); font-style: italic; white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 8px;">"${n.senderNote || ''}"</div>
+        <div style="margin-top: auto;">
+          ${hasLib ? `<div style="color:var(--success); font-size:11px; font-weight:700; text-align:center;">✓ In Codex</div>` 
+                   : `<button class="btn btn-primary btn-sm btn-full" onclick="event.stopPropagation(); window.addRecToLibrary('${n.id}')">Add to Codex</button>`}
+        </div>
+      </div>
+    </div>
+        `;
+    }).join("");
+};
+
 const renderFriendRecommendations = (window.renderFriendRecommendations = () => {
-    const section = document.getElementById("friendRecommendationsSection");
-    const container = document.getElementById("friendRecommendationsContainer");
+    const btn = document.getElementById("btnViewRecommendations");
     if(!window.socialNotifications) return;
 
     const recommendations = window.socialNotifications.filter(n => n.type === 'recommendation');
     if(recommendations.length === 0) {
-        section.style.display = "none";
+        if(btn) btn.style.display = "none";
         return;
     }
-    section.style.display = "block";
-
-    container.innerHTML = recommendations.map(n => {
-        const hasLib = window.library.some(l => l.title === n.itemTitle && l.type === n.itemType);
-        return `
-            <div class="discover-card" style="flex: 0 0 calc(20% - 13px); min-width: 140px; max-width: 200px;">
-                <div class="discover-poster">
-                    <img src="${n.itemPoster}" onerror="this.src=''; this.style.display='none';">
-                </div>
-                <div class="discover-info">
-                    <div class="discover-title">${n.itemTitle}</div>
-                    <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Rec by ${n.fromUsername}</div>
-                    ${n.itemTier ? `<div style="font-size: 11px; color: var(--accent); margin-bottom: 4px;">Rated: ${n.itemTier}</div>` : ''}
-                    <div style="font-size: 11px; color: var(--text-muted); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px;">"${n.senderNote || ''}"</div>
-                    ${hasLib ? `<div style="color:var(--success); font-size:11px; font-weight:700; text-align:center;">✓ In Codex</div>` 
-                             : `<button class="btn btn-primary btn-sm btn-full" onclick="window.addRecToLibrary('${n.id}')">Add to Codex</button>`}
-                </div>
-            </div>
-        `;
-    }).join("");
+    if(btn) btn.style.display = "flex";
+    if (document.getElementById("recommendationsOverlay").classList.contains("open")) {
+        window.renderRecommendationsViewer();
+    }
 });
 
 const renderNotificationsDrawer = () => {
