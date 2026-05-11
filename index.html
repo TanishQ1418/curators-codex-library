@@ -1955,10 +1955,6 @@
       }
 
       /* RESPONSIVE */
-      @media (max-width: 1200px) {
-      }
-      @media (max-width: 900px) {
-      }
       @media (max-width: 768px) {
         #sidebar {
           transform: translateX(-100%);
@@ -2344,18 +2340,6 @@
                   box-shadow 0.2s var(--ease);
               "
             />
-            <div
-              id="searchSpinner"
-              style="
-                position: absolute;
-                right: 11px;
-                top: 50%;
-                transform: translateY(-50%);
-                display: none;
-              "
-            >
-              <div class="spinner"></div>
-            </div>
           </div>
           <div class="topbar-actions">
             <button
@@ -2753,9 +2737,9 @@
             <div id="socialSetupPrompt" class="empty-state" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
                <div class="empty-icon">👋</div>
                <h3>Welcome to Social</h3>
-               <p style="margin-bottom: 4px;">Please choose a User ID to get started.</p>
-               <p style="font-size: 13px; color: var(--text-muted);">(3-20 digits only)</p>
-               <input type="text" class="form-input" id="setupUsername" style="max-width:300px; margin:20px auto; text-align:center; display:block;" placeholder="e.g. 123456" />
+               <p style="margin-bottom: 4px;">Please choose a unique username to get started.</p>
+               <p style="font-size: 13px; color: var(--text-muted);">(3-20 letters, numbers, underscores)</p>
+               <input type="text" class="form-input" id="setupUsername" style="max-width:300px; margin:20px auto; text-align:center; display:block;" placeholder="e.g. awesome_user" />
                <div id="setupUsernameStatus" style="font-size:13px; margin-bottom:20px; font-weight:600; min-height:20px;"></div>
                <div style="display:flex; gap: 10px; justify-content: center; align-items: center;">
                  <button class="btn btn-primary btn-sm" id="btnSetUsername" disabled style="padding: 8px 24px; font-size: 14px;">Claim User ID</button>
@@ -2775,8 +2759,9 @@
                    <div id="pendingRequestsContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;"></div>
                </div>
 
-               <div style="font-family:var(--font-display); font-size:18px; letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center;">
+               <div style="font-family:var(--font-display); font-size:18px; letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center; flex-wrap:wrap; gap:12px;">
                    FRIENDS
+                   <input type="text" id="localFriendSearch" class="form-input" placeholder="Search friends by username, nickname, email..." oninput="window.renderFriendsGrid()" style="max-width:300px; flex:1;" />
                    <button class="btn btn-secondary btn-sm" id="btnViewRecommendations" onclick="window.openRecommendationsViewer()" style="margin-left:auto; display:none;">🎁 View Recommendations</button>
                </div>
                <div id="friendsGrid" class="discover-rows-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px;"></div>
@@ -2878,7 +2863,7 @@
                     <option value="Anime">Anime</option>
                     <option value="Movie">Movie</option>
                     <option value="Web Series">Web Series</option>
-                    <option value="Series">Series</option>
+                    <option value="OVA">OVA</option>
                     <option value="Special">Special</option>
                 </select>
                 <select class="filter-select" id="friendFilterStatus" onchange="window.renderFriendLibrary()">
@@ -3199,77 +3184,7 @@
       </div>
     </div>
 
-    <div
-      class="modal-overlay"
-      id="syncModalOverlay"
-      onclick="handleOverlayClick(event, 'syncModalOverlay')"
-    >
-      <div class="modal" id="syncModal">
-        <div class="modal-header">
-          <div class="modal-title">CROSS-DEVICE SYNC</div>
-          <button class="modal-close" onclick="closeSyncModal()">✕</button>
-        </div>
-        <div class="modal-tabs">
-          <button
-            class="modal-tab active"
-            id="syncTab1"
-            onclick="switchSyncTab(1)"
-          >
-            🔑 Share Codex</button
-          ><button class="modal-tab" id="syncTab2" onclick="switchSyncTab(2)">
-            📲 Load Codex
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="tab-panel active" id="syncPanel1">
-            <p
-              style="
-                font-size: 13px;
-                color: var(--text-secondary);
-                margin-bottom: 14px;
-              "
-            >
-              Copy this Codex Key and paste it on any other device to sync your
-              entire library.
-            </p>
-            <div class="codex-key-box" id="codexKeyDisplay">Generating…</div>
-            <div style="margin-top: 12px; display: flex; gap: 8px">
-              <button class="btn btn-primary btn-sm" onclick="copyCodexKey()">
-                📋 Copy Key</button
-              ><button
-                class="btn btn-ghost btn-sm"
-                onclick="generateCodexKey()"
-              >
-                🔄 Regenerate
-              </button>
-            </div>
-          </div>
-          <div class="tab-panel" id="syncPanel2">
-            <p
-              style="
-                font-size: 13px;
-                color: var(--text-secondary);
-                margin-bottom: 14px;
-              "
-            >
-              Paste a Codex Key from another device to replace your current
-              library.
-            </p>
-            <textarea
-              class="form-textarea"
-              id="codexKeyInput"
-              style="min-height: 100px; font-family: monospace; font-size: 11px"
-              placeholder="Paste Codex Key here…"
-            ></textarea>
-            <div style="margin-top: 12px">
-              <button class="btn btn-primary" onclick="loadCodexKey()">
-                📲 Load Library
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+
 
     <div
       class="modal-overlay"
@@ -4102,13 +4017,7 @@
         }
       });
 
-      // Removed Sync Modal since it is no longer used
-      const openSyncModal = (window.openSyncModal = () => {});
-      const closeSyncModal = (window.closeSyncModal = () => {});
-      const switchSyncTab = (window.switchSyncTab = () => {});
-      const generateCodexKey = (window.generateCodexKey = () => {});
-      const copyCodexKey = (window.copyCodexKey = () => {});
-      const loadCodexKey = (window.loadCodexKey = () => {});
+      // Excluded removed Sync Modal code
 
       const exportBackup = (window.exportBackup = () => {
         const dataStr =
@@ -4214,9 +4123,17 @@
       });
       const closeBackupMenu = (window.closeBackupMenu = () =>
         (document.getElementById("backupMenu").style.display = "none"));
-      document.addEventListener("click", () => {
+      document.addEventListener("click", (e) => {
         closeBackupMenu();
-        document.getElementById("searchDropdown").style.display = "none";
+        if (document.getElementById("searchDropdown") && !e.target.closest("#searchDropdown") && !e.target.closest("#field-title")) {
+          document.getElementById("searchDropdown").style.display = "none";
+        }
+        if (document.getElementById("socialSearchDropdown") && !e.target.closest("#socialSearchDropdown") && !e.target.closest("#socialSearchInput")) {
+          document.getElementById("socialSearchDropdown").style.display = "none";
+        }
+        if (document.getElementById("recommendSearchResults") && !e.target.closest("#recommendSearchResults") && !e.target.closest("#recommendSearchInput")) {
+          document.getElementById("recommendSearchResults").style.display = "none";
+        }
       });
 
       // SURPRISE MATCHING
@@ -6130,7 +6047,8 @@
           }
         });
 
-        const rowObserver = new IntersectionObserver(
+        if (window._rowObserver) window._rowObserver.disconnect();
+        window._rowObserver = new IntersectionObserver(
           (entries) => {
             entries.forEach((ent) => {
               if (ent.isIntersecting) {
@@ -6139,7 +6057,7 @@
                 if (targetEl && targetEl.dataset.page === "1") {
                   loadMoreForRow(targetEl);
                 }
-                rowObserver.unobserve(ent.target);
+                window._rowObserver.unobserve(ent.target);
               }
             });
           },
@@ -6148,7 +6066,7 @@
 
         lazies.forEach((key) => {
           const el = document.getElementById(`row-${key}`);
-          if (el) rowObserver.observe(el);
+          if (el) window._rowObserver.observe(el);
         });
       });
 
@@ -6403,7 +6321,7 @@ const getColorForString = (str) => {
 window.openSocialSettings = () => {
     if(!window.socialProfile) return;
     document.getElementById("socialSettingsDisplayName").value = window.socialProfile.displayUsername || "";
-    document.getElementById("socialSettingsUid").value = auth.currentUser.uid;
+    document.getElementById("socialSettingsUid").value = window.socialProfile.friendCode || auth.currentUser.uid;
     document.getElementById("socialSettingsVisibility").value = window.socialProfile.libraryPublic || "public";
     document.getElementById("socialSettingsSearch").checked = window.socialProfile.showInSearch !== false;
     document.getElementById("socialSettingsRequests").checked = window.socialProfile.allowRequests !== false;
@@ -6580,7 +6498,14 @@ const renderFriendsGrid = () => {
     const empty = document.getElementById("friendsEmpty");
     if(!window.socialFriends) return;
 
-    const accepted = window.socialFriends.filter(f => f.status === "accepted");
+    const q = (document.getElementById("localFriendSearch")?.value || "").toLowerCase();
+    
+    let accepted = window.socialFriends.filter(f => f.status === "accepted");
+    
+    if(q) {
+        accepted = accepted.filter(f => (f.nickname||"").toLowerCase().includes(q) || (f.username||"").toLowerCase().includes(q) || (f.email||"").toLowerCase().includes(q));
+    }
+    
     accepted.sort((a,b) => {
         if(a.isFavorite && !b.isFavorite) return -1;
         if(!a.isFavorite && b.isFavorite) return 1;
@@ -6590,6 +6515,8 @@ const renderFriendsGrid = () => {
     if(accepted.length === 0) {
         grid.style.display = "none";
         empty.style.display = "flex";
+        if(q) empty.innerHTML = '<div class="empty-icon">🤝</div><h3>No friends found matching search.</h3>';
+        else empty.innerHTML = '<div class="empty-icon">🤝</div><h3>Your codex is empty of companions</h3><p>Search for a username above to begin.</p>';
         return;
     }
     grid.style.display = "grid";
@@ -6915,20 +6842,27 @@ window.closeRecommendModal = () => document.getElementById("recommendModalOverla
 window.onRecommendSearchInput = () => {
     const q = document.getElementById("recommendSearchInput").value.toLowerCase();
     const res = document.getElementById("recommendSearchResults");
-    if(!q) { res.style.display = "none"; return; }
     
     res.style.display = "block";
     
     if(recTargetItem) {
         // Search friends
-        const matched = window.socialFriends.filter(f => f.status==="accepted" && (f.nickname||f.username||"").toLowerCase().includes(q));
+        let matched = window.socialFriends.filter(f => f.status==="accepted");
+        if(q) {
+            matched = matched.filter(f => (f.nickname||f.username||"").toLowerCase().includes(q));
+        } else {
+            matched = matched.sort((a,b) => (b.isFavorite===true ? 1 : 0) - (a.isFavorite===true ? 1 : 0));
+        }
         res.innerHTML = matched.map(f => `
-            <div style="padding:10px; cursor:pointer; border-bottom:1px solid var(--border);" onclick="window.completeRecommendSelection('${f.id}')">
-                ${f.nickname||f.username}
+            <div style="padding:10px; cursor:pointer; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px;" onclick="window.completeRecommendSelection('${f.id}')">
+                <div style="flex:1;">
+                    ${f.nickname||f.username} ${f.isFavorite ? '⭐' : ''}
+                </div>
             </div>
         `).join("") || `<div style="padding:10px; color:var(--text-muted); font-size:12px;">No friends found.</div>`;
     } else {
         // Search library
+        if(!q) { res.style.display = "none"; return; }
         const matched = window.library.filter(l => (l.title||"").toLowerCase().includes(q));
         res.innerHTML = matched.map(l => `
             <div style="padding:10px; cursor:pointer; border-bottom:1px solid var(--border); display:flex; gap:10px;" onclick="window.completeRecommendSelection('${l.id}')">
@@ -6952,8 +6886,10 @@ window.completeRecommendSelection = (id) => {
     } else {
         selectedRecData = id;
         const l = window.library.find(x => x.id === String(id));
-        document.getElementById("recommendSearchInput").value = l.title;
-        recTargetItem = l; // temporarily set so we have it for sending, but don't break UI mode
+        if (l) {
+            document.getElementById("recommendSearchInput").value = l.title;
+            recTargetItem = l; // temporarily set so we have it for sending, but don't break UI mode
+        }
     }
     document.getElementById("recommendSearchResults").style.display = "none";
 };
@@ -7075,8 +7011,8 @@ document.getElementById("setupUsername").addEventListener("input", (e) => {
     const val = e.target.value.toLowerCase().trim();
     const stat = document.getElementById("setupUsernameStatus");
     const btn = document.getElementById("btnSetUsername");
-    if(val.length < 3 || val.length > 20 || !/^[0-9]+$/.test(val)) {
-        stat.textContent = "Must be 3-20 digits.";
+    if(val.length < 3 || val.length > 20 || !/^[a-zA-Z0-9_]+$/.test(val)) {
+        stat.textContent = "Must be 3-20 letters/numbers/underscores.";
         stat.style.color = "var(--danger)";
         btn.disabled = true;
         return;
@@ -7099,12 +7035,14 @@ document.getElementById("setupUsername").addEventListener("input", (e) => {
                 btn.onclick = async () => {
                     btn.disabled = true;
                     try {
+                        const numericCode = Math.floor(100000000 + Math.random() * 900000000).toString();
                         const batch = writeBatch(window.db);
                         batch.set(doc(window.db, "usernames", val), { uid: window.auth.currentUser.uid });
                         batch.set(doc(window.db, "users", window.auth.currentUser.uid, "profile", "main"), {
                             username: val,
                             displayUsername: val,
                             email: window.auth.currentUser.email,
+                            friendCode: numericCode,
                             joinedAt: Date.now(),
                             libraryPublic: "public",
                             allowRequests: true,
@@ -7157,6 +7095,7 @@ window.initSocial = () => {
                        if(pf.exists()) {
                            obj.username = pf.data().username;
                            if(!obj.nickname && pf.data().displayUsername) obj.username = pf.data().displayUsername;
+                           obj.email = pf.data().email;
                        }
                    } catch(e){}
                    return obj;
