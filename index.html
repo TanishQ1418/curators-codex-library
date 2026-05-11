@@ -1826,10 +1826,23 @@
       }
 
       .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         text-align: center;
         padding: 80px 20px;
+        background: var(--bg-surface);
+        border: 1px dashed var(--border-color);
+        border-radius: 16px;
         color: var(--text-muted);
         grid-column: 1/-1;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+      }
+      .empty-state:hover {
+        border-color: var(--primary);
+        background: var(--bg-base);
       }
       .empty-state .empty-icon {
         font-size: 52px;
@@ -2671,13 +2684,17 @@
                <p>Connect with friends, check out their codex, and share recommendations!</p>
             </div>
 
-            <div id="socialSetupPrompt" class="empty-state" style="display:none;">
+            <div id="socialSetupPrompt" class="empty-state" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
                <div class="empty-icon">👋</div>
                <h3>Welcome to Social</h3>
-               <p>Please choose a username to get started (3-20 characters, alphanumeric and underscore).</p>
-               <input type="text" class="form-input" id="setupUsername" style="max-width:300px; margin:20px auto; text-align:center" placeholder="e.g. the_curator" />
-               <div id="setupUsernameStatus" style="font-size:13px; margin-bottom:20px; font-weight:600;"></div>
-               <button class="btn btn-primary" id="btnSetUsername" disabled>Claim Username</button>
+               <p style="margin-bottom: 4px;">Please choose a username to get started.</p>
+               <p style="font-size: 13px; color: var(--text-muted);">(3-20 characters, alphanumeric and underscore)</p>
+               <input type="text" class="form-input" id="setupUsername" style="max-width:300px; margin:20px auto; text-align:center; display:block;" placeholder="e.g. the_curator" />
+               <div id="setupUsernameStatus" style="font-size:13px; margin-bottom:20px; font-weight:600; min-height:20px;"></div>
+               <div style="display:flex; gap: 10px; justify-content: center; align-items: center;">
+                 <button class="btn btn-primary btn-sm" id="btnSetUsername" disabled style="padding: 8px 24px; font-size: 14px;">Claim Username</button>
+                 <button class="btn btn-ghost btn-sm" onclick="navigateTo('library')" style="padding: 8px 24px; font-size: 14px;">Go to Library</button>
+               </div>
             </div>
 
             <div id="socialAppContent" style="display:none;">
@@ -6189,6 +6206,7 @@
                 document.getElementById("userEmailDisplay").textContent = "";
               }
               if (unsubscribeLibrary) unsubscribeLibrary();
+              if (window.unsubscribeProfile) { window.unsubscribeProfile(); window.unsubscribeProfile = null; }
               if (window.unsubscribeFriends) { window.unsubscribeFriends(); window.unsubscribeFriends = null; }
               if (window.unsubscribeNotifs) { window.unsubscribeNotifs(); window.unsubscribeNotifs = null; }
               if (window.unsubscribeFriendLibrary) { window.unsubscribeFriendLibrary(); window.unsubscribeFriendLibrary = null; }
@@ -6543,6 +6561,8 @@ window.viewFriendLibrary = async (friendUid, displayName) => {
             const libs = qr.docs.map(d => ({id:d.id, ...d.data()}));
             window.currentFriendLibrary = libs;
             window.renderFriendLibrary();
+        }, (error) => {
+            handleFirestoreError(error, "get", `users/${friendUid}/library`);
         });
     } catch(e) { handleFirestoreError(e, "read", "profile"); }
 };
@@ -6769,6 +6789,10 @@ window.sendFriendReq = async (targetUid, targetUsername) => {
     } catch(e) { handleFirestoreError(e, "create", "friends"); }
 };
 
+document.getElementById("setupUsername").addEventListener("keydown", (e) => {
+    if (e.key === " ") e.preventDefault();
+});
+
 document.getElementById("setupUsername").addEventListener("input", (e) => {
     const val = e.target.value.toLowerCase().trim();
     const stat = document.getElementById("setupUsernameStatus");
@@ -6797,12 +6821,12 @@ document.getElementById("setupUsername").addEventListener("input", (e) => {
                 btn.onclick = async () => {
                     btn.disabled = true;
                     try {
-                        const batch = writeBatch(db);
-                        batch.set(doc(db, "usernames", val), { uid: auth.currentUser.uid });
-                        batch.set(doc(db, "users", auth.currentUser.uid, "profile", "main"), {
+                        const batch = writeBatch(window.db);
+                        batch.set(doc(window.db, "usernames", val), { uid: window.auth.currentUser.uid });
+                        batch.set(doc(window.db, "users", window.auth.currentUser.uid, "profile", "main"), {
                             username: val,
                             displayUsername: val,
-                            email: auth.currentUser.email,
+                            email: window.auth.currentUser.email,
                             joinedAt: Date.now(),
                             libraryPublic: "public",
                             allowRequests: true,
@@ -6812,11 +6836,17 @@ document.getElementById("setupUsername").addEventListener("input", (e) => {
                         showToast("Setup complete!", "success");
                     } catch(err) {
                         btn.disabled = false;
+                        document.getElementById("setupUsernameStatus").textContent = "Failed to save username. Try again.";
+                        document.getElementById("setupUsernameStatus").style.color = "var(--danger)";
                         handleFirestoreError(err, "write", "usernames/profile");
                     }
                 };
             }
-        } catch(err) { console.error(err); }
+        } catch(err) {
+            console.error(err);
+            stat.textContent = "Error checking availability.";
+            stat.style.color = "var(--danger)";
+        }
     }, 500);
 });
 
@@ -6824,7 +6854,8 @@ window.initSocial = () => {
     if (!window.auth || !window.auth.currentUser) return;
     const uid = window.auth.currentUser.uid;
     const docRef = doc(db, "users", uid, "profile", "main");
-    onSnapshot(docRef, (snap) => {
+    if(window.unsubscribeProfile) window.unsubscribeProfile();
+    window.unsubscribeProfile = onSnapshot(docRef, (snap) => {
         if(!snap.exists() || !snap.data().username) {
             document.getElementById("socialSetupPrompt").style.display = "flex";
             document.getElementById("socialAppContent").style.display = "none";
@@ -6853,14 +6884,20 @@ window.initSocial = () => {
                 window.socialFriends = fs;
                 renderPendingRequests();
                 renderFriendsGrid();
+            }, (error) => {
+                handleFirestoreError(error, "get", "users/[uid]/friends");
             });
             
             if(window.unsubscribeNotifs) window.unsubscribeNotifs();
             window.unsubscribeNotifs = onSnapshot(collection(db, "users", uid, "notifications"), (qSnap) => {
                 window.socialNotifications = qSnap.docs.map(d => ({id:d.id, ...d.data()}));
                 renderNotificationsDrawer();
+            }, (error) => {
+                handleFirestoreError(error, "get", "users/[uid]/notifications");
             });
         }
+    }, (error) => {
+        handleFirestoreError(error, "get", "users/[uid]/profile/main");
     });
 };
 
