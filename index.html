@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Curator's Codex</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20'/><path d='M8 7h6'/><path d='M8 11h8'/></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -4780,7 +4781,7 @@
           <div class="card-action-btn" style="padding:0; border:none; background:transparent;">
             <input type="checkbox" class="card-checkbox" onclick="event.stopPropagation();toggleSelection('${e.id}')" ${bulkSelection.has(e.id) ? "checked" : ""} />
           </div>
-          <button class="card-action-btn" onclick="event.stopPropagation();window.openRecommendModal(${JSON.stringify(e).replace(/"/g, '&quot;')}, null)" title="Recommend">🎁</button>
+          <button class="card-action-btn" onclick="event.stopPropagation();window.openRecommendModalById('${e.id}')" title="Recommend">🎁</button>
           <button class="card-action-btn" onclick="event.stopPropagation();editEntry('${e.id}')" title="Edit">✎</button>
           <button class="card-action-btn" onclick="event.stopPropagation();deleteEntry('${e.id}')" title="Delete">🗑</button>
         </div>
@@ -4799,7 +4800,7 @@
       <div class="list-title">${e.title} ${e.tier ? `<span class="badge tier-${e.tier}" style="margin-left:6px">${e.tier}</span>` : ""}</div>
       <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-right:auto">${e.status}</div>
       <div class="list-row-actions">
-         <button class="card-action-btn" onclick="event.stopPropagation();window.openRecommendModal(${JSON.stringify(e).replace(/"/g, '&quot;')}, null)" title="Recommend">🎁</button>
+         <button class="card-action-btn" onclick="event.stopPropagation();window.openRecommendModalById('${e.id}')" title="Recommend">🎁</button>
          <button class="card-action-btn" onclick="event.stopPropagation();editEntry('${e.id}')" title="Edit">✎</button>
          <button class="card-action-btn" onclick="event.stopPropagation();deleteEntry('${e.id}')" title="Delete">🗑</button>
       </div>
@@ -6161,7 +6162,7 @@
                 <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.addRecToLibrary('${entry.notifId}')">Add to Codex</button>
             ` : `
                 <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.editEntry('${entry.id}')">✏️ Edit Entry</button>
-                <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.openRecommendModal(${JSON.stringify(entry).replace(/"/g, '&quot;')}, null)">🎁 Recommend</button>
+                <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="window.closeDetailModal(); window.openRecommendModalById('${entry.id}')">🎁 Recommend</button>
                 <button class="btn btn-danger" style="flex:1;justify-content:center" onclick="window.deleteEntry('${entry.id}')">🗑️ Delete</button>
             `}
         </div>
@@ -6298,18 +6299,7 @@
         window.setView(window._currentView);
         navigateTo("library"); // Start on library
       });
-    </script>
-    <script type="module">
-// Social Logic
-const db = window.db;
-const auth = window.auth;
-const doc = window.doc;
-const collection = window.collection;
-const getDoc = window.getDoc;
-const updateDoc = window.updateDoc;
-const deleteDoc = window.deleteDoc;
-const onSnapshot = window.onSnapshot;
-const writeBatch = window.writeBatch;
+    // Social Logic
 
 const getColorForString = (str) => {
   const colors = ["#ef4444", "#f97316", "#f59e0b", "#84cc16", "#10b981", "#06b6d4", "#3b82f6", "#8b5cf6", "#d946ef", "#f43f5e"];
@@ -6803,6 +6793,14 @@ window.renderFriendLibrary = () => {
 // state variables
 let recTargetFriendUid = null;
 let recTargetItem = null; // if opened from library
+
+window.openRecommendModalById = (id) => {
+    let entry = window.library.find((l) => l.id === String(id));
+    if(!entry && window.currentFriendLibrary) {
+        entry = window.currentFriendLibrary.find((l) => l.id === String(id));
+    }
+    if (entry) window.openRecommendModal(entry, null);
+};
 
 window.openRecommendModal = (itemObj, explicitFriendUid) => {
     const m = document.getElementById("recommendModalOverlay");
