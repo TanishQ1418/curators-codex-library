@@ -1154,7 +1154,8 @@
         z-index: 10;
         cursor: pointer;
       }
-      .rec-card:hover .not-interested-btn {
+      .rec-card:hover .not-interested-btn,
+      .entry-card:hover .not-interested-btn {
         opacity: 1;
       }
       .not-interested-btn:hover {
@@ -2197,6 +2198,15 @@
               >0</span
             >
           </button>
+          <button
+            class="nav-item"
+            id="nav-item-admin"
+            data-page="admin"
+            onclick="navigateTo('admin')"
+            style="display:none;"
+          >
+            <span class="nav-icon">🛡️</span> Manage Site
+          </button>
           <div class="nav-section-label" style="margin-top: 18px">
             Quick Filter
           </div>
@@ -2331,7 +2341,7 @@
                 background: var(--bg-elevated);
                 border: 1px solid var(--border);
                 border-radius: 7px;
-                padding: 8px 12px 8px 34px;
+                padding: 8px 34px 8px 34px;
                 color: var(--text-primary);
                 font-family: var(--font-body);
                 font-size: 13px;
@@ -2341,6 +2351,31 @@
                   box-shadow 0.2s var(--ease);
               "
             />
+            <button
+              id="clearSearchBtn"
+              onclick="window.clearSearch()"
+              style="
+                position: absolute;
+                right: 8px;
+                top: 50%;
+                transform: translateY(-50%) scale(0.9);
+                background: none;
+                border: none;
+                color: var(--text-muted);
+                font-size: 14px;
+                cursor: pointer;
+                z-index: 2;
+                display: none;
+                transition: all 0.2s var(--ease);
+                padding: 4px;
+                border-radius: 50%;
+              "
+              onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='var(--text-primary)';this.style.transform='translateY(-50%) scale(1)';"
+              onmouseout="this.style.background='transparent';this.style.color='var(--text-muted)';this.style.transform='translateY(-50%) scale(0.9)';"
+              title="Clear Search"
+            >
+              ✕
+            </button>
           </div>
           <div class="topbar-actions">
             <button
@@ -2472,6 +2507,7 @@
                 <option value="tier">Tier Rating</option>
                 <option value="year">Release Year</option>
               </select>
+              <button class="btn btn-secondary btn-sm" onclick="clearFilters()" title="Clear Filters" style="height: 32px; padding: 0 12px; margin-left: 8px;">Clear</button>
               <div class="view-toggle" style="margin-left: auto">
                 <button
                   class="view-btn active"
@@ -2771,6 +2807,37 @@
                    <h3>Your codex is empty of companions</h3>
                    <p>Search for a username above to begin.</p>
                </div>
+            </div>
+          </section>
+
+          <section id="page-admin" class="page-section">
+            <div class="page-header" style="justify-content: space-between; align-items: flex-end">
+              <div>
+                <h1 class="page-title">Master Control</h1>
+                <div class="page-subtitle">Site Management & Directory</div>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px;">
+              <div class="stat-card">
+                 <div class="stat-value" id="adminTotalUsers">--</div>
+                 <div class="stat-label">Total Users in Network</div>
+              </div>
+              <div class="stat-card">
+                 <div style="font-weight:600; margin-bottom:8px">System Broadcast</div>
+                 <input type="text" class="form-input" placeholder="Type a global message..." style="margin-bottom:8px;" />
+                 <button class="btn btn-primary btn-sm" onclick="alert('Broadcast sent!')">Send Broadcast</button>
+              </div>
+              <div class="stat-card">
+                 <div style="font-weight:600; margin-bottom:8px">Site Maintenance</div>
+                 <button class="btn btn-secondary btn-sm" onclick="alert('Discover cache cleared.'); window.discoverCache={};" style="margin-bottom:8px;">Clear Discover Cache</button>
+                 <button class="btn btn-danger btn-sm" onclick="alert('Backup initiated (simulation).')">Trigger DB Backup</button>
+              </div>
+            </div>
+
+            <h2 class="page-subtitle" style="margin-top:20px;margin-bottom:10px;">Network Members</h2>
+            <div id="adminUserList" style="display: flex; flex-direction: column; gap: 8px;">
+               <!-- Users will be populated here -->
             </div>
           </section>
 
@@ -3436,7 +3503,8 @@
         orderBy,
         limit,
         serverTimestamp,
-        runTransaction
+        runTransaction,
+        collectionGroup
       } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
       const firebaseConfig = {
@@ -3459,9 +3527,15 @@
       window.doc = doc;
       window.collection = collection;
       window.getDoc = getDoc;
+      window.getDocs = getDocs;
       window.updateDoc = updateDoc;
       window.deleteDoc = deleteDoc;
       window.onSnapshot = onSnapshot;
+      window.collectionGroup = collectionGroup;
+      window.query = query;
+      window.where = where;
+      window.orderBy = orderBy;
+      window.limit = limit;
 
       window.library = [];
       let unsubscribeLibrary = null;
@@ -4456,6 +4530,10 @@
           .forEach((btn) =>
             btn.classList.toggle("active", btn.dataset.status === status),
           );
+        document.getElementById("filterType").value = "";
+        document.getElementById("filterTier").value = "";
+        document.getElementById("filterGenre").value = "";
+        document.getElementById("sortBy").value = "titleAZ";
         navigateTo("library");
         document.getElementById("filterStatus").value = status;
         renderLibrary();
@@ -4721,6 +4799,12 @@
 
       const renderLibrary = (window.renderLibrary = () => {
         const qs = document.getElementById("searchInput").value.toLowerCase();
+        
+        const clearBtn = document.getElementById("clearSearchBtn");
+        if (clearBtn) {
+          clearBtn.style.display = qs.length > 0 ? "block" : "none";
+        }
+
         const fType = document.getElementById("filterType").value;
         const fStatus = document.getElementById("filterStatus").value;
         const fTier = document.getElementById("filterTier").value;
@@ -4822,6 +4906,12 @@
       });
 
       const onSearchInput = (window.onSearchInput = () => {
+        const val = document.getElementById("searchInput").value;
+        const btn = document.getElementById("clearSearchBtn");
+        if (btn) {
+          btn.style.display = val.length > 0 ? "block" : "none";
+        }
+
         if (
           document.getElementById("page-library").classList.contains("active")
         ) {
@@ -4831,6 +4921,26 @@
           renderLibrary();
         }
       });
+
+      window.clearFilters = () => {
+        document.getElementById("filterType").value = "";
+        document.getElementById("filterStatus").value = "";
+        document.getElementById("filterTier").value = "";
+        document.getElementById("filterGenre").value = "";
+        document.getElementById("sortBy").value = "titleAZ";
+        document.querySelectorAll(".status-filter-btn").forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.status === "");
+        });
+        renderLibrary();
+      };
+
+      window.clearSearch = () => {
+        const input = document.getElementById("searchInput");
+        if (input) {
+          input.value = "";
+          onSearchInput();
+        }
+      };
 
       const handleTitleKey = (window.handleTitleKey = (e) => {
         if (e.key === "Escape") {
@@ -5765,9 +5875,16 @@
         }
 
         try {
-          const res = await fetchJikan(url);
-          const data = await res.json();
+          let res = await fetchJikan(url);
+          let data = await res.json();
           let rawData = data.data || [];
+          
+          if (rawData.length === 0 && currentDiscoverType === "anime") {
+             const fallbackUrl = `https://api.jikan.moe/v4/top/anime?page=${pMod}`;
+             res = await fetchJikan(fallbackUrl);
+             data = await res.json();
+             rawData = data.data || [];
+          }
 
           const mapped = rawData.map((item) => ({
             id: `mal_${item.mal_id}`,
@@ -5781,6 +5898,20 @@
           return mapped;
         } catch (e) {
           console.error(e);
+          if (currentDiscoverType === "anime") {
+             try {
+                const fRes = await fetchJikan(`https://api.jikan.moe/v4/seasons/now`);
+                const fData = await fRes.json();
+                const fRaw = fData.data || [];
+                return fRaw.map((item) => ({
+                  id: `mal_${item.mal_id}`,
+                  title: item.title_english || item.title,
+                  poster: item.images?.jpg?.large_image_url || "",
+                  genres: item.genres?.map((g) => g.name) || [],
+                  score: (item.score || 0).toFixed(1),
+                }));
+             } catch(err){}
+          }
           return [];
         }
       };
@@ -6255,6 +6386,13 @@
 
       // INIT APP
       document.addEventListener("DOMContentLoaded", () => {
+        // Reset filters on refresh
+        if (document.getElementById("filterType")) document.getElementById("filterType").value = "";
+        if (document.getElementById("filterStatus")) document.getElementById("filterStatus").value = "";
+        if (document.getElementById("filterTier")) document.getElementById("filterTier").value = "";
+        if (document.getElementById("filterGenre")) document.getElementById("filterGenre").value = "";
+        if (document.getElementById("sortBy")) document.getElementById("sortBy").value = "titleAZ";
+
         if (localStorage.getItem("codex_guestMode") === "true") {
           window.useAsGuest();
           document.getElementById("loadingOverlay").style.display = "none";
@@ -6268,6 +6406,10 @@
             if (document.getElementById("userEmailDisplay")) {
               document.getElementById("userEmailDisplay").textContent =
                 user.email;
+            }
+            if (user.email === "tanishqt00@gmail.com" && document.getElementById("nav-item-admin")) {
+              document.getElementById("nav-item-admin").style.display = "flex";
+              if (window.initAdminPanel) window.initAdminPanel();
             }
             loadFirestoreLibrary(user.uid);
             if (window.initSocial) window.initSocial();
@@ -6579,6 +6721,7 @@ window.renderRecommendationsViewer = () => {
         const hasLib = window.library.some(l => l.title === n.itemTitle && l.type === n.itemType);
         return `
     <div class="entry-card" onclick="window.openDetailModalForRec('${n.id}')">
+      <div class="not-interested-btn" onclick="event.stopPropagation(); window.deleteNotification('${n.id}')" title="Remove Recommendation">✕</div>
       <div class="card-poster"><img src="${n.itemPoster}" onerror="this.outerHTML='🎬'" /></div>
       <div class="card-info">
         <div class="card-title">${n.itemTitle}</div>
@@ -7063,6 +7206,58 @@ document.getElementById("setupUsername").addEventListener("input", (e) => {
         }
     }, 500);
 });
+
+window.initAdminPanel = async () => {
+    try {
+        const qSnap = await getDocs(collectionGroup(db, "profile"));
+        const users = qSnap.docs.map(d => { 
+            let data = d.data();
+            let uid = d.ref.parent.parent ? d.ref.parent.parent.id : "";
+            return { uid, ...data }; 
+        });
+
+        const list = document.getElementById("adminUserList");
+        if(list) {
+             document.getElementById("adminTotalUsers").textContent = users.length;
+             list.innerHTML = users.map(u => `
+                  <div class="stat-card" style="display:flex; justify-content:space-between; align-items:center; flex-direction:row;">
+                      <div>
+                          <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px">@${u.username} ${u.displayUsername && u.displayUsername !== u.username ? '(' + u.displayUsername + ')' : ''}</div>
+                          <div style="font-size:12px; color:var(--text-muted)">${u.email || "No email"} | UID: ${u.uid}</div>
+                      </div>
+                      <button class="btn btn-primary btn-sm" onclick="window.viewFriendLibrary('${u.uid}', '${(u.displayUsername || u.username).replace(/'/g, "\\'")}')">View Codex</button>
+                  </div>
+             `).join("");
+        }
+    } catch (err) {
+        console.error("Failed collectionGroup Profile", err);
+        // Fallback to fetching via usernames if group query fails (needs index or rule)
+        try {
+            const usernamesSnap = await getDocs(collection(db, "usernames"));
+            const users = [];
+            for (let d of usernamesSnap.docs) {
+               let uid = d.data().uid;
+               let un = d.id;
+               users.push({uid, username: un});
+            }
+            const list = document.getElementById("adminUserList");
+            if(list) {
+                 document.getElementById("adminTotalUsers").textContent = users.length;
+                 list.innerHTML = users.map(u => `
+                      <div class="stat-card" style="display:flex; justify-content:space-between; align-items:center; flex-direction:row;">
+                          <div>
+                              <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px">@${u.username}</div>
+                              <div style="font-size:12px; color:var(--text-muted)">UID: ${u.uid}</div>
+                          </div>
+                          <button class="btn btn-primary btn-sm" onclick="window.viewFriendLibrary('${u.uid}', '${u.username.replace(/'/g, "\\'")}')">View Codex</button>
+                      </div>
+                 `).join("");
+            }
+        } catch(e) {
+            console.error("Admin Load Error", e);
+        }
+    }
+};
 
 window.initSocial = () => {
     if (!window.auth || !window.auth.currentUser) return;
