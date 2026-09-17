@@ -272,6 +272,9 @@
         border: 1px solid transparent;
         white-space: nowrap;
       }
+      .btn:active {
+        transform: scale(0.95);
+      }
       .btn-primary {
         background: linear-gradient(135deg, #d4af37, #b8962e);
         color: #0b0f14;
@@ -321,7 +324,9 @@
       }
       #topbar {
         height: var(--topbar-h);
-        background: var(--bg-surface);
+        background: rgba(11, 15, 20, 0.65);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border-bottom: 1px solid var(--border);
         display: flex;
         align-items: center;
@@ -330,7 +335,6 @@
         position: sticky;
         top: 0;
         z-index: 90;
-        backdrop-filter: blur(8px);
       }
       #hamburger {
         display: none;
@@ -482,6 +486,9 @@
         border-color: var(--border-active);
         transform: translateY(-3px);
         box-shadow: 0 0 24px rgba(212, 175, 55, 0.12);
+      }
+      .entry-card:active {
+        transform: scale(0.97);
       }
       .card-poster {
         width: 100%;
@@ -685,8 +692,10 @@
         display: flex;
       }
       .modal {
-        background: var(--bg-elevated);
-        border: 1px solid var(--border);
+        background: rgba(22, 27, 34, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--border-active);
         border-radius: 14px;
         width: 100%;
         max-width: 580px;
@@ -1111,6 +1120,8 @@
         padding-bottom: 12px;
         mask-image: linear-gradient(to right, black 85%, transparent);
         -webkit-mask-image: linear-gradient(to right, black 85%, transparent);
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
       }
       .row-track::-webkit-scrollbar {
         display: none;
@@ -1126,11 +1137,15 @@
         position: relative;
         transition: all 0.22s ease;
         animation: fadeInUp 0.35s both;
+        scroll-snap-align: start;
       }
       .rec-card:hover {
         border-color: var(--accent);
         box-shadow: 0 0 20px var(--accent-glow);
         transform: translateY(-3px);
+      }
+      .rec-card:active {
+        transform: scale(0.97);
       }
       .not-interested-btn {
         position: absolute;
@@ -1917,6 +1932,24 @@
       }
 
       /* ANIMATIONS */
+      @keyframes shimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+      .skeleton-card {
+        background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        flex-shrink: 0;
+        width: 155px;
+        aspect-ratio: 2/3;
+      }
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -1959,23 +1992,72 @@
       /* RESPONSIVE */
       @media (max-width: 768px) {
         #sidebar {
-          transform: translateX(-100%);
+          transform: none;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 70px;
+          flex-direction: row;
+          padding: 0 10px;
+          padding-bottom: env(safe-area-inset-bottom);
+          z-index: 100;
+          border-right: none;
+          border-top: 1px solid var(--border);
+          justify-content: space-around;
+          align-items: center;
+          background: rgba(11, 15, 20, 0.7);
+          backdrop-filter: blur(12px);
         }
-        #sidebar.open {
-          transform: translateX(0);
-          box-shadow: 4px 0 40px rgba(0, 0, 0, 0.6);
+        .sidebar-brand { display: none; }
+        .nav-item {
+          flex-direction: column;
+          padding: 4px;
+          font-size: 10px;
+          gap: 4px;
+          border-radius: 8px;
+          flex: 1;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 0;
+          color: var(--text-secondary);
         }
-        #sidebar-overlay.visible {
-          display: block;
-        }
+        .nav-item:hover { background: transparent; color: var(--text-primary); }
+        .nav-item.active { background: transparent; color: var(--accent); }
+        .nav-icon { font-size: 20px; margin-right: 0; }
+        .nav-badge { position: absolute; top: 0px; right: 20%; padding: 2px 4px; font-size: 8px; }
+
+        #sidebar-overlay { display: none !important; }
         #main {
           margin-left: 0;
+          padding-bottom: 80px;
         }
         #hamburger {
-          display: flex;
+          display: none;
+        }
+        
+        .modal {
+          margin: auto 0 0 0;
+          width: 100%;
+          max-width: 100%;
+          border-radius: 24px 24px 0 0;
+          animation: slideUpModal 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        @keyframes slideUpModal {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
         }
         .topbar-title {
           font-size: 18px;
+        }
+        #gridView, #friendLibraryContainer, #recommendationsContainerGrid, #friendsGrid {
+          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+          gap: 12px !important;
+        }
+        .rec-card, .skeleton-card {
+          width: 130px !important;
         }
         #searchDropdownWrap {
           max-width: 200px;
@@ -2169,16 +2251,6 @@
             onclick="navigateTo('discover')"
           >
             <span class="nav-icon">✨</span> Discover
-            <span
-              class="nav-badge"
-              id="nav-badge-discover"
-              style="
-                background: var(--accent-dim);
-                color: var(--accent);
-                border-color: var(--border-active);
-              "
-              >NEW</span
-            >
           </button>
           <button
             class="nav-item"
@@ -4841,8 +4913,12 @@
           `Showing ${filtered.length} of ${window.library.length} entries`;
 
         if (!filtered.length) {
-          grid.innerHTML =
-            '<div class="empty-state"><div class="empty-icon">📂</div><h3>No entries found</h3><p>Try adjusting your search or filters.</p></div>';
+          if (window.library.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div><h3>Your codex is empty</h3><p style="margin-bottom: 20px;">Begin building your personalized collection.</p><button class="btn btn-primary" onclick="openAddModal()">Add your first entry</button></div>';
+          } else {
+            grid.innerHTML =
+              '<div class="empty-state"><div class="empty-icon">📂</div><h3>No entries found</h3><p>Try adjusting your search or filters.</p></div>';
+          }
           list.innerHTML = "";
           return;
         }
@@ -4967,10 +5043,41 @@
           try {
             let mixedResults = [];
 
+            const fetchAnimeSearch = async () => {
+              try {
+                const jRes = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=5`);
+                const jData = await jRes.json();
+                if (jData && jData.data && jData.data.length > 0) return jData;
+                throw new Error("Jikan failed or empty");
+              } catch(e) {
+                try {
+                  const kRes = await fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(q)}&page[limit]=5`);
+                  const kData = await kRes.json();
+                  if (kData && kData.data) {
+                    return {
+                       data: kData.data.map(item => ({
+                          title_english: item.attributes.canonicalTitle,
+                          title: item.attributes.canonicalTitle,
+                          images: { jpg: { large_image_url: item.attributes.posterImage?.large || "" } },
+                          year: item.attributes.startDate ? parseInt(item.attributes.startDate.substring(0,4)) : "",
+                          episodes: item.attributes.episodeCount || "",
+                          url: `https://kitsu.io/anime/${item.attributes.slug}`,
+                          genres: [],
+                          season: "",
+                          mal_id: null,
+                          kitsu_id: item.id
+                       }))
+                    };
+                  }
+                } catch(err) {
+                  return { data: [] };
+                }
+              }
+              return { data: [] };
+            };
+
             const [animeRes, tvRes, movieRes] = await Promise.allSettled([
-              fetch(
-                `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(q)}&limit=5`,
-              ).then((r) => r.json()),
+              fetchAnimeSearch(),
               fetch(
                 `https://api.tvmaze.com/search/shows?q=${encodeURIComponent(q)}`,
               ).then((r) => r.json()),
@@ -5000,8 +5107,9 @@
                       ? `${item.season.charAt(0).toUpperCase() + item.season.slice(1)} ${item.year}`
                       : "",
                   type: "Anime",
-                  jikanId: item.mal_id ? `mal_${item.mal_id}` : null,
+                  jikanId: item.mal_id ? `mal_${item.mal_id}` : item.kitsu_id ? `kitsu_${item.kitsu_id}` : null,
                   malId: item.mal_id || null,
+                  kitsuId: item.kitsu_id || null
                 })),
               );
             }
@@ -5122,6 +5230,7 @@
         window._draftStremioId = r.stremioId || null;
         window._draftJikanId = r.jikanId || null;
         window._draftMalId = r.malId || null;
+        window._draftKitsuId = r.kitsuId || null;
 
         if (genresToUse && genresToUse.length) {
           currentDraftGenres = [...genresToUse];
@@ -5479,7 +5588,7 @@
                          .fill()
                          .map(
                            () =>
-                             `<div class="rec-card dom-skel" style="background:var(--bg-elevated);border-color:transparent;"><div style="padding:10px;text-align:center;color:gray;margin-top:60px;">•••</div></div>`,
+                             `<div class="skeleton-card dom-skel"></div>`,
                          )
                          .join("")}
                    </div>
@@ -5823,6 +5932,8 @@
           }
         } else if (rowType === "r2_trending") {
           url = `https://api.jikan.moe/v4/seasons/now?page=${pMod}&limit=25`;
+        } else if (rowType === "r_trending_global") {
+          url = `kitsu_trending_${pMod}`;
         } else if (rowType === "r3_top_genre1") {
           if (topGenres.length < 1 || !gMap[topGenres[0]]) {
             url = `https://api.jikan.moe/v4/anime?type=tv&order_by=score&sort=desc&min_score=8.0&limit=25&page=${pMod}`;
@@ -5874,6 +5985,28 @@
           return discoverCache[key];
         }
 
+        if (url.startsWith("kitsu_trending")) {
+            try {
+                // Kitsu pagination works via limits and offsets, but we'll just do trending limit for simplicity
+                // since pMod is just page, we can do offset
+                const offset = (pMod - 1) * 20;
+                const kRes = await fetch(`https://kitsu.io/api/edge/trending/anime?limit=20&offset=${offset}`);
+                const kData = await kRes.json();
+                const mapped = (kData.data || []).map((item) => ({
+                    id: `kitsu_${item.id}`,
+                    title: item.attributes.canonicalTitle,
+                    poster: item.attributes.posterImage?.large || "",
+                    genres: [],
+                    score: (parseFloat(item.attributes.averageRating || 0) / 10).toFixed(1),
+                }));
+                discoverCache[key] = mapped;
+                return mapped;
+            } catch(e) {
+                console.error("Kitsu fetch failed", e);
+                return [];
+            }
+        }
+
         try {
           let res = await fetchJikan(url);
           let data = await res.json();
@@ -5903,14 +6036,29 @@
                 const fRes = await fetchJikan(`https://api.jikan.moe/v4/seasons/now`);
                 const fData = await fRes.json();
                 const fRaw = fData.data || [];
-                return fRaw.map((item) => ({
-                  id: `mal_${item.mal_id}`,
-                  title: item.title_english || item.title,
-                  poster: item.images?.jpg?.large_image_url || "",
-                  genres: item.genres?.map((g) => g.name) || [],
-                  score: (item.score || 0).toFixed(1),
-                }));
+                if(fRaw.length > 0) {
+                  return fRaw.map((item) => ({
+                    id: `mal_${item.mal_id}`,
+                    title: item.title_english || item.title,
+                    poster: item.images?.jpg?.large_image_url || "",
+                    genres: item.genres?.map((g) => g.name) || [],
+                    score: (item.score || 0).toFixed(1),
+                  }));
+                }
              } catch(err){}
+             // Fallback to Kitsu if Jikan completely fails
+             try {
+                const kRes = await fetch(`https://kitsu.io/api/edge/trending/anime?limit=20`);
+                const kData = await kRes.json();
+                const kRaw = kData.data || [];
+                return kRaw.map((item) => ({
+                    id: `kitsu_${item.id}`,
+                    title: item.attributes.canonicalTitle,
+                    poster: item.attributes.posterImage?.large || "",
+                    genres: [],
+                    score: (parseFloat(item.attributes.averageRating || 0) / 10).toFixed(1),
+                }));
+             } catch(kErr) {}
           }
           return [];
         }
@@ -5933,10 +6081,7 @@
         if (page > 1) {
           for (let i = 0; i < 3; i++) {
             let skel = document.createElement("div");
-            skel.className = "rec-card dom-skel";
-            skel.style.background = "var(--bg-elevated)";
-            skel.style.borderColor = "transparent";
-            skel.innerHTML = `<div style="padding:10px;text-align:center;color:gray;margin-top:60px;">•••</div>`;
+            skel.className = "skeleton-card dom-skel";
             track.insertBefore(skel, track.querySelector(".row-sentinel"));
           }
         }
@@ -6121,6 +6266,7 @@
               : "POPULAR RELEASES",
           },
           { id: "r2_trending", title: "TRENDING THIS SEASON" },
+          { id: "r_trending_global", title: "GLOBAL TRENDING NOW" },
           { id: "r3_top_genre1", title: tp.genres[0] ? `TOP ${topG1.toUpperCase()} PICKS` : "CRITICALLY ACCLAIMED" },
           { id: "r4_top_genre2", title: tp.genres[1] ? `TOP ${topG2.toUpperCase()} PICKS` : "MOST FAVORITED" },
           {
