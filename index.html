@@ -1,0 +1,1449 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Curator's Codex</title>
+    <meta name="description" content="Personal media archive, watchlist manager, tier list creator, and social discovery platform." />
+    <meta property="og:title" content="The Curator's Codex" />
+    <meta property="og:description" content="Personal media archive, watchlist manager, tier list creator, and social discovery platform." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20'/><path d='M8 7h6'/><path d='M8 11h8'/></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <div id="toast-container"></div>
+    <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div id="app">
+      <aside id="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-title">THE CURATOR'S</div>
+          <div class="logo-title" style="font-size: 26px">CODEX</div>
+          <div class="logo-sub">Personal Archive</div>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-section-label">Pages</div>
+          <button
+            class="nav-item active"
+            data-page="library"
+            onclick="navigateTo('library')"
+          >
+            <span class="nav-icon">📚</span> Library
+            <span class="nav-badge" id="nav-badge-library">0</span>
+          </button>
+          <button
+            class="nav-item nav-item-desktop-only"
+            data-page="tierlist"
+            onclick="navigateTo('tierlist')"
+          >
+            <span class="nav-icon">🏆</span> Tier List
+            <span class="nav-badge" id="nav-badge-tierlist">0</span>
+          </button>
+          <button
+            class="nav-item"
+            data-page="stats"
+            onclick="navigateTo('stats')"
+          >
+            <span class="nav-icon">📊</span> Stats
+          </button>
+          <button
+            class="nav-item nav-item-desktop-only"
+            data-page="seasonal"
+            onclick="navigateTo('seasonal')"
+          >
+            <span class="nav-icon">🌸</span> Seasonal
+            <span class="nav-badge" id="nav-badge-seasonal">0</span>
+          </button>
+          <button
+            class="nav-item"
+            data-page="discover"
+            onclick="navigateTo('discover')"
+          >
+            <span class="nav-icon">✨</span> Discover
+          </button>
+          <button
+            class="nav-item"
+            data-page="social"
+            onclick="navigateTo('social')"
+          >
+            <span class="nav-icon">🤝</span> Social
+            <span
+              class="nav-badge"
+              id="nav-badge-social"
+              style="
+                background: var(--accent-dim);
+                color: var(--accent);
+                border-color: var(--border-active);
+                display: none;
+              "
+              >0</span
+            >
+          </button>
+          <button
+            class="nav-item nav-item-desktop-only"
+            id="nav-item-admin"
+            data-page="admin"
+            onclick="navigateTo('admin')"
+            style="display:none;"
+          >
+            <span class="nav-icon">🛡️</span> Manage Site
+          </button>
+          <button
+            class="nav-item nav-item-mobile-more"
+            id="nav-item-more"
+            onclick="toggleMobileMoreMenu(event)"
+          >
+            <span class="nav-icon">☰</span> More
+          </button>
+        </nav>
+        <div class="sidebar-footer">
+          <div
+            style="
+              font-weight: 700;
+              font-size: 14px;
+              color: var(--text-base);
+              margin-bottom: 2px;
+              text-align: center;
+              font-family: var(--font-display);
+              letter-spacing: 0.5px;
+            "
+            id="userUsernameDisplay"
+          ></div>
+          <div
+            style="
+              font-size: 11px;
+              color: var(--text-muted);
+              margin-bottom: 12px;
+              text-align: center;
+            "
+            id="userEmailDisplay"
+          ></div>
+          <button
+            class="btn btn-danger btn-sm btn-full"
+            onclick="signOutUser()"
+          >
+            👋 Sign Out
+          </button>
+        </div>
+      </aside>
+
+      <div id="mobileMoreMenuOverlay" class="mobile-more-overlay" onclick="closeMobileMoreMenu()"></div>
+      <div id="mobileMoreMenu" class="mobile-more-menu">
+        <div class="mobile-more-title">More Pages</div>
+        <button class="more-menu-btn" data-page="tierlist" onclick="navigateTo('tierlist'); closeMobileMoreMenu();">
+          <span class="nav-icon">🏆</span>
+          <span>Tier List</span>
+          <span class="nav-badge" id="nav-badge-tierlist-mobile">0</span>
+        </button>
+        <button class="more-menu-btn" data-page="seasonal" onclick="navigateTo('seasonal'); closeMobileMoreMenu();">
+          <span class="nav-icon">🌸</span>
+          <span>Seasonal</span>
+          <span class="nav-badge" id="nav-badge-seasonal-mobile">0</span>
+        </button>
+        <button class="more-menu-btn" id="more-item-admin" data-page="admin" onclick="navigateTo('admin'); closeMobileMoreMenu();" style="display: none;">
+          <span class="nav-icon">🛡️</span>
+          <span>Manage Site</span>
+        </button>
+      </div>
+
+      <main id="main">
+        <header id="topbar">
+          <button id="hamburger" onclick="toggleSidebar()">☰</button>
+          <div class="topbar-title" id="topbarTitle">LIBRARY</div>
+          <div
+            id="searchDropdownWrap"
+            style="flex: 1; max-width: 380px; position: relative"
+          >
+            <span
+              style="
+                position: absolute;
+                left: 11px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--text-muted);
+                font-size: 14px;
+                pointer-events: none;
+                z-index: 2;
+              "
+              >🔍</span
+            >
+            <input
+              type="text"
+              id="searchInput"
+              placeholder='Search library… (press "/")'
+              oninput="onSearchInput()"
+              style="
+                width: 100%;
+                background: var(--bg-elevated);
+                border: 1px solid var(--border);
+                border-radius: 7px;
+                padding: 8px 34px 8px 34px;
+                color: var(--text-primary);
+                font-family: var(--font-body);
+                font-size: 13px;
+                outline: none;
+                transition:
+                  border-color 0.2s var(--ease),
+                  box-shadow 0.2s var(--ease);
+              "
+            />
+            <button
+              id="clearSearchBtn"
+              onclick="window.clearSearch()"
+              style="
+                position: absolute;
+                right: 8px;
+                top: 50%;
+                transform: translateY(-50%) scale(0.9);
+                background: none;
+                border: none;
+                color: var(--text-muted);
+                font-size: 14px;
+                cursor: pointer;
+                z-index: 2;
+                display: none;
+                transition: all 0.2s var(--ease);
+                padding: 4px;
+                border-radius: 50%;
+              "
+              onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='var(--text-primary)';this.style.transform='translateY(-50%) scale(1)';"
+              onmouseout="this.style.background='transparent';this.style.color='var(--text-muted)';this.style.transform='translateY(-50%) scale(0.9)';"
+              title="Clear Search"
+            >
+              ✕
+            </button>
+          </div>
+          <div class="topbar-actions">
+            <button
+              class="btn btn-ghost btn-sm"
+              onclick="window.toggleNotificationsDrawer()"
+              title="Notifications"
+              style="position: relative;"
+              id="btnNotifications"
+            >
+              🔔
+              <span id="nav-badge-notif" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--danger);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;">0</span>
+            </button>
+            <button
+              class="btn btn-ghost btn-sm"
+              onclick="toggleBackupMenu(event)"
+              title="Backup"
+            >
+              💾 <span>Backup</span>
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="openAddModal()">
+              ＋ <span>Add Entry</span>
+            </button>
+          </div>
+        </header>
+
+        <div
+          id="backupMenu"
+          style="
+            display: none;
+            position: fixed;
+            z-index: 500;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px;
+            min-width: 160px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+          "
+        >
+          <button
+            class="btn btn-ghost btn-sm btn-full"
+            style="justify-content: flex-start; gap: 8px"
+            onclick="
+              exportBackup();
+              closeBackupMenu();
+            "
+          >
+            📤 Export JSON
+          </button>
+          <label
+            class="btn btn-ghost btn-sm btn-full"
+            style="
+              justify-content: flex-start;
+              gap: 8px;
+              cursor: pointer;
+              margin-top: 2px;
+            "
+          >
+            📥 Import JSON<input
+              type="file"
+              accept=".json"
+              onchange="importBackup(event)"
+              style="display: none"
+            />
+          </label>
+        </div>
+
+        <div id="page-content">
+          <section id="page-library" class="page-section active">
+            <!-- Contextual Status Pills Bar placed at the very top of Library page content -->
+            <div class="library-status-pills-bar" id="libraryStatusPills">
+              <button
+                class="status-pill-btn active"
+                data-status=""
+                onclick="quickFilterStatus('')"
+              >
+                <span
+                  class="status-dot"
+                  style="background: var(--text-muted)"
+                ></span>
+                <span>All</span>
+                <span class="pill-count" id="sf-all">0</span>
+              </button>
+              <button
+                class="status-pill-btn"
+                data-status="Plan to Watch"
+                onclick="quickFilterStatus('Plan to Watch')"
+              >
+                <span class="status-dot dot-ptw"></span>
+                <span>Plan to Watch</span>
+                <span class="pill-count" id="sf-ptw">0</span>
+              </button>
+              <button
+                class="status-pill-btn"
+                data-status="Watching"
+                onclick="quickFilterStatus('Watching')"
+              >
+                <span class="status-dot dot-watch"></span>
+                <span>Watching</span>
+                <span class="pill-count" id="sf-watch">0</span>
+              </button>
+              <button
+                class="status-pill-btn"
+                data-status="Completed"
+                onclick="quickFilterStatus('Completed')"
+              >
+                <span class="status-dot dot-done"></span>
+                <span>Completed</span>
+                <span class="pill-count" id="sf-done">0</span>
+              </button>
+              <button
+                class="status-pill-btn"
+                data-status="On Hold"
+                onclick="quickFilterStatus('On Hold')"
+              >
+                <span class="status-dot dot-hold"></span>
+                <span>On Hold</span>
+                <span class="pill-count" id="sf-hold">0</span>
+              </button>
+              <button
+                class="status-pill-btn"
+                data-status="Dropped"
+                onclick="quickFilterStatus('Dropped')"
+              >
+                <span class="status-dot dot-drop"></span>
+                <span>Dropped</span>
+                <span class="pill-count" id="sf-drop">0</span>
+              </button>
+            </div>
+
+            <div class="page-header">
+              <div class="page-h1">LIBRARY</div>
+              <div class="page-sub" id="librarySubtitle">
+                Loading your collection…
+              </div>
+            </div>
+            <div class="filters-bar">
+              <button
+                class="btn btn-secondary btn-sm"
+                id="toggleFiltersBtn"
+                onclick="toggleLibraryFiltersDrawer()"
+                style="height: 34px; gap: 6px;"
+              >
+                <span>⚙️ Filters</span>
+                <span
+                  id="activeFilterBadge"
+                  style="
+                    display: none;
+                    background: var(--accent);
+                    color: #fff;
+                    border-radius: 10px;
+                    font-size: 11px;
+                    padding: 1px 6px;
+                    font-weight: 700;
+                  "
+                  >0</span
+                >
+              </button>
+              <select
+                class="filter-select"
+                id="sortBy"
+                onchange="renderLibrary()"
+              >
+                <option value="titleAZ" selected>Title A–Z</option>
+                <option value="dateAdded">Date Added</option>
+                <option value="tier">Tier Rating</option>
+                <option value="year">Release Year</option>
+              </select>
+              <div class="view-toggle" style="margin-left: auto">
+                <button
+                  class="view-btn active"
+                  id="gridViewBtn"
+                  onclick="setView('grid')"
+                  title="Grid View"
+                >
+                  ⊞</button
+                ><button
+                  class="view-btn"
+                  id="listViewBtn"
+                  onclick="setView('list')"
+                  title="List View"
+                >
+                  ☰
+                </button>
+              </div>
+              <button
+                class="btn btn-ghost btn-sm"
+                onclick="openSurpriseModal()"
+              >
+                🎲 Surprise Me
+              </button>
+              <button
+                class="btn btn-ghost btn-sm"
+                onclick="selectAllFiltered()"
+              >
+                ☑ Select All
+              </button>
+            </div>
+            <div id="libraryFiltersDrawer" class="filters-drawer" style="display: none;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
+                  Filter Collection
+                </div>
+                <button
+                  class="btn btn-ghost btn-sm"
+                  onclick="clearFilters()"
+                  style="padding: 2px 8px; font-size: 11px;"
+                >
+                  Clear Filters
+                </button>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                <select
+                  class="filter-select"
+                  id="filterType"
+                  onchange="updateFilterBadge(); renderLibrary()"
+                >
+                  <option value="">All Types</option>
+                  <option>Anime</option>
+                  <option>Movie</option>
+                  <option>Web Series</option>
+                  <option>OVA</option>
+                  <option>Special</option>
+                </select>
+                <select
+                  class="filter-select"
+                  id="filterTier"
+                  onchange="updateFilterBadge(); renderLibrary()"
+                >
+                  <option value="">All Tiers</option>
+                  <option>S</option>
+                  <option>A</option>
+                  <option>B</option>
+                  <option>C</option>
+                  <option>D</option>
+                  <option>E</option>
+                  <option>F</option>
+                </select>
+                <select
+                  class="filter-select"
+                  id="filterGenre"
+                  onchange="updateFilterBadge(); renderLibrary()"
+                >
+                  <option value="">All Genres</option>
+                </select>
+                <input type="hidden" id="filterStatus" value="" />
+              </div>
+            </div>
+            <div id="bulkBar">
+              <span class="bulk-count" id="bulkCount">0 selected</span
+              ><button class="btn btn-danger btn-sm" onclick="bulkDelete()">
+                🗑 Delete Selected</button
+              ><button class="btn btn-ghost btn-sm" onclick="clearSelection()">
+                ✕ Clear
+              </button>
+            </div>
+            <div id="gridView"></div>
+            <div id="listView"></div>
+          </section>
+
+          <section id="page-tierlist" class="page-section">
+            <div class="page-header">
+              <div class="page-h1">TIER LIST</div>
+              <div class="page-sub">
+                Your definitive ranking of everything watched
+              </div>
+            </div>
+            <div id="tierListContainer"></div>
+          </section>
+
+          <section id="page-stats" class="page-section">
+            <div class="page-header">
+              <div class="page-h1">STATS</div>
+              <div class="page-sub">An overview of your curated archive</div>
+            </div>
+
+            <div
+              class="stat-card"
+              style="
+                margin-bottom: 24px;
+                padding: 20px;
+                background: rgba(99, 102, 241, 0.05);
+                border-color: rgba(99, 102, 241, 0.2);
+              "
+            >
+              <div
+                class="stat-label"
+                style="display: flex; align-items: center; gap: 8px"
+              >
+                <span style="font-size: 16px">✨</span> TASTE ANALYSIS
+              </div>
+              <div
+                class="stat-value"
+                id="stat-analysis"
+                style="
+                  font-size: 15px;
+                  line-height: 1.6;
+                  color: var(--text-primary);
+                  margin-top: 10px;
+                  font-weight: 400;
+                  letter-spacing: 0.3px;
+                "
+              >
+                Analyzing your database...
+              </div>
+            </div>
+
+            <div class="stats-top-row">
+              <div class="stat-card">
+                <div class="stat-label">Total Entries</div>
+                <div class="stat-value" id="stat-total">0</div>
+                <div class="stat-sub">in your codex</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Completed</div>
+                <div class="stat-value" id="stat-completed">0</div>
+                <div class="stat-sub">finished titles</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Time Watched</div>
+                <div class="stat-value" id="stat-time">0h</div>
+                <div class="stat-sub">estimated total</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Episodes Watched</div>
+                <div class="stat-value" id="stat-episodes">0</div>
+                <div class="stat-sub">total episodes</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Top Genre</div>
+                <div
+                  class="stat-value"
+                  id="stat-genre"
+                  style="font-size: 22px; padding-top: 6px"
+                >
+                  —
+                </div>
+                <div class="stat-sub" id="stat-genre-count">appearances</div>
+              </div>
+            </div>
+            <div class="charts-row">
+              <div class="chart-card">
+                <div class="chart-title">TIER DISTRIBUTION</div>
+                <div class="chart-container">
+                  <canvas id="tierChart"></canvas>
+                </div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-title">STATUS BREAKDOWN</div>
+                <div class="chart-container">
+                  <canvas id="statusChart"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="charts-row">
+              <div class="chart-card breakdown-section">
+                <div class="breakdown-title">BY TYPE</div>
+                <div id="typeBreakdown"></div>
+              </div>
+              <div class="chart-card breakdown-section">
+                <div class="breakdown-title">TOP GENRES</div>
+                <div id="genreBreakdown"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="page-seasonal" class="page-section">
+            <div class="page-header">
+              <div class="page-h1">SEASONAL BROWSER</div>
+              <div class="page-sub">Browse entries by their seasonal tag</div>
+            </div>
+            <div class="seasonal-filter-row">
+              <label style="font-size: 13px; color: var(--text-secondary)"
+                >Filter by season:</label
+              >
+              <select
+                class="filter-select"
+                id="seasonalFilter"
+                onchange="renderSeasonal()"
+              >
+                <option value="">All Seasons</option>
+              </select>
+            </div>
+            <div id="seasonalContainer"></div>
+          </section>
+
+          <section id="page-discover" class="page-section">
+            <div class="page-header">
+              <div class="page-h1">DISCOVER</div>
+              <div class="page-sub" id="discoverSubtitle">
+                Recommendations matched to your taste profile
+              </div>
+            </div>
+            <div class="taste-profile" id="tasteProfile">
+              <span class="taste-profile-label">Your Taste →</span
+              ><span
+                id="tasteTagsContainer"
+                style="display: flex; gap: 8px; flex-wrap: wrap"
+              ></span>
+              <span
+                id="tasteEmpty"
+                style="font-size: 13px; color: var(--text-muted); display: none"
+                >Add some rated entries to your library so the engine can learn
+                your taste.</span
+              >
+            </div>
+            <div class="discover-type-pills">
+              <button
+                class="discover-pill active"
+                data-type="anime"
+                onclick="switchDiscoverType('anime')"
+              >
+                🎌 Anime
+              </button>
+              <button
+                class="discover-pill"
+                data-type="movie"
+                onclick="switchDiscoverType('movie')"
+              >
+                🎬 Movies
+              </button>
+              <button
+                class="discover-pill"
+                data-type="series"
+                onclick="switchDiscoverType('series')"
+              >
+                📺 Series
+              </button>
+            </div>
+            <div class="discover-controls">
+              <div style="display: flex; align-items: center; gap: 8px">
+                <button
+                  class="btn btn-ghost btn-sm"
+                  onclick="renderDiscover(true)"
+                >
+                  ↺ Refresh Picks</button
+                ><span
+                  id="discoverSourceLabel"
+                  style="
+                    font-size: 12px;
+                    color: var(--text-muted);
+                    margin-left: 4px;
+                  "
+                ></span>
+              </div>
+              <label class="discover-controls-right">
+                Allow Sequels
+                <div class="toggle-switch">
+                  <input
+                    type="checkbox"
+                    id="allowSequelsToggle"
+                    onchange="renderDiscover(true)"
+                  />
+                  <span class="toggle-slider"></span>
+                </div>
+              </label>
+            </div>
+            <div id="discoverRowsContainer"></div>
+          </section>
+
+          <section id="page-social" class="page-section">
+            <div class="page-header" style="justify-content: space-between; align-items: center; display: flex; margin-bottom: 20px;">
+              <div style="flex: 1; max-width: 400px; position: relative;">
+                <input
+                  type="text"
+                  class="form-input"
+                  id="socialSearchInput"
+                  placeholder="Search by username or email…"
+                  autocomplete="off"
+                />
+                <div id="socialSearchDropdown" class="search-dropdown" style="display:none; width: 100%;"></div>
+              </div>
+              <button class="btn btn-ghost" onclick="window.openSocialSettings()">⚙️ Settings</button>
+            </div>
+            
+            <div id="socialGuestPrompt" class="empty-state" style="display:none;">
+               <div class="empty-icon">🤝</div>
+               <h3>Sign in to access Social features</h3>
+               <p>Connect with friends, check out their codex, and share recommendations!</p>
+            </div>
+
+            <div id="socialSetupPrompt" class="empty-state" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+               <div class="empty-icon">👋</div>
+               <h3>Welcome to Social</h3>
+               <p style="margin-bottom: 4px;">Please choose a unique username to get started.</p>
+               <p style="font-size: 13px; color: var(--text-muted);">(3-20 letters, numbers, underscores)</p>
+               <input type="text" class="form-input" id="setupUsername" style="max-width:300px; margin:20px auto; text-align:center; display:block;" placeholder="e.g. awesome_user" />
+               <div id="setupUsernameStatus" style="font-size:13px; margin-bottom:20px; font-weight:600; min-height:20px;"></div>
+               <div style="display:flex; gap: 10px; justify-content: center; align-items: center;">
+                 <button class="btn btn-primary btn-sm" id="btnSetUsername" disabled style="padding: 8px 24px; font-size: 14px;">Claim User ID</button>
+                 <button class="btn btn-ghost btn-sm" onclick="navigateTo('library')" style="padding: 8px 24px; font-size: 14px;">Go to Library</button>
+               </div>
+            </div>
+
+            <div id="socialAppContent" style="display:none;">
+               <div id="pendingRequestsSection" style="margin-bottom:30px; display:none;">
+                   <div style="font-family:var(--font-display); font-size:18px; letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                       PENDING REQUESTS
+                   </div>
+                   <div style="display:flex; gap:10px; margin-bottom:12px;">
+                        <button class="btn btn-ghost active" id="tabReceivedRequests" onclick="window.switchPendingTab('received')">Received</button>
+                        <button class="btn btn-ghost" id="tabSentRequests" onclick="window.switchPendingTab('sent')">Sent</button>
+                   </div>
+                   <div id="pendingRequestsContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;"></div>
+               </div>
+
+               <div style="font-family:var(--font-display); font-size:18px; letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center; flex-wrap:wrap; gap:12px;">
+                   FRIENDS
+                   <input type="text" id="localFriendSearch" class="form-input" placeholder="Search friends by username, nickname, email..." oninput="window.renderFriendsGrid()" style="max-width:300px; flex:1;" />
+                   <button class="btn btn-secondary btn-sm" id="btnViewRecommendations" onclick="window.openRecommendationsViewer()" style="margin-left:auto; display:none;">🎁 View Recommendations</button>
+               </div>
+               <div id="friendsGrid" class="discover-rows-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px;"></div>
+               <div id="friendsEmpty" class="empty-state" style="display:none">
+                   <div class="empty-icon">🤝</div>
+                   <h3>Your codex is empty of companions</h3>
+                   <p>Search for a username above to begin.</p>
+               </div>
+            </div>
+          </section>
+
+          <section id="page-admin" class="page-section">
+            <div class="page-header" style="justify-content: space-between; align-items: flex-end">
+              <div>
+                <h1 class="page-title">Master Control</h1>
+                <div class="page-subtitle">Site Management & Directory</div>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px;">
+              <div class="stat-card">
+                 <div class="stat-value" id="adminTotalUsers">--</div>
+                 <div class="stat-label">Total Users in Network</div>
+              </div>
+              <div class="stat-card">
+                 <div style="font-weight:600; margin-bottom:8px">System Broadcast</div>
+                 <input type="text" class="form-input" placeholder="Type a global message..." style="margin-bottom:8px;" />
+                 <button class="btn btn-primary btn-sm" onclick="alert('Broadcast sent!')">Send Broadcast</button>
+              </div>
+              <div class="stat-card">
+                 <div style="font-weight:600; margin-bottom:8px">Site Maintenance</div>
+                 <button class="btn btn-secondary btn-sm" onclick="alert('Discover cache cleared.'); window.discoverCache={};" style="margin-bottom:8px;">Clear Discover Cache</button>
+                 <button class="btn btn-danger btn-sm" onclick="alert('Backup initiated (simulation).')">Trigger DB Backup</button>
+              </div>
+            </div>
+
+            <h2 class="page-subtitle" style="margin-top:20px;margin-bottom:10px;">Network Members</h2>
+            <div id="adminUserList" style="display: flex; flex-direction: column; gap: 8px;">
+               <!-- Users will be populated here -->
+            </div>
+          </section>
+
+        </div>
+      </main>
+    </div>
+
+    <!-- NOTIFICATIONS DRAWER -->
+    <div
+      class="modal-overlay"
+      id="notificationsDrawerOverlay"
+      onclick="handleOverlayClick(event, 'notificationsDrawerOverlay')"
+    >
+      <div id="notificationsDrawer" style="position: absolute; right: 0; top: 0; bottom: 0; width: 400px; max-width: 100vw; background: var(--bg-surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s var(--ease);">
+        <div style="padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-family: var(--font-display); font-size: 20px; letter-spacing: 1px;">NOTIFICATIONS</div>
+          <div style="display: flex; gap: 10px;">
+              <button class="btn btn-ghost btn-sm" onclick="window.clearAllNotifications()">Clear All</button>
+              <button class="btn btn-ghost btn-sm" onclick="window.toggleNotificationsDrawer()">✕</button>
+          </div>
+        </div>
+        <div id="notificationsList" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px;"></div>
+      </div>
+    </div>
+
+    <!-- SOCIAL SETTINGS MODAL -->
+    <div
+      class="modal-overlay"
+      id="socialSettingsOverlay"
+      onclick="handleOverlayClick(event, 'socialSettingsOverlay')"
+    >
+      <div class="modal" id="socialSettingsModal" style="max-width: 500px">
+        <div class="modal-header">
+          <div class="modal-title">SOCIAL SETTINGS</div>
+          <button class="modal-close" onclick="window.closeSocialSettings()">✕</button>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+           <div style="margin-bottom: 16px;">
+               <label class="form-label">Display Username</label>
+               <input type="text" id="socialSettingsDisplayName" class="form-input" style="margin-bottom: 8px;" />
+               <button class="btn btn-primary" onclick="window.saveSocialSettingsDisplayName()">Save Name</button>
+           </div>
+           <div style="margin-bottom: 16px;">
+               <label class="form-label">Your User ID</label>
+               <div style="display:flex; gap:8px;">
+                   <input type="text" id="socialSettingsUid" class="form-input" readonly />
+                   <button class="btn btn-ghost" onclick="navigator.clipboard.writeText(document.getElementById('socialSettingsUid').value); showToast('Copied to clipboard', 'success')">Copy</button>
+               </div>
+           </div>
+           <div style="margin-bottom: 16px;">
+               <label class="form-label">Library Visibility</label>
+               <select id="socialSettingsVisibility" class="form-input" onchange="window.saveSocialSettingsVisibility(this.value)">
+                   <option value="public">Public</option>
+                   <option value="friends">Friends Only</option>
+                   <option value="private">Private</option>
+               </select>
+           </div>
+           <div style="margin-bottom: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+               <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; margin-bottom: 10px;">
+                   <span>Show me in user search</span>
+                   <div class="toggle-switch">
+                       <input type="checkbox" id="socialSettingsSearch" onchange="window.saveSocialSettingsToggle('showInSearch', this.checked)">
+                       <span class="toggle-slider"></span>
+                   </div>
+               </label>
+               <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                   <span>Allow incoming friend requests</span>
+                   <div class="toggle-switch">
+                       <input type="checkbox" id="socialSettingsRequests" onchange="window.saveSocialSettingsToggle('allowRequests', this.checked)">
+                       <span class="toggle-slider"></span>
+                   </div>
+               </label>
+           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FRIEND LIBRARY VIEWER -->
+    <div
+      class="modal-overlay"
+      id="friendLibraryOverlay"
+      style="background: var(--bg-base); z-index: 1000; padding: 0; align-items: stretch;"
+    >
+      <div style="display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1200px; margin: 0 auto; overflow: hidden;">
+         <div style="min-height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; flex-wrap: wrap; gap: 10px;">
+            <button class="btn btn-ghost" onclick="window.closeFriendLibrary()">← Back</button>
+            <div id="friendLibraryTitle" style="font-family: var(--font-display); font-size: 20px; letter-spacing: 1px;">LIBRARY</div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <select class="filter-select" id="friendFilterType" onchange="window.renderFriendLibrary()">
+                    <option value="">All Types</option>
+                    <option value="Anime">Anime</option>
+                    <option value="Movie">Movie</option>
+                    <option value="Web Series">Web Series</option>
+                    <option value="OVA">OVA</option>
+                    <option value="Special">Special</option>
+                </select>
+                <select class="filter-select" id="friendFilterStatus" onchange="window.renderFriendLibrary()">
+                    <option value="">All Status</option>
+                    <option value="Plan to Watch">Plan to Watch</option>
+                    <option value="Watching">Watching</option>
+                    <option value="Completed">Completed</option>
+                    <option value="On Hold">On Hold</option>
+                    <option value="Dropped">Dropped</option>
+                </select>
+                <select class="filter-select" id="friendFilterTier" onchange="window.renderFriendLibrary()">
+                    <option value="">All Tiers</option>
+                    <option value="S">S Tier</option>
+                    <option value="A">A Tier</option>
+                    <option value="B">B Tier</option>
+                    <option value="C">C Tier</option>
+                    <option value="D">D Tier</option>
+                    <option value="F">F Tier</option>
+                </select>
+            </div>
+         </div>
+         <div id="friendLibraryContainer" style="flex: 1; height: 0; min-height: 200px; overflow-y: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); grid-auto-rows: max-content; gap: 16px;"></div>
+      </div>
+    </div>
+
+    <!-- RECOMMENDATIONS VIEWER -->
+    <div
+      class="modal-overlay"
+      id="recommendationsOverlay"
+      style="background: var(--bg-base); z-index: 1000; padding: 0; align-items: stretch;"
+    >
+      <div style="display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1200px; margin: 0 auto; overflow: hidden;">
+         <div style="min-height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; flex-wrap: wrap; gap: 10px;">
+            <button class="btn btn-ghost" onclick="window.closeRecommendationsViewer()">← Back</button>
+            <div style="font-family: var(--font-display); font-size: 20px; letter-spacing: 1px;">RECOMMENDED BY FRIENDS</div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+         </div>
+         <div id="recommendationsContainerGrid" style="flex: 1; height: 0; min-height: 200px; overflow-y: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); grid-auto-rows: max-content; gap: 16px;"></div>
+      </div>
+    </div>
+
+    <!-- RECOMMENDATION MODAL -->
+    <div
+      class="modal-overlay"
+      id="recommendModalOverlay"
+      onclick="handleOverlayClick(event, 'recommendModalOverlay')"
+    >
+      <div class="modal" id="recommendModal" style="max-width: 500px">
+        <div class="modal-header">
+          <div class="modal-title" id="recommendModalTitle">SEND RECOMMENDATION</div>
+          <button class="modal-close" onclick="window.closeRecommendModal()">✕</button>
+        </div>
+        <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+            <div id="recommendTargetInfo"></div>
+            
+            <div id="recommendSearchContainer">
+                <input type="text" id="recommendSearchInput" class="form-input" placeholder="Search..." autocomplete="off" oninput="window.onRecommendSearchInput()" onfocus="window.onRecommendSearchInput()" />
+                <div id="recommendSearchResults" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-top: none; display: none;"></div>
+            </div>
+
+            <textarea id="recommendNote" class="form-input" style="resize: vertical; min-height: 80px;" placeholder="Add a personal note... (optional, 140 chars max)" maxlength="140"></textarea>
+            
+            <button class="btn btn-primary" id="btnSendRecommendation" onclick="window.sendRecommendation()" style="width: 100%; justify-content: center;">🎁 Send Recommendation</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-overlay"
+      id="entryModalOverlay"
+      onclick="handleOverlayClick(event, 'entryModalOverlay')"
+    >
+      <div class="modal" id="entryModal" style="max-width: 640px">
+        <div class="modal-header">
+          <div class="modal-title" id="entryModalTitle">ADD ENTRY</div>
+          <button class="modal-close" onclick="closeEntryModal()">✕</button>
+        </div>
+        <div class="modal-tabs">
+          <button
+            type="button"
+            class="modal-tab-btn active"
+            id="entryTabBtn-1"
+            onclick="switchEntryTab(1)"
+          >
+            Core Details
+          </button>
+          <button
+            type="button"
+            class="modal-tab-btn"
+            id="entryTabBtn-2"
+            onclick="switchEntryTab(2)"
+          >
+            Ratings &amp; Tags
+          </button>
+          <button
+            type="button"
+            class="modal-tab-btn"
+            id="entryTabBtn-3"
+            onclick="switchEntryTab(3)"
+          >
+            Notes &amp; Links
+          </button>
+        </div>
+        <div class="modal-body" style="padding: 20px 24px;">
+          <!-- TAB 1: Core Details -->
+          <div id="entryTab-1" class="form-grid">
+            <div class="form-group full">
+              <label class="form-label"
+                >Title <span style="color: var(--danger)">*</span></label
+              >
+              <div style="position: relative">
+                <div class="title-row">
+                  <input
+                    type="text"
+                    class="form-input"
+                    id="field-title"
+                    placeholder="Type to search…"
+                    oninput="onTitleInput()"
+                    onkeydown="handleTitleKey(event)"
+                    autocomplete="off"
+                  />
+                  <div
+                    id="titleSpinner"
+                    style="
+                      position: absolute;
+                      right: 12px;
+                      top: 50%;
+                      transform: translateY(-50%);
+                      display: none;
+                    "
+                  >
+                    <div class="spinner"></div>
+                  </div>
+                </div>
+                <div
+                  id="searchDropdown"
+                  style="
+                    position: absolute;
+                    top: calc(100% + 4px);
+                    left: 0;
+                    right: 0;
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border-active);
+                    border-radius: 10px;
+                    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+                    z-index: 9999;
+                    display: none;
+                    overflow: hidden;
+                    max-height: 380px;
+                    overflow-y: auto;
+                  "
+                ></div>
+              </div>
+              <div id="autofillStatus"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type</label
+              ><select
+                class="form-select"
+                id="field-type"
+                onchange="onTypeChange()"
+              >
+                <option>Anime</option>
+                <option>Movie</option>
+                <option>Web Series</option>
+                <option>OVA</option>
+                <option>Special</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label
+              ><select class="form-select" id="field-status">
+                <option>Plan to Watch</option>
+                <option>Watching</option>
+                <option>Completed</option>
+                <option>On Hold</option>
+                <option>Dropped</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Poster URL</label
+              ><input
+                type="url"
+                class="form-input"
+                id="field-poster"
+                placeholder="https://…"
+              />
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Episodes Watched</label
+              ><input
+                type="number"
+                class="form-input"
+                id="field-episodes"
+                placeholder="0"
+                min="0"
+              />
+            </div>
+          </div>
+
+          <!-- TAB 2: Ratings & Tags -->
+          <div id="entryTab-2" class="form-grid" style="display: none;">
+            <div class="form-group full">
+              <label class="form-label">Tier Rating</label>
+              <div class="tier-selector" id="tierSelector"></div>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Genres</label>
+              <div
+                class="tags-input-wrap"
+                onclick="document.getElementById('genreInput').focus()"
+              >
+                <div id="genreTags"></div>
+                <input
+                  type="text"
+                  class="tags-input"
+                  id="genreInput"
+                  placeholder="Type genre, press Enter or comma…"
+                  onkeydown="handleGenreKey(event)"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Release Year</label
+              ><input
+                type="number"
+                class="form-input"
+                id="field-year"
+                placeholder="2024"
+                min="1900"
+                max="2099"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Seasonal Tag</label
+              ><input
+                type="text"
+                class="form-input"
+                id="field-season"
+                placeholder="e.g. Winter 2024"
+              />
+            </div>
+            <div
+              class="form-group full"
+              id="seasonsTrackerGroup"
+              style="display: none"
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  margin-bottom: 4px;
+                "
+              >
+                <label class="form-label" style="margin-bottom: 0"
+                  >Seasons Tracker</label
+                >
+                <div
+                  style="
+                    font-size: 13px;
+                    color: var(--accent);
+                    font-weight: 600;
+                  "
+                  id="seasonCountLabel"
+                >
+                  0
+                </div>
+              </div>
+              <input
+                type="range"
+                id="field-seasonCount"
+                min="0"
+                max="50"
+                value="0"
+                oninput="
+                  document.getElementById('seasonCountLabel').textContent =
+                    this.value;
+                  renderSeasonChips();
+                "
+                style="
+                  width: 100%;
+                  margin-bottom: 12px;
+                  accent-color: var(--accent);
+                  cursor: pointer;
+                "
+              />
+              <div class="seasons-grid" id="seasonChipsContainer"></div>
+            </div>
+          </div>
+
+          <!-- TAB 3: Notes & Links -->
+          <div id="entryTab-3" class="form-grid" style="display: none;">
+            <div class="form-group full">
+              <label class="form-label">Personal Notes</label
+              ><textarea
+                class="form-textarea"
+                id="field-notes"
+                style="min-height: 120px;"
+                placeholder="Your thoughts, quotes, recommendations…"
+              ></textarea>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">External Link</label
+              ><input
+                type="url"
+                class="form-input"
+                id="field-link"
+                placeholder="https://…"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeEntryModal()">
+            Cancel</button
+          ><button class="btn btn-primary" onclick="saveEntry()">
+            Save Entry
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-overlay"
+      id="detailModalOverlay"
+      onclick="handleOverlayClick(event, 'detailModalOverlay')"
+    >
+      <div class="modal modal-lg" id="detailModal">
+        <div
+          class="modal-close"
+          style="
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 10;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+          "
+          onclick="closeDetailModal()"
+        >
+          ✕
+        </div>
+        <div class="detail-hero" id="detailHero"></div>
+        <div class="detail-body" id="detailBody"></div>
+      </div>
+    </div>
+
+
+
+    <div
+      class="modal-overlay"
+      id="surpriseModalOverlay"
+      onclick="handleOverlayClick(event, 'surpriseModalOverlay')"
+    >
+      <div class="modal" id="surpriseModal">
+        <div class="modal-header">
+          <div class="modal-title">🎲 SURPRISE ME</div>
+          <button class="modal-close" onclick="closeSurpriseModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom: 16px">
+            <label class="form-label">Status Filter</label
+            ><select class="form-select" id="surpriseStatus">
+              <option value="">Any</option>
+              <option value="Plan to Watch" selected>Plan to Watch</option>
+              <option value="Watching">Watching</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 20px">
+            <label class="form-label" style="margin-bottom: 8px"
+              >Filter by Genre (optional)</label
+            >
+            <div class="genre-pills-wrap" id="surpriseGenrePills"></div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="pickSurprise()">
+            🎲 Pick One!
+          </button>
+          <div id="surpriseResult" style="margin-top: 16px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="loginOverlay"
+      style="
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(139, 92, 246, 0.15),
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at bottom left,
+            rgba(139, 92, 246, 0.05),
+            transparent 40%
+          ),
+          var(--bg-base);
+        z-index: 10000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 24px;
+      "
+    >
+      <div
+        style="
+          text-align: center;
+          animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        "
+      >
+        <div
+          style="
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 24px auto;
+          "
+        >
+          <svg
+            style="
+              width: 100%;
+              height: 100%;
+              filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.5));
+            "
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--accent)"
+            stroke-width="1.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"
+            />
+            <path d="M8 7h6" />
+            <path d="M8 11h8" />
+          </svg>
+        </div>
+        <div
+          class="logo-title"
+          style="font-size: 32px; letter-spacing: 4px; font-weight: 300"
+        >
+          THE CURATOR'S
+        </div>
+        <div
+          class="logo-title"
+          style="
+            font-size: 56px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            text-shadow: 0 0 30px rgba(139, 92, 246, 0.25);
+          "
+        >
+          CODEX
+        </div>
+        <div
+          class="logo-sub"
+          style="
+            font-size: 16px;
+            margin-top: 12px;
+            color: var(--text-muted);
+            max-width: 300px;
+            line-height: 1.5;
+            margin-left: auto;
+            margin-right: auto;
+          "
+        >
+          Your digital archive for Anime, Series, and Cinema.
+        </div>
+      </div>
+      <button
+        class="btn btn-primary"
+        id="googleSignInBtn"
+        onclick="signInWithGoogle()"
+        style="
+          padding: 16px 32px;
+          border-radius: 50px;
+          font-size: 16px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 10px 40px rgba(139, 92, 246, 0.35);
+          transition: all 0.3s ease;
+        "
+        onmouseover="
+          this.style.transform = 'translateY(-3px)';
+          this.style.boxShadow = '0 15px 50px rgba(139, 92, 246, 0.45)';
+        "
+        onmouseout="
+          this.style.transform = 'translateY(0)';
+          this.style.boxShadow = '0 10px 40px rgba(139, 92, 246, 0.35)';
+        "
+      >
+        <svg
+          style="width: 20px; height: 20px"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path
+            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            fill="#4285F4"
+          />
+          <path
+            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            fill="#34A853"
+          />
+          <path
+            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+            fill="#FBBC05"
+          />
+          <path
+            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+            fill="#EA4335"
+          />
+        </svg>
+        Sign in with Google
+      </button>
+      <button
+        class="btn btn-ghost"
+        id="guestBtn"
+        onclick="useAsGuest()"
+        style="
+          padding: 12px 24px;
+          font-size: 14px;
+          animation: fadeInUp 1.2s var(--ease);
+          margin-top: -10px;
+          opacity: 0.8;
+        "
+      >
+        Or use locally without account
+      </button>
+    </div>
+
+    <div
+      id="loadingOverlay"
+      style="
+        position: fixed;
+        inset: 0;
+        background: var(--bg-base);
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 20px;
+      "
+    >
+      <div
+        class="loader"
+        style="
+          width: 48px;
+          height: 48px;
+          border: 4px solid var(--border-light);
+          border-top-color: var(--accent);
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        "
+      ></div>
+      <style>
+        @keyframes spin {
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      </style>
+      <div class="logo-sub">Initializing Codex...</div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

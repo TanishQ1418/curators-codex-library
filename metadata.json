@@ -1,0 +1,6 @@
+{
+  "name": "The Curator's Codex",
+  "description": "Personal media archive, watchlist manager, tier list creator, and social discovery platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
