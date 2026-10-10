@@ -97,18 +97,10 @@ export const quickFilterStatus = (window.quickFilterStatus = (status) => {
     .forEach((btn) =>
       btn.classList.toggle("active", btn.dataset.status === status),
     );
-  if (document.getElementById("filterType"))
-    document.getElementById("filterType").value = "";
-  if (document.getElementById("filterTier"))
-    document.getElementById("filterTier").value = "";
-  if (document.getElementById("filterGenre"))
-    document.getElementById("filterGenre").value = "";
-  if (document.getElementById("sortBy"))
-    document.getElementById("sortBy").value = "titleAZ";
-  if (window.updateFilterBadge) window.updateFilterBadge();
-  if (window.navigateTo) window.navigateTo("library");
   if (document.getElementById("filterStatus"))
     document.getElementById("filterStatus").value = status;
+  if (window.updateFilterBadge) window.updateFilterBadge();
+  if (window.navigateTo) window.navigateTo("library");
   renderLibrary();
 });
 
