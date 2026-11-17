@@ -2,51 +2,236 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper functions
-    function isAuthenticated() {
+
+    // Global safety net: deny everything by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ── Helper Functions ──────────────────────────────────────────
+    function isSignedIn() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Collection Group Queries
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (request.auth.token.email == 'tanishqt00@gmail.com' && request.auth.token.email_verified == true)
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_.\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Check if viewer can read a user's library based on profile visibility
+    function isLibraryReadable(userId) {
+      let profilePath = /databases/$(database)/documents/users/$(userId)/profile/main;
+      let friendPath = /databases/$(database)/documents/users/$(userId)/friends/$(request.auth.uid);
+      return !exists(profilePath)
+        || get(profilePath).data.get('libraryPublic', 'public') == 'public'
+        || (
+          get(profilePath).data.get('libraryPublic', 'public') == 'friends'
+          && exists(friendPath)
+          && get(friendPath).data.status == 'accepted'
+        );
+    }
+
+    function isValidProfile(data) {
+      return data.keys().hasAll(['username', 'displayUsername'])
+        && data.keys().hasOnly([
+          'username', 'displayUsername', 'email', 'friendCode',
+          'joinedAt', 'libraryPublic', 'allowRequests', 'showInSearch'
+        ])
+        && data.username is string && data.username.size() >= 3 && data.username.size() <= 20
+        && data.username.matches('^[a-z0-9_]+$')
+        && data.displayUsername is string && data.displayUsername.size() >= 1 && data.displayUsername.size() <= 50
+        && (!('email' in data) || data.email == null || (data.email is string && data.email.size() <= 150))
+        && (!('friendCode' in data) || (data.friendCode is string && data.friendCode.size() <= 32))
+        && (!('joinedAt' in data) || data.joinedAt is number)
+        && (!('libraryPublic' in data) || data.libraryPublic in ['public', 'friends', 'private'])
+        && (!('allowRequests' in data) || data.allowRequests is bool)
+        && (!('showInSearch' in data) || data.showInSearch is bool);
+    }
+
+    function isValidLibraryItem(data) {
+      return data.keys().hasAll(['title'])
+        && data.keys().hasOnly([
+          'id', 'title', 'type', 'status', 'tier', 'poster', 'link',
+          'year', 'episodes', 'season', 'genres', 'notes',
+          'seasonCount', 'watchedSeasons', 'stremioId', 'jikanId',
+          'malId', 'kitsuId', 'dateAdded'
+        ])
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 500
+        && (!('id' in data) || data.id == null || (data.id is string && data.id.size() <= 128))
+        && (!('type' in data) || data.type == null || (data.type is string && data.type.size() <= 60))
+        && (!('status' in data) || data.status == null || (data.status is string && data.status.size() <= 60))
+        && (!('tier' in data) || data.tier == null || (data.tier is string && data.tier.size() <= 10))
+        && (!('poster' in data) || data.poster == null || (data.poster is string && data.poster.size() <= 2000))
+        && (!('link' in data) || data.link == null || (data.link is string && data.link.size() <= 2000))
+        && (!('year' in data) || data.year == null || data.year is number)
+        && (!('episodes' in data) || data.episodes == null || data.episodes is number)
+        && (!('season' in data) || data.season == null || (data.season is string && data.season.size() <= 100))
+        && (!('genres' in data) || data.genres == null || (data.genres is list && data.genres.size() <= 30))
+        && (!('notes' in data) || data.notes == null || (data.notes is string && data.notes.size() <= 20000))
+        && (!('seasonCount' in data) || data.seasonCount == null || data.seasonCount is number)
+        && (!('watchedSeasons' in data) || data.watchedSeasons == null || (data.watchedSeasons is list && data.watchedSeasons.size() <= 100))
+        && (!('stremioId' in data) || data.stremioId == null || (data.stremioId is string && data.stremioId.size() <= 128))
+        && (!('jikanId' in data) || data.jikanId == null || (data.jikanId is string && data.jikanId.size() <= 128))
+        && (!('malId' in data) || data.malId == null || data.malId is number || (data.malId is string && data.malId.size() <= 64))
+        && (!('kitsuId' in data) || data.kitsuId == null || (data.kitsuId is string && data.kitsuId.size() <= 128))
+        && (!('dateAdded' in data) || data.dateAdded == null || (data.dateAdded is string && data.dateAdded.size() <= 64));
+    }
+
+    function isValidFriendDoc(data) {
+      return data.keys().hasAll(['status', 'since'])
+        && data.keys().hasOnly(['status', 'since', 'isFavorite', 'nickname'])
+        && data.status in ['pending_sent', 'pending_received', 'accepted']
+        && data.since is number
+        && (!('isFavorite' in data) || data.isFavorite is bool)
+        && (!('nickname' in data) || data.nickname == null || (data.nickname is string && data.nickname.size() <= 50));
+    }
+
+    function isValidNotification(data) {
+      return data.keys().hasAll(['type', 'fromUid', 'fromUsername', 'sentAt', 'read'])
+        && data.keys().hasOnly([
+          'type', 'fromUid', 'fromUsername', 'sentAt', 'read',
+          'itemTitle', 'itemPoster', 'itemTier', 'itemType', 'itemGenres',
+          'itemStremioId', 'itemJikanId', 'itemMalId', 'itemKitsuId',
+          'itemLink', 'senderNote'
+        ])
+        && data.type in ['friend_request', 'request_accepted', 'unfriended', 'recommendation']
+        && data.fromUid is string && data.fromUid == request.auth.uid
+        && data.fromUsername is string && data.fromUsername.size() >= 1 && data.fromUsername.size() <= 100
+        && data.sentAt is number
+        && data.read is bool
+        && (!('itemTitle' in data) || data.itemTitle == null || (data.itemTitle is string && data.itemTitle.size() <= 500))
+        && (!('itemPoster' in data) || data.itemPoster == null || (data.itemPoster is string && data.itemPoster.size() <= 2000))
+        && (!('itemTier' in data) || data.itemTier == null || (data.itemTier is string && data.itemTier.size() <= 10))
+        && (!('itemType' in data) || data.itemType == null || (data.itemType is string && data.itemType.size() <= 60))
+        && (!('itemGenres' in data) || data.itemGenres == null || (data.itemGenres is list && data.itemGenres.size() <= 30))
+        && (!('itemLink' in data) || data.itemLink == null || (data.itemLink is string && data.itemLink.size() <= 2000))
+        && (!('senderNote' in data) || data.senderNote == null || (data.senderNote is string && data.senderNote.size() <= 500));
+    }
+
+    // ── Collection Group Queries (Social Search & Admin) ──────────
     match /{path=**}/profile/{document} {
-      allow read: if isAuthenticated();
+      allow read: if isSignedIn();
     }
 
-    // Users Collection
+    // ── Usernames Registry ────────────────────────────────────────
+    match /usernames/{username} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && username is string
+        && username.size() >= 3 && username.size() <= 20
+        && username.matches('^[a-z0-9_]+$')
+        && incoming().keys().hasAll(['uid'])
+        && incoming().keys().hasOnly(['uid'])
+        && incoming().uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ── Users Root & Subcollections ───────────────────────────────
     match /users/{userId} {
+      // Personal Media Library
       match /library/{itemId} {
-        allow read: if isAuthenticated(); // Friends/others can view library if public
-        allow write: if isOwner(userId);
+        allow read: if isOwner(userId) || isAdmin() || (isSignedIn() && isLibraryReadable(userId));
+        allow create, update: if isOwner(userId) && isValidId(itemId) && isValidLibraryItem(incoming());
+        allow delete: if isOwner(userId) && isValidId(itemId);
       }
-      
-      match /profile/{document=**} {
-        allow read: if isAuthenticated(); // Profile is visible to other users
-        allow write: if isOwner(userId);
+
+      // Social Profile
+      match /profile/{docId} {
+        allow read: if isSignedIn();
+        allow create: if isOwner(userId) && docId == 'main' && isValidProfile(incoming());
+        allow update: if isOwner(userId) && docId == 'main' && isValidProfile(incoming()) && (
+          !('username' in existing())
+          || (
+            incoming().username == existing().username
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'displayUsername', 'libraryPublic', 'allowRequests', 'showInSearch'
+            ])
+          )
+        );
+        allow delete: if false;
       }
-      
+
+      // Notifications Inbox
       match /notifications/{notifId} {
         allow read: if isOwner(userId);
-        allow create: if isAuthenticated(); // Anyone can send a notification
-        allow update, delete: if isOwner(userId);
+        allow create: if isSignedIn() && isValidId(notifId) && isValidNotification(incoming()) && incoming().read == false;
+        allow update: if isOwner(userId)
+          && isValidId(notifId)
+          && incoming().diff(existing()).affectedKeys().hasOnly(['read'])
+          && incoming().read is bool;
+        allow delete: if isOwner(userId) && isValidId(notifId);
       }
-      
+
+      // Friends & Friend Requests (supports cross-user request/accept/decline/remove)
       match /friends/{friendId} {
-        allow read: if isOwner(userId);
-        allow write: if isOwner(userId); // Users manage their own friend statuses
+        allow get: if isSignedIn() && isValidId(friendId) && (request.auth.uid == userId || request.auth.uid == friendId);
+        allow list: if isOwner(userId);
+
+        allow create: if isSignedIn()
+          && isValidId(friendId)
+          && userId != friendId
+          && isValidFriendDoc(incoming())
+          && (
+            // Sender writes pending_sent to own friends list
+            (isOwner(userId) && incoming().status == 'pending_sent')
+            ||
+            // Sender writes pending_received to recipient's friends list
+            (request.auth.uid == friendId && incoming().status == 'pending_received')
+            ||
+            // Recovery: if recipient accepts a request whose sender doc was missing,
+            // allow creating accepted only when recipient's own doc is pending_received
+            (request.auth.uid == friendId
+              && incoming().status == 'accepted'
+              && exists(/databases/$(database)/documents/users/$(friendId)/friends/$(userId))
+              && get(/databases/$(database)/documents/users/$(friendId)/friends/$(userId)).data.status == 'pending_received')
+          );
+
+        allow update: if isSignedIn()
+          && isValidId(friendId)
+          && userId != friendId
+          && isValidFriendDoc(incoming())
+          && (
+            // Recipient accepts an incoming friend request on own friends list
+            (isOwner(userId)
+              && existing().status == 'pending_received'
+              && incoming().status == 'accepted'
+              && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'since']))
+            ||
+            // Recipient accepts -> updates sender's pending_sent doc to accepted
+            (request.auth.uid == friendId
+              && existing().status == 'pending_sent'
+              && incoming().status == 'accepted'
+              && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'since']))
+            ||
+            // Owner toggles favorite or sets nickname on an accepted friend
+            (isOwner(userId)
+              && existing().status == 'accepted'
+              && incoming().status == 'accepted'
+              && incoming().diff(existing()).affectedKeys().hasOnly(['isFavorite', 'nickname']))
+          );
+
+        allow delete: if isSignedIn()
+          && isValidId(friendId)
+          && (isOwner(userId) || request.auth.uid == friendId);
       }
-    }
-    
-    // Usernames mapping Collection (used for social search)
-    match /usernames/{username} {
-      allow read: if isAuthenticated();
-      // Only allow creation if the username is unique and maps to the authenticated user's UID
-      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
-      // No updates or deletes for usernames mapping to prevent squatting for now
-      allow update, delete: if false; 
     }
   }
 }
