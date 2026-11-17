@@ -1,0 +1,240 @@
+{
+  "entities": {
+    "UsernameMapping": {
+      "title": "UsernameMapping",
+      "description": "Maps a unique lowercase username to a Firebase Auth user UID for fast lookup.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The Firebase Auth UID of the user owning this username."
+        }
+      },
+      "required": ["uid"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Public and social settings profile for a Curator's Codex user.",
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 20,
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "displayUsername": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 150
+        },
+        "friendCode": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "joinedAt": {
+          "type": "number"
+        },
+        "libraryPublic": {
+          "type": "string",
+          "enum": ["public", "friends", "private"]
+        },
+        "allowRequests": {
+          "type": "boolean"
+        },
+        "showInSearch": {
+          "type": "boolean"
+        }
+      },
+      "required": ["username", "displayUsername"]
+    },
+    "LibraryEntry": {
+      "title": "LibraryEntry",
+      "description": "A media entry (Anime, Movie, Web Series, OVA, Special) in a user's personal codex.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "type": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "status": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "tier": {
+          "type": "string",
+          "maxLength": 10
+        },
+        "poster": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "link": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "year": {
+          "type": "number"
+        },
+        "episodes": {
+          "type": "number"
+        },
+        "season": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "genres": {
+          "type": "array"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 20000
+        },
+        "seasonCount": {
+          "type": "number"
+        },
+        "watchedSeasons": {
+          "type": "array"
+        },
+        "stremioId": {
+          "type": "string"
+        },
+        "jikanId": {
+          "type": "string"
+        },
+        "malId": {
+          "type": "number"
+        },
+        "kitsuId": {
+          "type": "string"
+        },
+        "dateAdded": {
+          "type": "string"
+        }
+      },
+      "required": ["title"]
+    },
+    "FriendRelation": {
+      "title": "FriendRelation",
+      "description": "Represents a friend request or accepted friendship between two users.",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pending_sent", "pending_received", "accepted"]
+        },
+        "since": {
+          "type": "number"
+        },
+        "isFavorite": {
+          "type": "boolean"
+        },
+        "nickname": {
+          "type": "string",
+          "maxLength": 50
+        }
+      },
+      "required": ["status", "since"]
+    },
+    "SocialNotification": {
+      "title": "SocialNotification",
+      "description": "Notification sent to a user for friend requests, acceptances, unfriends, or media recommendations.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["friend_request", "request_accepted", "unfriended", "recommendation"]
+        },
+        "fromUid": {
+          "type": "string"
+        },
+        "fromUsername": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "sentAt": {
+          "type": "number"
+        },
+        "read": {
+          "type": "boolean"
+        },
+        "itemTitle": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "itemPoster": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "itemTier": {
+          "type": "string",
+          "maxLength": 10
+        },
+        "itemType": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "itemGenres": {
+          "type": "array"
+        },
+        "itemStremioId": {
+          "type": "string"
+        },
+        "itemJikanId": {
+          "type": "string"
+        },
+        "itemMalId": {
+          "type": "number"
+        },
+        "itemKitsuId": {
+          "type": "string"
+        },
+        "itemLink": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "senderNote": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "required": ["type", "fromUid", "fromUsername", "sentAt", "read"]
+    }
+  },
+  "firestore": {
+    "/usernames/{username}": {
+      "schema": { "$ref": "#/entities/UsernameMapping" },
+      "description": "Unique username reservation and UID lookup table."
+    },
+    "/users/{userId}/profile/{docId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User social profile document (main)."
+    },
+    "/users/{userId}/library/{itemId}": {
+      "schema": { "$ref": "#/entities/LibraryEntry" },
+      "description": "User's personal media archive entries."
+    },
+    "/users/{userId}/friends/{friendId}": {
+      "schema": { "$ref": "#/entities/FriendRelation" },
+      "description": "Friendship and friend request status documents."
+    },
+    "/users/{userId}/notifications/{notifId}": {
+      "schema": { "$ref": "#/entities/SocialNotification" },
+      "description": "Inbox notifications for friend events and recommendations."
+    }
+  }
+}
