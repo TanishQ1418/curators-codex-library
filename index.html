@@ -720,8 +720,8 @@
                        PENDING REQUESTS
                    </div>
                    <div style="display:flex; gap:10px; margin-bottom:12px;">
-                        <button class="btn btn-ghost active" id="tabReceivedRequests" onclick="window.switchPendingTab('received')">Received</button>
-                        <button class="btn btn-ghost" id="tabSentRequests" onclick="window.switchPendingTab('sent')">Sent</button>
+                        <button class="btn btn-ghost btn-sm active" id="tabReceivedRequests" onclick="window.switchPendingTab('received')">Received <span id="tabReceivedCount" style="opacity:0.75; margin-left:4px;">(0)</span></button>
+                        <button class="btn btn-ghost btn-sm" id="tabSentRequests" onclick="window.switchPendingTab('sent')">Sent <span id="tabSentCount" style="opacity:0.75; margin-left:4px;">(0)</span></button>
                    </div>
                    <div id="pendingRequestsContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;"></div>
                </div>
@@ -845,45 +845,273 @@
       </div>
     </div>
 
-    <!-- FRIEND LIBRARY VIEWER -->
+    <!-- FRIEND PROFILE & LIBRARY VIEWER -->
     <div
       class="modal-overlay"
       id="friendLibraryOverlay"
       style="background: var(--bg-base); z-index: 1000; padding: 0; align-items: stretch;"
     >
-      <div style="display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1200px; margin: 0 auto; overflow: hidden;">
-         <div style="min-height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; flex-wrap: wrap; gap: 10px;">
-            <button class="btn btn-ghost" onclick="window.closeFriendLibrary()">← Back</button>
-            <div id="friendLibraryTitle" style="font-family: var(--font-display); font-size: 20px; letter-spacing: 1px;">LIBRARY</div>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <select class="filter-select" id="friendFilterType" onchange="window.renderFriendLibrary()">
-                    <option value="">All Types</option>
-                    <option value="Anime">Anime</option>
-                    <option value="Movie">Movie</option>
-                    <option value="Web Series">Web Series</option>
-                    <option value="OVA">OVA</option>
-                    <option value="Special">Special</option>
-                </select>
-                <select class="filter-select" id="friendFilterStatus" onchange="window.renderFriendLibrary()">
-                    <option value="">All Status</option>
-                    <option value="Plan to Watch">Plan to Watch</option>
-                    <option value="Watching">Watching</option>
-                    <option value="Completed">Completed</option>
-                    <option value="On Hold">On Hold</option>
-                    <option value="Dropped">Dropped</option>
-                </select>
-                <select class="filter-select" id="friendFilterTier" onchange="window.renderFriendLibrary()">
-                    <option value="">All Tiers</option>
-                    <option value="S">S Tier</option>
-                    <option value="A">A Tier</option>
-                    <option value="B">B Tier</option>
-                    <option value="C">C Tier</option>
-                    <option value="D">D Tier</option>
-                    <option value="F">F Tier</option>
-                </select>
+      <div class="friend-viewer-shell">
+        <header class="friend-viewer-topbar">
+          <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+            <button class="btn btn-ghost btn-sm" onclick="window.closeFriendLibrary()">← Back</button>
+            <div id="friendLibraryTitle" class="friend-viewer-breadcrumb">FRIEND'S CODEX</div>
+          </div>
+          <div class="friend-viewer-top-actions">
+            <button
+              class="btn btn-ghost btn-sm"
+              id="friendSurpriseBtn"
+              onclick="window.pickFriendSurprise()"
+              title="Pick a random title from this filtered view"
+            >
+              🎲 <span>Surprise Pick</span>
+            </button>
+            <button
+              class="btn btn-primary btn-sm"
+              id="friendRecommendBtn"
+              onclick="window.openRecommendFromFriendView()"
+            >
+              🎁 <span>Recommend</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="friend-viewer-scroll">
+          <!-- Friend Profile Summary Banner -->
+          <div class="friend-profile-banner" id="friendProfileBanner">
+            <div class="friend-profile-identity">
+              <div class="friend-avatar friend-profile-avatar" id="friendProfileAvatar">U</div>
+              <div style="min-width: 0;">
+                <div class="friend-profile-name" id="friendProfileDisplayName">Loading…</div>
+                <div class="friend-profile-meta" id="friendProfileMeta">@username · Public Codex</div>
+              </div>
             </div>
-         </div>
-         <div id="friendLibraryContainer" style="flex: 1; height: 0; min-height: 200px; overflow-y: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); grid-auto-rows: max-content; gap: 16px;"></div>
+            <div class="friend-profile-stats">
+              <div class="friend-stat-cell">
+                <div class="friend-stat-num" id="friendStatTotal">0</div>
+                <div class="friend-stat-lbl">Total</div>
+              </div>
+              <div class="friend-stat-divider"></div>
+              <div class="friend-stat-cell">
+                <div class="friend-stat-num" id="friendStatCompleted">0</div>
+                <div class="friend-stat-lbl">Completed</div>
+              </div>
+              <div class="friend-stat-divider"></div>
+              <div class="friend-stat-cell">
+                <div class="friend-stat-num" id="friendStatShared">0</div>
+                <div class="friend-stat-lbl">Shared</div>
+              </div>
+              <div class="friend-stat-divider"></div>
+              <div class="friend-stat-cell">
+                <div class="friend-stat-num friend-stat-genre" id="friendStatTopGenre">—</div>
+                <div class="friend-stat-lbl">Top Genre</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contextual Status Pills Bar (matches normal Library screen) -->
+          <div class="library-status-pills-bar" id="friendStatusPills">
+            <button
+              class="status-pill-btn friend-status-pill active"
+              data-status=""
+              onclick="window.quickFilterFriendStatus('')"
+            >
+              <span class="status-dot" style="background: var(--text-muted)"></span>
+              <span>All</span>
+              <span class="pill-count" id="ff-all">0</span>
+            </button>
+            <button
+              class="status-pill-btn friend-status-pill"
+              data-status="Plan to Watch"
+              onclick="window.quickFilterFriendStatus('Plan to Watch')"
+            >
+              <span class="status-dot dot-ptw"></span>
+              <span>Plan to Watch</span>
+              <span class="pill-count" id="ff-ptw">0</span>
+            </button>
+            <button
+              class="status-pill-btn friend-status-pill"
+              data-status="Watching"
+              onclick="window.quickFilterFriendStatus('Watching')"
+            >
+              <span class="status-dot dot-watch"></span>
+              <span>Watching</span>
+              <span class="pill-count" id="ff-watch">0</span>
+            </button>
+            <button
+              class="status-pill-btn friend-status-pill"
+              data-status="Completed"
+              onclick="window.quickFilterFriendStatus('Completed')"
+            >
+              <span class="status-dot dot-done"></span>
+              <span>Completed</span>
+              <span class="pill-count" id="ff-done">0</span>
+            </button>
+            <button
+              class="status-pill-btn friend-status-pill"
+              data-status="On Hold"
+              onclick="window.quickFilterFriendStatus('On Hold')"
+            >
+              <span class="status-dot dot-hold"></span>
+              <span>On Hold</span>
+              <span class="pill-count" id="ff-hold">0</span>
+            </button>
+            <button
+              class="status-pill-btn friend-status-pill"
+              data-status="Dropped"
+              onclick="window.quickFilterFriendStatus('Dropped')"
+            >
+              <span class="status-dot dot-drop"></span>
+              <span>Dropped</span>
+              <span class="pill-count" id="ff-drop">0</span>
+            </button>
+          </div>
+
+          <div class="friend-viewer-header-row">
+            <div class="page-sub" id="friendLibrarySubtitle">Loading codex…</div>
+          </div>
+
+          <!-- Filters & Search Toolbar (matches normal Library screen) -->
+          <div class="filters-bar">
+            <div class="friend-search-wrap">
+              <span class="friend-search-icon">🔍</span>
+              <input
+                type="text"
+                id="friendSearchInput"
+                class="friend-search-input"
+                placeholder="Search friend's codex…"
+                oninput="window.renderFriendLibrary()"
+                autocomplete="off"
+              />
+              <button
+                type="button"
+                id="friendClearSearchBtn"
+                class="friend-clear-search-btn"
+                onclick="window.clearFriendSearch()"
+                title="Clear Search"
+                style="display: none;"
+              >
+                ✕
+              </button>
+            </div>
+
+            <button
+              class="btn btn-ghost btn-sm"
+              id="friendToggleFiltersBtn"
+              onclick="window.toggleFriendFiltersDrawer()"
+              style="height: 34px; gap: 6px;"
+            >
+              <span>⚙️ Filters</span>
+              <span
+                id="friendActiveFilterBadge"
+                style="
+                  display: none;
+                  background: var(--accent);
+                  color: #fff;
+                  border-radius: 10px;
+                  font-size: 11px;
+                  padding: 1px 6px;
+                  font-weight: 700;
+                "
+                >0</span
+              >
+            </button>
+
+            <select
+              class="filter-select"
+              id="friendSortBy"
+              onchange="window.renderFriendLibrary()"
+            >
+              <option value="titleAZ" selected>Title A–Z</option>
+              <option value="tier">Tier Rating</option>
+              <option value="year">Release Year</option>
+              <option value="dateAdded">Date Added</option>
+            </select>
+
+            <div class="view-toggle" style="margin-left: auto">
+              <button
+                class="view-btn active"
+                id="friendGridViewBtn"
+                onclick="window.setFriendView('grid')"
+                title="Grid View"
+              >
+                ⊞</button
+              ><button
+                class="view-btn"
+                id="friendListViewBtn"
+                onclick="window.setFriendView('list')"
+                title="List View"
+              >
+                ☰
+              </button>
+            </div>
+          </div>
+
+          <!-- Collapsible Filters Drawer -->
+          <div id="friendFiltersDrawer" class="filters-drawer" style="display: none;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
+                Filter Friend's Collection
+              </div>
+              <button
+                class="btn btn-ghost btn-sm"
+                onclick="window.clearFriendFilters()"
+                style="padding: 2px 8px; font-size: 11px;"
+              >
+                Clear Filters
+              </button>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+              <select
+                class="filter-select"
+                id="friendFilterType"
+                onchange="window.updateFriendFilterBadge(); window.renderFriendLibrary()"
+              >
+                <option value="">All Types</option>
+                <option value="Anime">Anime</option>
+                <option value="Movie">Movie</option>
+                <option value="Web Series">Web Series</option>
+                <option value="OVA">OVA</option>
+                <option value="Special">Special</option>
+              </select>
+              <select
+                class="filter-select"
+                id="friendFilterTier"
+                onchange="window.updateFriendFilterBadge(); window.renderFriendLibrary()"
+              >
+                <option value="">All Tiers</option>
+                <option value="S">S Tier</option>
+                <option value="A">A Tier</option>
+                <option value="B">B Tier</option>
+                <option value="C">C Tier</option>
+                <option value="D">D Tier</option>
+                <option value="E">E Tier</option>
+                <option value="F">F Tier</option>
+              </select>
+              <select
+                class="filter-select"
+                id="friendFilterGenre"
+                onchange="window.updateFriendFilterBadge(); window.renderFriendLibrary()"
+              >
+                <option value="">All Genres</option>
+              </select>
+              <select
+                class="filter-select"
+                id="friendFilterOverlap"
+                onchange="window.updateFriendFilterBadge(); window.renderFriendLibrary()"
+              >
+                <option value="">All Overlap</option>
+                <option value="unowned">Not in My Codex</option>
+                <option value="shared">Shared Titles</option>
+              </select>
+              <input type="hidden" id="friendFilterStatus" value="" />
+            </div>
+          </div>
+
+          <!-- Grid & List Containers -->
+          <div id="friendLibraryContainer"></div>
+          <div id="friendLibraryListView" style="display: none; flex-direction: column; gap: 6px;"></div>
+        </div>
       </div>
     </div>
 
@@ -907,6 +1135,7 @@
     <div
       class="modal-overlay"
       id="recommendModalOverlay"
+      style="z-index: 1150;"
       onclick="handleOverlayClick(event, 'recommendModalOverlay')"
     >
       <div class="modal" id="recommendModal" style="max-width: 500px">
@@ -932,6 +1161,7 @@
     <div
       class="modal-overlay"
       id="entryModalOverlay"
+      style="z-index: 1200;"
       onclick="handleOverlayClick(event, 'entryModalOverlay')"
     >
       <div class="modal" id="entryModal" style="max-width: 640px">
@@ -1187,6 +1417,7 @@
     <div
       class="modal-overlay"
       id="detailModalOverlay"
+      style="z-index: 1100;"
       onclick="handleOverlayClick(event, 'detailModalOverlay')"
     >
       <div class="modal modal-lg" id="detailModal">
