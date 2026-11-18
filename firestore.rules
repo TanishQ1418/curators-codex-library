@@ -3,11 +3,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Global safety net: deny everything by default
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
     // ── Helper Functions ──────────────────────────────────────────
     function isSignedIn() {
       return request.auth != null;
@@ -18,10 +13,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && (
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
-        (request.auth.token.email == 'tanishqt00@gmail.com' && request.auth.token.email_verified == true)
-      );
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
     function isValidId(id) {
@@ -36,58 +28,88 @@ service cloud.firestore {
       return resource.data;
     }
 
-    // Check if viewer can read a user's library based on profile visibility
+    function isReservedUsername(name) {
+      return name in ['admin', 'support', 'curator', 'codex', 'moderator', 'root', 'system'];
+    }
+
+    function isSafeHttpsUrlOrEmpty(val) {
+      return val == null || val == '' || (val is string && val.size() <= 2000 && val.matches('^https://[^\\s"\'<>]+$'));
+    }
+
+    function isAcceptedFriendOf(userId) {
+      let p = /databases/$(database)/documents/users/$(userId)/friends/$(request.auth.uid);
+      return exists(p) && get(p).data.status == 'accepted';
+    }
+
+    // Library visibility defaults to friends-only; missing profile => private (owner/admin only)
     function isLibraryReadable(userId) {
       let profilePath = /databases/$(database)/documents/users/$(userId)/profile/main;
       let friendPath = /databases/$(database)/documents/users/$(userId)/friends/$(request.auth.uid);
-      return !exists(profilePath)
-        || get(profilePath).data.get('libraryPublic', 'public') == 'public'
+      return exists(profilePath) && (
+        get(profilePath).data.get('libraryPublic', 'friends') == 'public'
         || (
-          get(profilePath).data.get('libraryPublic', 'public') == 'friends'
+          get(profilePath).data.get('libraryPublic', 'friends') == 'friends'
           && exists(friendPath)
           && get(friendPath).data.status == 'accepted'
-        );
+        )
+      );
     }
 
     function isValidProfile(data) {
       return data.keys().hasAll(['username', 'displayUsername'])
         && data.keys().hasOnly([
-          'username', 'displayUsername', 'email', 'friendCode',
+          'username', 'displayUsername',
           'joinedAt', 'libraryPublic', 'allowRequests', 'showInSearch'
         ])
         && data.username is string && data.username.size() >= 3 && data.username.size() <= 20
         && data.username.matches('^[a-z0-9_]+$')
+        && !isReservedUsername(data.username)
         && data.displayUsername is string && data.displayUsername.size() >= 1 && data.displayUsername.size() <= 50
-        && (!('email' in data) || data.email == null || (data.email is string && data.email.size() <= 150))
-        && (!('friendCode' in data) || (data.friendCode is string && data.friendCode.size() <= 32))
         && (!('joinedAt' in data) || data.joinedAt is number)
         && (!('libraryPublic' in data) || data.libraryPublic in ['public', 'friends', 'private'])
         && (!('allowRequests' in data) || data.allowRequests is bool)
         && (!('showInSearch' in data) || data.showInSearch is bool);
     }
 
+    function isValidPrivateProfile(data) {
+      return data.keys().hasOnly(['email', 'friendCode'])
+        && (!('email' in data) || data.email == null || (data.email is string && data.email.size() <= 150))
+        && (!('friendCode' in data) || (data.friendCode is string && data.friendCode.size() <= 32));
+    }
+
+    function isValidPrefs(data) {
+      return data.keys().hasOnly(['ids', 'genres', 'timestamps', 'updatedAt'])
+        && (!('ids' in data) || (data.ids is list && data.ids.size() <= 500 && (data.ids.size() == 0 || data.ids[0] is string)))
+        && (!('genres' in data) || data.genres is map)
+        && (!('timestamps' in data) || data.timestamps is map)
+        && (!('updatedAt' in data) || data.updatedAt is number);
+    }
+
     function isValidLibraryItem(data) {
       return data.keys().hasAll(['title'])
         && data.keys().hasOnly([
           'id', 'title', 'type', 'status', 'tier', 'poster', 'link',
-          'year', 'episodes', 'season', 'genres', 'notes',
+          'year', 'episodes', 'episodesTotal', 'episodesWatched',
+          'season', 'genres', 'notes',
           'seasonCount', 'watchedSeasons', 'stremioId', 'jikanId',
           'malId', 'kitsuId', 'dateAdded'
         ])
         && data.title is string && data.title.size() >= 1 && data.title.size() <= 500
         && (!('id' in data) || data.id == null || (data.id is string && data.id.size() <= 128))
-        && (!('type' in data) || data.type == null || (data.type is string && data.type.size() <= 60))
-        && (!('status' in data) || data.status == null || (data.status is string && data.status.size() <= 60))
-        && (!('tier' in data) || data.tier == null || (data.tier is string && data.tier.size() <= 10))
-        && (!('poster' in data) || data.poster == null || (data.poster is string && data.poster.size() <= 2000))
-        && (!('link' in data) || data.link == null || (data.link is string && data.link.size() <= 2000))
-        && (!('year' in data) || data.year == null || data.year is number)
-        && (!('episodes' in data) || data.episodes == null || data.episodes is number)
+        && (!('type' in data) || data.type in ['Anime', 'Movie', 'Web Series', 'OVA', 'Special'])
+        && (!('status' in data) || data.status in ['Plan to Watch', 'Watching', 'Completed', 'On Hold', 'Dropped', 'Rewatching'])
+        && (!('tier' in data) || data.tier == null || data.tier in ['', 'S', 'A', 'B', 'C', 'D', 'E', 'F'])
+        && (!('poster' in data) || isSafeHttpsUrlOrEmpty(data.poster))
+        && (!('link' in data) || isSafeHttpsUrlOrEmpty(data.link))
+        && (!('year' in data) || data.year == null || (data.year is number && data.year >= 1900 && data.year <= 2100))
+        && (!('episodes' in data) || data.episodes == null || (data.episodes is number && data.episodes >= 0 && data.episodes <= 100000))
+        && (!('episodesTotal' in data) || data.episodesTotal == null || (data.episodesTotal is number && data.episodesTotal >= 0 && data.episodesTotal <= 100000))
+        && (!('episodesWatched' in data) || data.episodesWatched == null || (data.episodesWatched is number && data.episodesWatched >= 0 && data.episodesWatched <= 100000))
         && (!('season' in data) || data.season == null || (data.season is string && data.season.size() <= 100))
-        && (!('genres' in data) || data.genres == null || (data.genres is list && data.genres.size() <= 30))
+        && (!('genres' in data) || data.genres == null || (data.genres is list && data.genres.size() <= 30 && (data.genres.size() == 0 || data.genres[0] is string)))
         && (!('notes' in data) || data.notes == null || (data.notes is string && data.notes.size() <= 20000))
-        && (!('seasonCount' in data) || data.seasonCount == null || data.seasonCount is number)
-        && (!('watchedSeasons' in data) || data.watchedSeasons == null || (data.watchedSeasons is list && data.watchedSeasons.size() <= 100))
+        && (!('seasonCount' in data) || data.seasonCount == null || (data.seasonCount is number && data.seasonCount >= 0 && data.seasonCount <= 50))
+        && (!('watchedSeasons' in data) || data.watchedSeasons == null || (data.watchedSeasons is list && data.watchedSeasons.size() <= 100 && (data.watchedSeasons.size() == 0 || data.watchedSeasons[0] is number)))
         && (!('stremioId' in data) || data.stremioId == null || (data.stremioId is string && data.stremioId.size() <= 128))
         && (!('jikanId' in data) || data.jikanId == null || (data.jikanId is string && data.jikanId.size() <= 128))
         && (!('malId' in data) || data.malId == null || data.malId is number || (data.malId is string && data.malId.size() <= 64))
@@ -118,15 +140,50 @@ service cloud.firestore {
         && data.sentAt is number
         && data.read is bool
         && (!('itemTitle' in data) || data.itemTitle == null || (data.itemTitle is string && data.itemTitle.size() <= 500))
-        && (!('itemPoster' in data) || data.itemPoster == null || (data.itemPoster is string && data.itemPoster.size() <= 2000))
-        && (!('itemTier' in data) || data.itemTier == null || (data.itemTier is string && data.itemTier.size() <= 10))
-        && (!('itemType' in data) || data.itemType == null || (data.itemType is string && data.itemType.size() <= 60))
-        && (!('itemGenres' in data) || data.itemGenres == null || (data.itemGenres is list && data.itemGenres.size() <= 30))
-        && (!('itemLink' in data) || data.itemLink == null || (data.itemLink is string && data.itemLink.size() <= 2000))
+        && (!('itemPoster' in data) || isSafeHttpsUrlOrEmpty(data.itemPoster))
+        && (!('itemTier' in data) || data.itemTier == null || data.itemTier in ['', 'S', 'A', 'B', 'C', 'D', 'E', 'F'])
+        && (!('itemType' in data) || data.itemType == null || data.itemType in ['', 'Anime', 'Movie', 'Web Series', 'OVA', 'Special'])
+        && (!('itemGenres' in data) || data.itemGenres == null || (data.itemGenres is list && data.itemGenres.size() <= 30 && (data.itemGenres.size() == 0 || data.itemGenres[0] is string)))
+        && (!('itemStremioId' in data) || data.itemStremioId == null || (data.itemStremioId is string && data.itemStremioId.size() <= 128))
+        && (!('itemJikanId' in data) || data.itemJikanId == null || (data.itemJikanId is string && data.itemJikanId.size() <= 128))
+        && (!('itemMalId' in data) || data.itemMalId == null || data.itemMalId is number || (data.itemMalId is string && data.itemMalId.size() <= 64))
+        && (!('itemKitsuId' in data) || data.itemKitsuId == null || (data.itemKitsuId is string && data.itemKitsuId.size() <= 128))
+        && (!('itemLink' in data) || isSafeHttpsUrlOrEmpty(data.itemLink))
         && (!('senderNote' in data) || data.senderNote == null || (data.senderNote is string && data.senderNote.size() <= 500));
     }
 
+    function canSendNotificationTo(userId, data) {
+      let callerProfile = /databases/$(database)/documents/users/$(request.auth.uid)/profile/main;
+      let recipientFriendDoc = /databases/$(database)/documents/users/$(userId)/friends/$(request.auth.uid);
+      return exists(callerProfile)
+        && data.fromUsername == get(callerProfile).data.username
+        && (
+          (data.type == 'recommendation' && isAcceptedFriendOf(userId))
+          || (data.type == 'unfriended' && isAcceptedFriendOf(userId) && !existsAfter(recipientFriendDoc))
+          || (data.type == 'friend_request'
+            && existsAfter(recipientFriendDoc)
+            && getAfter(recipientFriendDoc).data.status == 'pending_received')
+          || (data.type == 'request_accepted'
+            && !isAcceptedFriendOf(userId)
+            && existsAfter(recipientFriendDoc)
+            && getAfter(recipientFriendDoc).data.status == 'accepted')
+        );
+    }
+
+    // ── Non-PII Connection Healthcheck ───────────────────────────
+    match /test/connection {
+      allow get: if true;
+      allow list, create, update, delete: if false;
+    }
+
+    // ── Admins Allowlist (managed server-side / Firebase Console) ─
+    match /admins/{adminId} {
+      allow get: if isOwner(adminId);
+      allow list, create, update, delete: if false;
+    }
+
     // ── Collection Group Queries (Social Search & Admin) ──────────
+    // Safe: profile/main contains only non-PII public fields
     match /{path=**}/profile/{document} {
       allow read: if isSignedIn();
     }
@@ -138,10 +195,12 @@ service cloud.firestore {
         && username is string
         && username.size() >= 3 && username.size() <= 20
         && username.matches('^[a-z0-9_]+$')
+        && !isReservedUsername(username)
         && incoming().keys().hasAll(['uid'])
         && incoming().keys().hasOnly(['uid'])
         && incoming().uid == request.auth.uid;
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if isSignedIn() && existing().uid == request.auth.uid;
     }
 
     // ── Users Root & Subcollections ───────────────────────────────
@@ -153,26 +212,49 @@ service cloud.firestore {
         allow delete: if isOwner(userId) && isValidId(itemId);
       }
 
-      // Social Profile
+      // Public Social Profile
       match /profile/{docId} {
         allow read: if isSignedIn();
-        allow create: if isOwner(userId) && docId == 'main' && isValidProfile(incoming());
+        allow create: if isOwner(userId)
+          && docId == 'main'
+          && isValidProfile(incoming())
+          && existsAfter(/databases/$(database)/documents/usernames/$(incoming().username))
+          && getAfter(/databases/$(database)/documents/usernames/$(incoming().username)).data.uid == request.auth.uid;
         allow update: if isOwner(userId) && docId == 'main' && isValidProfile(incoming()) && (
           !('username' in existing())
           || (
             incoming().username == existing().username
             && incoming().diff(existing()).affectedKeys().hasOnly([
-              'displayUsername', 'libraryPublic', 'allowRequests', 'showInSearch'
+              'displayUsername', 'libraryPublic', 'allowRequests', 'showInSearch', 'email', 'friendCode'
             ])
           )
         );
-        allow delete: if false;
+        allow delete: if isOwner(userId) && docId == 'main';
+      }
+
+      // Private PII & Friend Code (strictly owner or admin)
+      match /private/{docId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create, update: if isOwner(userId) && docId == 'main' && isValidPrivateProfile(incoming());
+        allow delete: if isOwner(userId) && docId == 'main';
+      }
+
+      // Synced User Preferences (e.g., rejected Discover items)
+      match /prefs/{prefId} {
+        allow read: if isOwner(userId) && isValidId(prefId);
+        allow create, update: if isOwner(userId) && isValidId(prefId) && isValidPrefs(incoming());
+        allow delete: if isOwner(userId) && isValidId(prefId);
       }
 
       // Notifications Inbox
       match /notifications/{notifId} {
         allow read: if isOwner(userId);
-        allow create: if isSignedIn() && isValidId(notifId) && isValidNotification(incoming()) && incoming().read == false;
+        allow create: if isSignedIn()
+          && isValidId(notifId)
+          && userId != request.auth.uid
+          && isValidNotification(incoming())
+          && incoming().read == false
+          && canSendNotificationTo(userId, incoming());
         allow update: if isOwner(userId)
           && isValidId(notifId)
           && incoming().diff(existing()).affectedKeys().hasOnly(['read'])
@@ -193,8 +275,11 @@ service cloud.firestore {
             // Sender writes pending_sent to own friends list
             (isOwner(userId) && incoming().status == 'pending_sent')
             ||
-            // Sender writes pending_received to recipient's friends list
-            (request.auth.uid == friendId && incoming().status == 'pending_received')
+            // Sender writes pending_received to recipient's friends list (only if target allows requests)
+            (request.auth.uid == friendId
+              && incoming().status == 'pending_received'
+              && (!exists(/databases/$(database)/documents/users/$(userId)/profile/main)
+                || get(/databases/$(database)/documents/users/$(userId)/profile/main).data.get('allowRequests', true) == true))
             ||
             // Recovery: if recipient accepts a request whose sender doc was missing,
             // allow creating accepted only when recipient's own doc is pending_received
