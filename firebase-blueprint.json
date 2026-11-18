@@ -14,7 +14,7 @@
     },
     "UserProfile": {
       "title": "UserProfile",
-      "description": "Public and social settings profile for a Curator's Codex user.",
+      "description": "Public social profile and visibility settings for a Curator's Codex user (no PII).",
       "type": "object",
       "properties": {
         "username": {
@@ -27,15 +27,6 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 50
-        },
-        "email": {
-          "type": "string",
-          "format": "email",
-          "maxLength": 150
-        },
-        "friendCode": {
-          "type": "string",
-          "maxLength": 32
         },
         "joinedAt": {
           "type": "number"
@@ -53,6 +44,41 @@
       },
       "required": ["username", "displayUsername"]
     },
+    "UserPrivate": {
+      "title": "UserPrivate",
+      "description": "Private user PII and friend invite code, strictly readable only by owner or admin.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 150
+        },
+        "friendCode": {
+          "type": "string",
+          "maxLength": 32
+        }
+      }
+    },
+    "UserPrefs": {
+      "title": "UserPrefs",
+      "description": "Owner-only synced preferences such as Discover rejected titles and taste penalties.",
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array"
+        },
+        "genres": {
+          "type": "object"
+        },
+        "timestamps": {
+          "type": "object"
+        },
+        "updatedAt": {
+          "type": "number"
+        }
+      }
+    },
     "LibraryEntry": {
       "title": "LibraryEntry",
       "description": "A media entry (Anime, Movie, Web Series, OVA, Special) in a user's personal codex.",
@@ -69,15 +95,15 @@
         },
         "type": {
           "type": "string",
-          "maxLength": 60
+          "enum": ["Anime", "Movie", "Web Series", "OVA", "Special"]
         },
         "status": {
           "type": "string",
-          "maxLength": 60
+          "enum": ["Plan to Watch", "Watching", "Completed", "On Hold", "Dropped", "Rewatching"]
         },
         "tier": {
           "type": "string",
-          "maxLength": 10
+          "enum": ["", "S", "A", "B", "C", "D", "E", "F"]
         },
         "poster": {
           "type": "string",
@@ -91,6 +117,12 @@
           "type": "number"
         },
         "episodes": {
+          "type": "number"
+        },
+        "episodesTotal": {
+          "type": "number"
+        },
+        "episodesWatched": {
           "type": "number"
         },
         "season": {
@@ -152,7 +184,7 @@
     },
     "SocialNotification": {
       "title": "SocialNotification",
-      "description": "Notification sent to a user for friend requests, acceptances, unfriends, or media recommendations.",
+      "description": "Notification sent to a user for friend events or media recommendations.",
       "type": "object",
       "properties": {
         "type": {
@@ -182,11 +214,11 @@
         },
         "itemTier": {
           "type": "string",
-          "maxLength": 10
+          "enum": ["", "S", "A", "B", "C", "D", "E", "F"]
         },
         "itemType": {
           "type": "string",
-          "maxLength": 60
+          "enum": ["", "Anime", "Movie", "Web Series", "OVA", "Special"]
         },
         "itemGenres": {
           "type": "array"
@@ -222,7 +254,15 @@
     },
     "/users/{userId}/profile/{docId}": {
       "schema": { "$ref": "#/entities/UserProfile" },
-      "description": "User social profile document (main)."
+      "description": "Public user social profile document (main)."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivate" },
+      "description": "Owner-only PII and friend invite code document (main)."
+    },
+    "/users/{userId}/prefs/{prefId}": {
+      "schema": { "$ref": "#/entities/UserPrefs" },
+      "description": "Owner-only preferences (e.g., rejected Discover items)."
     },
     "/users/{userId}/library/{itemId}": {
       "schema": { "$ref": "#/entities/LibraryEntry" },
