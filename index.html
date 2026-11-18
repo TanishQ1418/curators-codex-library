@@ -3,24 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#09090b" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' ws://localhost:* http://localhost:* https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com wss://*.firebaseio.com https://kitsu.io https://api.tvmaze.com https://v3-cinemeta.strem.io https://api.jikan.moe; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self';"
+    />
     <title>The Curator's Codex</title>
     <meta name="description" content="Personal media archive, watchlist manager, tier list creator, and social discovery platform." />
+    <meta property="og:type" content="website" />
     <meta property="og:title" content="The Curator's Codex" />
     <meta property="og:description" content="Personal media archive, watchlist manager, tier list creator, and social discovery platform." />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20'/><path d='M8 7h6'/><path d='M8 11h8'/></svg>" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20'/%3E%3Cpath d='M8 7h6'/%3E%3Cpath d='M8 11h8'/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <link rel="stylesheet" href="/src/styles/main.css" />
   </head>
   <body>
     <div id="toast-container"></div>
-    <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+    <div id="sidebar-overlay" data-act="closeSidebar"></div>
 
     <div id="app">
       <aside id="sidebar">
@@ -29,52 +33,58 @@
           <div class="logo-title" style="font-size: 26px">CODEX</div>
           <div class="logo-sub">Personal Archive</div>
         </div>
-        <nav class="sidebar-nav">
+        <nav class="sidebar-nav" aria-label="Primary navigation">
           <div class="nav-section-label">Pages</div>
           <button
+            type="button"
             class="nav-item active"
             data-page="library"
-            onclick="navigateTo('library')"
+            data-act="nav"
           >
-            <span class="nav-icon">📚</span> Library
+            <span class="nav-icon" aria-hidden="true">📚</span> Library
             <span class="nav-badge" id="nav-badge-library">0</span>
           </button>
           <button
+            type="button"
             class="nav-item nav-item-desktop-only"
             data-page="tierlist"
-            onclick="navigateTo('tierlist')"
+            data-act="nav"
           >
-            <span class="nav-icon">🏆</span> Tier List
+            <span class="nav-icon" aria-hidden="true">🏆</span> Tier List
             <span class="nav-badge" id="nav-badge-tierlist">0</span>
           </button>
           <button
+            type="button"
             class="nav-item"
             data-page="stats"
-            onclick="navigateTo('stats')"
+            data-act="nav"
           >
-            <span class="nav-icon">📊</span> Stats
+            <span class="nav-icon" aria-hidden="true">📊</span> Stats
           </button>
           <button
+            type="button"
             class="nav-item nav-item-desktop-only"
             data-page="seasonal"
-            onclick="navigateTo('seasonal')"
+            data-act="nav"
           >
-            <span class="nav-icon">🌸</span> Seasonal
+            <span class="nav-icon" aria-hidden="true">🌸</span> Seasonal
             <span class="nav-badge" id="nav-badge-seasonal">0</span>
           </button>
           <button
+            type="button"
             class="nav-item"
             data-page="discover"
-            onclick="navigateTo('discover')"
+            data-act="nav"
           >
-            <span class="nav-icon">✨</span> Discover
+            <span class="nav-icon" aria-hidden="true">✨</span> Discover
           </button>
           <button
+            type="button"
             class="nav-item"
             data-page="social"
-            onclick="navigateTo('social')"
+            data-act="nav"
           >
-            <span class="nav-icon">🤝</span> Social
+            <span class="nav-icon" aria-hidden="true">🤝</span> Social
             <span
               class="nav-badge"
               id="nav-badge-social"
@@ -88,20 +98,22 @@
             >
           </button>
           <button
+            type="button"
             class="nav-item nav-item-desktop-only"
             id="nav-item-admin"
             data-page="admin"
-            onclick="navigateTo('admin')"
+            data-act="nav"
             style="display:none;"
           >
-            <span class="nav-icon">🛡️</span> Manage Site
+            <span class="nav-icon" aria-hidden="true">🛡️</span> Manage Site
           </button>
           <button
+            type="button"
             class="nav-item nav-item-mobile-more"
             id="nav-item-more"
-            onclick="toggleMobileMoreMenu(event)"
+            data-act="toggleMore"
           >
-            <span class="nav-icon">☰</span> More
+            <span class="nav-icon" aria-hidden="true">☰</span> More
           </button>
         </nav>
         <div class="sidebar-footer">
@@ -127,42 +139,52 @@
             id="userEmailDisplay"
           ></div>
           <button
+            type="button"
             class="btn btn-danger btn-sm btn-full"
-            onclick="signOutUser()"
+            data-act="signOut"
           >
             👋 Sign Out
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm btn-full"
+            data-act="openShortcuts"
+            style="margin-top: 6px; font-size: 11px;"
+          >
+            ⌨️ Shortcuts (?)
           </button>
         </div>
       </aside>
 
-      <div id="mobileMoreMenuOverlay" class="mobile-more-overlay" onclick="closeMobileMoreMenu()"></div>
+      <div id="mobileMoreMenuOverlay" class="mobile-more-overlay" data-act="closeMore"></div>
       <div id="mobileMoreMenu" class="mobile-more-menu">
         <div class="mobile-more-title">More Pages</div>
-        <button class="more-menu-btn" data-page="tierlist" onclick="navigateTo('tierlist'); closeMobileMoreMenu();">
-          <span class="nav-icon">🏆</span>
+        <button type="button" class="more-menu-btn" data-page="tierlist" data-act="nav">
+          <span class="nav-icon" aria-hidden="true">🏆</span>
           <span>Tier List</span>
           <span class="nav-badge" id="nav-badge-tierlist-mobile">0</span>
         </button>
-        <button class="more-menu-btn" data-page="seasonal" onclick="navigateTo('seasonal'); closeMobileMoreMenu();">
-          <span class="nav-icon">🌸</span>
+        <button type="button" class="more-menu-btn" data-page="seasonal" data-act="nav">
+          <span class="nav-icon" aria-hidden="true">🌸</span>
           <span>Seasonal</span>
           <span class="nav-badge" id="nav-badge-seasonal-mobile">0</span>
         </button>
-        <button class="more-menu-btn" id="more-item-admin" data-page="admin" onclick="navigateTo('admin'); closeMobileMoreMenu();" style="display: none;">
-          <span class="nav-icon">🛡️</span>
+        <button type="button" class="more-menu-btn" id="more-item-admin" data-page="admin" data-act="nav" style="display: none;">
+          <span class="nav-icon" aria-hidden="true">🛡️</span>
           <span>Manage Site</span>
         </button>
       </div>
 
       <main id="main">
         <header id="topbar">
-          <button id="hamburger" onclick="toggleSidebar()">☰</button>
+          <button type="button" id="hamburger" data-act="toggleSidebar" aria-label="Toggle navigation sidebar">☰</button>
           <div class="topbar-title" id="topbarTitle">LIBRARY</div>
           <div
             id="searchDropdownWrap"
             style="flex: 1; max-width: 380px; position: relative"
           >
             <span
+              aria-hidden="true"
               style="
                 position: absolute;
                 left: 11px;
@@ -178,8 +200,8 @@
             <input
               type="text"
               id="searchInput"
+              aria-label="Search library"
               placeholder='Search library… (press "/")'
-              oninput="onSearchInput()"
               style="
                 width: 100%;
                 background: var(--bg-elevated);
@@ -196,8 +218,10 @@
               "
             />
             <button
+              type="button"
               id="clearSearchBtn"
-              onclick="window.clearSearch()"
+              data-act="clearSearch"
+              aria-label="Clear search"
               style="
                 position: absolute;
                 right: 8px;
@@ -214,8 +238,6 @@
                 padding: 4px;
                 border-radius: 50%;
               "
-              onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='var(--text-primary)';this.style.transform='translateY(-50%) scale(1)';"
-              onmouseout="this.style.background='transparent';this.style.color='var(--text-muted)';this.style.transform='translateY(-50%) scale(0.9)';"
               title="Clear Search"
             >
               ✕
@@ -223,9 +245,11 @@
           </div>
           <div class="topbar-actions">
             <button
+              type="button"
               class="btn btn-ghost btn-sm"
-              onclick="window.toggleNotificationsDrawer()"
+              data-act="toggleNotifs"
               title="Notifications"
+              aria-label="Notifications"
               style="position: relative;"
               id="btnNotifications"
             >
@@ -233,13 +257,15 @@
               <span id="nav-badge-notif" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--danger);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;">0</span>
             </button>
             <button
+              type="button"
               class="btn btn-ghost btn-sm"
-              onclick="toggleBackupMenu(event)"
+              data-act="toggleBackupMenu"
               title="Backup"
+              aria-label="Backup menu"
             >
               💾 <span>Backup</span>
             </button>
-            <button class="btn btn-primary btn-sm" onclick="openAddModal()">
+            <button type="button" class="btn btn-primary btn-sm" data-act="openAddModal">
               ＋ <span>Add Entry</span>
             </button>
           </div>
@@ -260,16 +286,15 @@
           "
         >
           <button
+            type="button"
             class="btn btn-ghost btn-sm btn-full"
             style="justify-content: flex-start; gap: 8px"
-            onclick="
-              exportBackup();
-              closeBackupMenu();
-            "
+            data-act="exportBackup"
           >
             📤 Export JSON
           </button>
           <label
+            for="importBackupInput"
             class="btn btn-ghost btn-sm btn-full"
             style="
               justify-content: flex-start;
@@ -280,8 +305,8 @@
           >
             📥 Import JSON<input
               type="file"
+              id="importBackupInput"
               accept=".json"
-              onchange="importBackup(event)"
               style="display: none"
             />
           </label>
@@ -289,60 +314,62 @@
 
         <div id="page-content">
           <section id="page-library" class="page-section active">
-            <!-- Contextual Status Pills Bar placed at the very top of Library page content -->
             <div class="library-status-pills-bar" id="libraryStatusPills">
               <button
+                type="button"
                 class="status-pill-btn active"
                 data-status=""
-                onclick="quickFilterStatus('')"
+                data-act="quickFilterStatus"
               >
-                <span
-                  class="status-dot"
-                  style="background: var(--text-muted)"
-                ></span>
+                <span class="status-dot" style="background: var(--text-muted)"></span>
                 <span>All</span>
                 <span class="pill-count" id="sf-all">0</span>
               </button>
               <button
+                type="button"
                 class="status-pill-btn"
                 data-status="Plan to Watch"
-                onclick="quickFilterStatus('Plan to Watch')"
+                data-act="quickFilterStatus"
               >
                 <span class="status-dot dot-ptw"></span>
                 <span>Plan to Watch</span>
                 <span class="pill-count" id="sf-ptw">0</span>
               </button>
               <button
+                type="button"
                 class="status-pill-btn"
                 data-status="Watching"
-                onclick="quickFilterStatus('Watching')"
+                data-act="quickFilterStatus"
               >
                 <span class="status-dot dot-watch"></span>
                 <span>Watching</span>
                 <span class="pill-count" id="sf-watch">0</span>
               </button>
               <button
+                type="button"
                 class="status-pill-btn"
                 data-status="Completed"
-                onclick="quickFilterStatus('Completed')"
+                data-act="quickFilterStatus"
               >
                 <span class="status-dot dot-done"></span>
                 <span>Completed</span>
                 <span class="pill-count" id="sf-done">0</span>
               </button>
               <button
+                type="button"
                 class="status-pill-btn"
                 data-status="On Hold"
-                onclick="quickFilterStatus('On Hold')"
+                data-act="quickFilterStatus"
               >
                 <span class="status-dot dot-hold"></span>
                 <span>On Hold</span>
                 <span class="pill-count" id="sf-hold">0</span>
               </button>
               <button
+                type="button"
                 class="status-pill-btn"
                 data-status="Dropped"
-                onclick="quickFilterStatus('Dropped')"
+                data-act="quickFilterStatus"
               >
                 <span class="status-dot dot-drop"></span>
                 <span>Dropped</span>
@@ -358,9 +385,10 @@
             </div>
             <div class="filters-bar">
               <button
+                type="button"
                 class="btn btn-secondary btn-sm"
                 id="toggleFiltersBtn"
-                onclick="toggleLibraryFiltersDrawer()"
+                data-act="toggleLibFilters"
                 style="height: 34px; gap: 6px;"
               >
                 <span>⚙️ Filters</span>
@@ -381,7 +409,7 @@
               <select
                 class="filter-select"
                 id="sortBy"
-                onchange="renderLibrary()"
+                aria-label="Sort library"
               >
                 <option value="titleAZ" selected>Title A–Z</option>
                 <option value="dateAdded">Date Added</option>
@@ -390,30 +418,38 @@
               </select>
               <div class="view-toggle" style="margin-left: auto">
                 <button
+                  type="button"
                   class="view-btn active"
                   id="gridViewBtn"
-                  onclick="setView('grid')"
+                  data-act="setView"
+                  data-view="grid"
                   title="Grid View"
+                  aria-label="Grid View"
                 >
                   ⊞</button
                 ><button
+                  type="button"
                   class="view-btn"
                   id="listViewBtn"
-                  onclick="setView('list')"
+                  data-act="setView"
+                  data-view="list"
                   title="List View"
+                  aria-label="List View"
                 >
                   ☰
                 </button>
               </div>
               <button
+                type="button"
                 class="btn btn-ghost btn-sm"
-                onclick="openSurpriseModal()"
+                data-act="openSurprise"
               >
                 🎲 Surprise Me
               </button>
               <button
+                type="button"
                 class="btn btn-ghost btn-sm"
-                onclick="selectAllFiltered()"
+                data-act="selectAll"
               >
                 ☑ Select All
               </button>
@@ -424,19 +460,16 @@
                   Filter Collection
                 </div>
                 <button
+                  type="button"
                   class="btn btn-ghost btn-sm"
-                  onclick="clearFilters()"
+                  data-act="clearFilters"
                   style="padding: 2px 8px; font-size: 11px;"
                 >
                   Clear Filters
                 </button>
               </div>
               <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-                <select
-                  class="filter-select"
-                  id="filterType"
-                  onchange="updateFilterBadge(); renderLibrary()"
-                >
+                <select class="filter-select" id="filterType" aria-label="Filter by type">
                   <option value="">All Types</option>
                   <option>Anime</option>
                   <option>Movie</option>
@@ -444,11 +477,7 @@
                   <option>OVA</option>
                   <option>Special</option>
                 </select>
-                <select
-                  class="filter-select"
-                  id="filterTier"
-                  onchange="updateFilterBadge(); renderLibrary()"
-                >
+                <select class="filter-select" id="filterTier" aria-label="Filter by tier">
                   <option value="">All Tiers</option>
                   <option>S</option>
                   <option>A</option>
@@ -458,11 +487,7 @@
                   <option>E</option>
                   <option>F</option>
                 </select>
-                <select
-                  class="filter-select"
-                  id="filterGenre"
-                  onchange="updateFilterBadge(); renderLibrary()"
-                >
+                <select class="filter-select" id="filterGenre" aria-label="Filter by genre">
                   <option value="">All Genres</option>
                 </select>
                 <input type="hidden" id="filterStatus" value="" />
@@ -470,9 +495,9 @@
             </div>
             <div id="bulkBar">
               <span class="bulk-count" id="bulkCount">0 selected</span
-              ><button class="btn btn-danger btn-sm" onclick="bulkDelete()">
+              ><button type="button" class="btn btn-danger btn-sm" data-act="bulkDelete">
                 🗑 Delete Selected</button
-              ><button class="btn btn-ghost btn-sm" onclick="clearSelection()">
+              ><button type="button" class="btn btn-ghost btn-sm" data-act="clearSelection">
                 ✕ Clear
               </button>
             </div>
@@ -509,7 +534,7 @@
                 class="stat-label"
                 style="display: flex; align-items: center; gap: 8px"
               >
-                <span style="font-size: 16px">✨</span> TASTE ANALYSIS
+                <span style="font-size: 16px" aria-hidden="true">✨</span> TASTE ANALYSIS
               </div>
               <div
                 class="stat-value"
@@ -564,13 +589,13 @@
               <div class="chart-card">
                 <div class="chart-title">TIER DISTRIBUTION</div>
                 <div class="chart-container">
-                  <canvas id="tierChart"></canvas>
+                  <canvas id="tierChart" aria-label="Tier distribution bar chart"></canvas>
                 </div>
               </div>
               <div class="chart-card">
                 <div class="chart-title">STATUS BREAKDOWN</div>
                 <div class="chart-container">
-                  <canvas id="statusChart"></canvas>
+                  <canvas id="statusChart" aria-label="Watch status breakdown doughnut chart"></canvas>
                 </div>
               </div>
             </div>
@@ -592,13 +617,12 @@
               <div class="page-sub">Browse entries by their seasonal tag</div>
             </div>
             <div class="seasonal-filter-row">
-              <label style="font-size: 13px; color: var(--text-secondary)"
+              <label for="seasonalFilter" style="font-size: 13px; color: var(--text-secondary)"
                 >Filter by season:</label
               >
               <select
                 class="filter-select"
                 id="seasonalFilter"
-                onchange="renderSeasonal()"
               >
                 <option value="">All Seasons</option>
               </select>
@@ -628,23 +652,26 @@
             </div>
             <div class="discover-type-pills">
               <button
+                type="button"
                 class="discover-pill active"
                 data-type="anime"
-                onclick="switchDiscoverType('anime')"
+                data-act="switchDiscover"
               >
                 🎌 Anime
               </button>
               <button
+                type="button"
                 class="discover-pill"
                 data-type="movie"
-                onclick="switchDiscoverType('movie')"
+                data-act="switchDiscover"
               >
                 🎬 Movies
               </button>
               <button
+                type="button"
                 class="discover-pill"
                 data-type="series"
-                onclick="switchDiscoverType('series')"
+                data-act="switchDiscover"
               >
                 📺 Series
               </button>
@@ -652,8 +679,9 @@
             <div class="discover-controls">
               <div style="display: flex; align-items: center; gap: 8px">
                 <button
+                  type="button"
                   class="btn btn-ghost btn-sm"
-                  onclick="renderDiscover(true)"
+                  data-act="refreshDiscover"
                 >
                   ↺ Refresh Picks</button
                 ><span
@@ -665,13 +693,12 @@
                   "
                 ></span>
               </div>
-              <label class="discover-controls-right">
+              <label for="allowSequelsToggle" class="discover-controls-right">
                 Allow Sequels
                 <div class="toggle-switch">
                   <input
                     type="checkbox"
                     id="allowSequelsToggle"
-                    onchange="renderDiscover(true)"
                   />
                   <span class="toggle-slider"></span>
                 </div>
@@ -687,18 +714,20 @@
                   type="text"
                   class="form-input"
                   id="socialSearchInput"
-                  placeholder="Search by username or email…"
+                  aria-label="Search users by username"
+                  placeholder="Search by username…"
                   autocomplete="off"
                 />
                 <div id="socialSearchDropdown" class="search-dropdown" style="display:none; width: 100%;"></div>
               </div>
-              <button class="btn btn-ghost" onclick="window.openSocialSettings()">⚙️ Settings</button>
+              <button type="button" class="btn btn-ghost" data-act="openSocialSettings">⚙️ Settings</button>
             </div>
             
             <div id="socialGuestPrompt" class="empty-state" style="display:none;">
                <div class="empty-icon">🤝</div>
                <h3>Sign in to access Social features</h3>
-               <p>Connect with friends, check out their codex, and share recommendations!</p>
+               <p style="margin-bottom: 16px;">Connect with friends, check out their codex, and share recommendations!</p>
+               <button type="button" class="btn btn-primary btn-sm" data-act="openLoginFromGuest">Sign in with Google</button>
             </div>
 
             <div id="socialSetupPrompt" class="empty-state" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
@@ -706,11 +735,11 @@
                <h3>Welcome to Social</h3>
                <p style="margin-bottom: 4px;">Please choose a unique username to get started.</p>
                <p style="font-size: 13px; color: var(--text-muted);">(3-20 letters, numbers, underscores)</p>
-               <input type="text" class="form-input" id="setupUsername" style="max-width:300px; margin:20px auto; text-align:center; display:block;" placeholder="e.g. awesome_user" />
+               <input type="text" class="form-input" id="setupUsername" aria-label="Choose a username" style="max-width:300px; margin:20px auto; text-align:center; display:block;" placeholder="e.g. awesome_user" />
                <div id="setupUsernameStatus" style="font-size:13px; margin-bottom:20px; font-weight:600; min-height:20px;"></div>
                <div style="display:flex; gap: 10px; justify-content: center; align-items: center;">
-                 <button class="btn btn-primary btn-sm" id="btnSetUsername" disabled style="padding: 8px 24px; font-size: 14px;">Claim User ID</button>
-                 <button class="btn btn-ghost btn-sm" onclick="navigateTo('library')" style="padding: 8px 24px; font-size: 14px;">Go to Library</button>
+                 <button type="button" class="btn btn-primary btn-sm" id="btnSetUsername" disabled style="padding: 8px 24px; font-size: 14px;">Claim User ID</button>
+                 <button type="button" class="btn btn-ghost btn-sm" data-act="nav" data-page="library" style="padding: 8px 24px; font-size: 14px;">Go to Library</button>
                </div>
             </div>
 
@@ -720,16 +749,16 @@
                        PENDING REQUESTS
                    </div>
                    <div style="display:flex; gap:10px; margin-bottom:12px;">
-                        <button class="btn btn-ghost btn-sm active" id="tabReceivedRequests" onclick="window.switchPendingTab('received')">Received <span id="tabReceivedCount" style="opacity:0.75; margin-left:4px;">(0)</span></button>
-                        <button class="btn btn-ghost btn-sm" id="tabSentRequests" onclick="window.switchPendingTab('sent')">Sent <span id="tabSentCount" style="opacity:0.75; margin-left:4px;">(0)</span></button>
+                        <button type="button" class="btn btn-ghost btn-sm active" id="tabReceivedRequests" data-act="switchPendingTab" data-tab="received">Received <span id="tabReceivedCount" style="opacity:0.75; margin-left:4px;">(0)</span></button>
+                        <button type="button" class="btn btn-ghost btn-sm" id="tabSentRequests" data-act="switchPendingTab" data-tab="sent">Sent <span id="tabSentCount" style="opacity:0.75; margin-left:4px;">(0)</span></button>
                    </div>
                    <div id="pendingRequestsContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;"></div>
                </div>
 
                <div style="font-family:var(--font-display); font-size:18px; letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center; flex-wrap:wrap; gap:12px;">
                    FRIENDS
-                   <input type="text" id="localFriendSearch" class="form-input" placeholder="Search friends by username, nickname, email..." oninput="window.renderFriendsGrid()" style="max-width:300px; flex:1;" />
-                   <button class="btn btn-secondary btn-sm" id="btnViewRecommendations" onclick="window.openRecommendationsViewer()" style="margin-left:auto; display:none;">🎁 View Recommendations</button>
+                   <input type="text" id="localFriendSearch" aria-label="Search friends" class="form-input" placeholder="Search friends by username or nickname..." style="max-width:300px; flex:1;" />
+                   <button type="button" class="btn btn-secondary btn-sm" id="btnViewRecommendations" data-act="openRecViewer" style="margin-left:auto; display:none;">🎁 View Recommendations</button>
                </div>
                <div id="friendsGrid" class="discover-rows-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px;"></div>
                <div id="friendsEmpty" class="empty-state" style="display:none">
@@ -744,31 +773,27 @@
             <div class="page-header" style="justify-content: space-between; align-items: flex-end">
               <div>
                 <h1 class="page-title">Master Control</h1>
-                <div class="page-subtitle">Site Management & Directory</div>
+                <div class="page-subtitle">Site Management &amp; Directory</div>
               </div>
             </div>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 24px;">
               <div class="stat-card">
                  <div class="stat-value" id="adminTotalUsers">--</div>
                  <div class="stat-label">Total Users in Network</div>
               </div>
               <div class="stat-card">
-                 <div style="font-weight:600; margin-bottom:8px">System Broadcast</div>
-                 <input type="text" class="form-input" placeholder="Type a global message..." style="margin-bottom:8px;" />
-                 <button class="btn btn-primary btn-sm" onclick="alert('Broadcast sent!')">Send Broadcast</button>
-              </div>
-              <div class="stat-card">
                  <div style="font-weight:600; margin-bottom:8px">Site Maintenance</div>
-                 <button class="btn btn-secondary btn-sm" onclick="alert('Discover cache cleared.'); window.discoverCache={};" style="margin-bottom:8px;">Clear Discover Cache</button>
-                 <button class="btn btn-danger btn-sm" onclick="alert('Backup initiated (simulation).')">Trigger DB Backup</button>
+                 <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                   <button type="button" class="btn btn-secondary btn-sm" data-act="adminRefreshUsers">↻ Refresh Users</button>
+                   <button type="button" class="btn btn-ghost btn-sm" data-act="adminClearCache">Clear Discover Cache</button>
+                   <button type="button" class="btn btn-ghost btn-sm" data-act="adminExportBackup">Export My Backup</button>
+                 </div>
               </div>
             </div>
 
             <h2 class="page-subtitle" style="margin-top:20px;margin-bottom:10px;">Network Members</h2>
-            <div id="adminUserList" style="display: flex; flex-direction: column; gap: 8px;">
-               <!-- Users will be populated here -->
-            </div>
+            <div id="adminUserList" style="display: flex; flex-direction: column; gap: 8px;"></div>
           </section>
 
         </div>
@@ -779,14 +804,17 @@
     <div
       class="modal-overlay"
       id="notificationsDrawerOverlay"
-      onclick="handleOverlayClick(event, 'notificationsDrawerOverlay')"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="notificationsDrawerTitle"
+      data-backdrop-close="1"
     >
       <div id="notificationsDrawer" style="position: absolute; right: 0; top: 0; bottom: 0; width: 400px; max-width: 100vw; background: var(--bg-surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s var(--ease);">
         <div style="padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-          <div style="font-family: var(--font-display); font-size: 20px; letter-spacing: 1px;">NOTIFICATIONS</div>
+          <div id="notificationsDrawerTitle" style="font-family: var(--font-display); font-size: 20px; letter-spacing: 1px;">NOTIFICATIONS</div>
           <div style="display: flex; gap: 10px;">
-              <button class="btn btn-ghost btn-sm" onclick="window.clearAllNotifications()">Clear All</button>
-              <button class="btn btn-ghost btn-sm" onclick="window.toggleNotificationsDrawer()">✕</button>
+              <button type="button" class="btn btn-ghost btn-sm" data-act="clearAllNotifs">Clear All</button>
+              <button type="button" class="btn btn-ghost btn-sm" data-act="toggleNotifs" aria-label="Close notifications">✕</button>
           </div>
         </div>
         <div id="notificationsList" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px;"></div>
@@ -797,49 +825,57 @@
     <div
       class="modal-overlay"
       id="socialSettingsOverlay"
-      onclick="handleOverlayClick(event, 'socialSettingsOverlay')"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="socialSettingsTitle"
+      data-backdrop-close="1"
     >
       <div class="modal" id="socialSettingsModal" style="max-width: 500px">
         <div class="modal-header">
-          <div class="modal-title">SOCIAL SETTINGS</div>
-          <button class="modal-close" onclick="window.closeSocialSettings()">✕</button>
+          <div class="modal-title" id="socialSettingsTitle">SOCIAL SETTINGS</div>
+          <button type="button" class="modal-close" data-act="closeSocialSettings" aria-label="Close settings">✕</button>
         </div>
         <div class="modal-body" style="padding: 20px;">
            <div style="margin-bottom: 16px;">
-               <label class="form-label">Display Username</label>
+               <label for="socialSettingsDisplayName" class="form-label">Display Username</label>
                <input type="text" id="socialSettingsDisplayName" class="form-input" style="margin-bottom: 8px;" />
-               <button class="btn btn-primary" onclick="window.saveSocialSettingsDisplayName()">Save Name</button>
+               <button type="button" class="btn btn-primary" data-act="saveSocialDisplayName">Save Name</button>
            </div>
            <div style="margin-bottom: 16px;">
-               <label class="form-label">Your User ID</label>
+               <label for="socialSettingsUid" class="form-label">Friend Invite Code</label>
                <div style="display:flex; gap:8px;">
                    <input type="text" id="socialSettingsUid" class="form-input" readonly />
-                   <button class="btn btn-ghost" onclick="navigator.clipboard.writeText(document.getElementById('socialSettingsUid').value); showToast('Copied to clipboard', 'success')">Copy</button>
+                   <button type="button" class="btn btn-ghost" data-act="copyFriendCode">Copy</button>
                </div>
            </div>
            <div style="margin-bottom: 16px;">
-               <label class="form-label">Library Visibility</label>
-               <select id="socialSettingsVisibility" class="form-input" onchange="window.saveSocialSettingsVisibility(this.value)">
+               <label for="socialSettingsVisibility" class="form-label">Library Visibility</label>
+               <select id="socialSettingsVisibility" class="form-input">
                    <option value="public">Public</option>
                    <option value="friends">Friends Only</option>
                    <option value="private">Private</option>
                </select>
            </div>
            <div style="margin-bottom: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
-               <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; margin-bottom: 10px;">
+               <label for="socialSettingsSearch" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; margin-bottom: 10px;">
                    <span>Show me in user search</span>
                    <div class="toggle-switch">
-                       <input type="checkbox" id="socialSettingsSearch" onchange="window.saveSocialSettingsToggle('showInSearch', this.checked)">
+                       <input type="checkbox" id="socialSettingsSearch">
                        <span class="toggle-slider"></span>
                    </div>
                </label>
-               <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+               <label for="socialSettingsRequests" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
                    <span>Allow incoming friend requests</span>
                    <div class="toggle-switch">
-                       <input type="checkbox" id="socialSettingsRequests" onchange="window.saveSocialSettingsToggle('allowRequests', this.checked)">
+                       <input type="checkbox" id="socialSettingsRequests">
                        <span class="toggle-slider"></span>
                    </div>
                </label>
+           </div>
+           <div class="danger-zone-box">
+             <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--danger);">Danger Zone</div>
+             <p style="font-size:12px;color:var(--text-muted);line-height:1.45;">Permanently delete your account, social profile, friends, notifications, and cloud codex.</p>
+             <button type="button" class="btn btn-danger btn-sm" id="btnDeleteAccount" data-act="deleteAccount" style="align-self:flex-start;">Delete My Account &amp; Data</button>
            </div>
         </div>
       </div>
@@ -849,27 +885,32 @@
     <div
       class="modal-overlay"
       id="friendLibraryOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="friendLibraryTitle"
       style="background: var(--bg-base); z-index: 1000; padding: 0; align-items: stretch;"
     >
       <div class="friend-viewer-shell">
         <header class="friend-viewer-topbar">
           <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-            <button class="btn btn-ghost btn-sm" onclick="window.closeFriendLibrary()">← Back</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-act="closeFriendLib">← Back</button>
             <div id="friendLibraryTitle" class="friend-viewer-breadcrumb">FRIEND'S CODEX</div>
           </div>
           <div class="friend-viewer-top-actions">
             <button
+              type="button"
               class="btn btn-ghost btn-sm"
               id="friendSurpriseBtn"
-              onclick="window.pickFriendSurprise()"
+              data-act="pickFriendSurprise"
               title="Pick a random title from this filtered view"
             >
               🎲 <span>Surprise Pick</span>
             </button>
             <button
+              type="button"
               class="btn btn-primary btn-sm"
               id="friendRecommendBtn"
-              onclick="window.openRecommendFromFriendView()"
+              data-act="openRecFromFriend"
             >
               🎁 <span>Recommend</span>
             </button>
@@ -877,13 +918,12 @@
         </header>
 
         <div class="friend-viewer-scroll">
-          <!-- Friend Profile Summary Banner -->
           <div class="friend-profile-banner" id="friendProfileBanner">
             <div class="friend-profile-identity">
               <div class="friend-avatar friend-profile-avatar" id="friendProfileAvatar">U</div>
               <div style="min-width: 0;">
                 <div class="friend-profile-name" id="friendProfileDisplayName">Loading…</div>
-                <div class="friend-profile-meta" id="friendProfileMeta">@username · Public Codex</div>
+                <div class="friend-profile-meta" id="friendProfileMeta">@username · Friends Only</div>
               </div>
             </div>
             <div class="friend-profile-stats">
@@ -909,57 +949,62 @@
             </div>
           </div>
 
-          <!-- Contextual Status Pills Bar (matches normal Library screen) -->
           <div class="library-status-pills-bar" id="friendStatusPills">
             <button
+              type="button"
               class="status-pill-btn friend-status-pill active"
               data-status=""
-              onclick="window.quickFilterFriendStatus('')"
+              data-act="quickFilterFriendStatus"
             >
               <span class="status-dot" style="background: var(--text-muted)"></span>
               <span>All</span>
               <span class="pill-count" id="ff-all">0</span>
             </button>
             <button
+              type="button"
               class="status-pill-btn friend-status-pill"
               data-status="Plan to Watch"
-              onclick="window.quickFilterFriendStatus('Plan to Watch')"
+              data-act="quickFilterFriendStatus"
             >
               <span class="status-dot dot-ptw"></span>
               <span>Plan to Watch</span>
               <span class="pill-count" id="ff-ptw">0</span>
             </button>
             <button
+              type="button"
               class="status-pill-btn friend-status-pill"
               data-status="Watching"
-              onclick="window.quickFilterFriendStatus('Watching')"
+              data-act="quickFilterFriendStatus"
             >
               <span class="status-dot dot-watch"></span>
               <span>Watching</span>
               <span class="pill-count" id="ff-watch">0</span>
             </button>
             <button
+              type="button"
               class="status-pill-btn friend-status-pill"
               data-status="Completed"
-              onclick="window.quickFilterFriendStatus('Completed')"
+              data-act="quickFilterFriendStatus"
             >
               <span class="status-dot dot-done"></span>
               <span>Completed</span>
               <span class="pill-count" id="ff-done">0</span>
             </button>
             <button
+              type="button"
               class="status-pill-btn friend-status-pill"
               data-status="On Hold"
-              onclick="window.quickFilterFriendStatus('On Hold')"
+              data-act="quickFilterFriendStatus"
             >
               <span class="status-dot dot-hold"></span>
               <span>On Hold</span>
               <span class="pill-count" id="ff-hold">0</span>
             </button>
             <button
+              type="button"
               class="status-pill-btn friend-status-pill"
               data-status="Dropped"
-              onclick="window.quickFilterFriendStatus('Dropped')"
+              data-act="quickFilterFriendStatus"
             >
               <span class="status-dot dot-drop"></span>
               <span>Dropped</span>
@@ -971,24 +1016,24 @@
             <div class="page-sub" id="friendLibrarySubtitle">Loading codex…</div>
           </div>
 
-          <!-- Filters & Search Toolbar (matches normal Library screen) -->
           <div class="filters-bar">
             <div class="friend-search-wrap">
-              <span class="friend-search-icon">🔍</span>
+              <span class="friend-search-icon" aria-hidden="true">🔍</span>
               <input
                 type="text"
                 id="friendSearchInput"
+                aria-label="Search friend's codex"
                 class="friend-search-input"
                 placeholder="Search friend's codex…"
-                oninput="window.renderFriendLibrary()"
                 autocomplete="off"
               />
               <button
                 type="button"
                 id="friendClearSearchBtn"
                 class="friend-clear-search-btn"
-                onclick="window.clearFriendSearch()"
+                data-act="clearFriendSearch"
                 title="Clear Search"
+                aria-label="Clear friend search"
                 style="display: none;"
               >
                 ✕
@@ -996,9 +1041,10 @@
             </div>
 
             <button
+              type="button"
               class="btn btn-ghost btn-sm"
               id="friendToggleFiltersBtn"
-              onclick="window.toggleFriendFiltersDrawer()"
+              data-act="toggleFriendFilters"
               style="height: 34px; gap: 6px;"
             >
               <span>⚙️ Filters</span>
@@ -1020,7 +1066,7 @@
             <select
               class="filter-select"
               id="friendSortBy"
-              onchange="window.renderFriendLibrary()"
+              aria-label="Sort friend's codex"
             >
               <option value="titleAZ" selected>Title A–Z</option>
               <option value="tier">Tier Rating</option>
@@ -1030,43 +1076,45 @@
 
             <div class="view-toggle" style="margin-left: auto">
               <button
+                type="button"
                 class="view-btn active"
                 id="friendGridViewBtn"
-                onclick="window.setFriendView('grid')"
+                data-act="setFriendView"
+                data-view="grid"
                 title="Grid View"
+                aria-label="Friend grid view"
               >
                 ⊞</button
               ><button
+                type="button"
                 class="view-btn"
                 id="friendListViewBtn"
-                onclick="window.setFriendView('list')"
+                data-act="setFriendView"
+                data-view="list"
                 title="List View"
+                aria-label="Friend list view"
               >
                 ☰
               </button>
             </div>
           </div>
 
-          <!-- Collapsible Filters Drawer -->
           <div id="friendFiltersDrawer" class="filters-drawer" style="display: none;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
               <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
                 Filter Friend's Collection
               </div>
               <button
+                type="button"
                 class="btn btn-ghost btn-sm"
-                onclick="window.clearFriendFilters()"
+                data-act="clearFriendFilters"
                 style="padding: 2px 8px; font-size: 11px;"
               >
                 Clear Filters
               </button>
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-              <select
-                class="filter-select"
-                id="friendFilterType"
-                onchange="window.updateFriendFilterBadge(); window.renderFriendLibrary()"
-              >
+              <select class="filter-select" id="friendFilterType" aria-label="Filter friend type">
                 <option value="">All Types</option>
                 <option value="Anime">Anime</option>
                 <option value="Movie">Movie</option>
@@ -1074,11 +1122,7 @@
                 <option value="OVA">OVA</option>
                 <option value="Special">Special</option>
               </select>
-              <select
-                class="filter-select"
-                id="friendFilterTier"
-                onchange="window.updateFriendFilterBadge(); window.renderFriendLibrary()"
-              >
+              <select class="filter-select" id="friendFilterTier" aria-label="Filter friend tier">
                 <option value="">All Tiers</option>
                 <option value="S">S Tier</option>
                 <option value="A">A Tier</option>
@@ -1088,18 +1132,10 @@
                 <option value="E">E Tier</option>
                 <option value="F">F Tier</option>
               </select>
-              <select
-                class="filter-select"
-                id="friendFilterGenre"
-                onchange="window.updateFriendFilterBadge(); window.renderFriendLibrary()"
-              >
+              <select class="filter-select" id="friendFilterGenre" aria-label="Filter friend genre">
                 <option value="">All Genres</option>
               </select>
-              <select
-                class="filter-select"
-                id="friendFilterOverlap"
-                onchange="window.updateFriendFilterBadge(); window.renderFriendLibrary()"
-              >
+              <select class="filter-select" id="friendFilterOverlap" aria-label="Filter friend overlap">
                 <option value="">All Overlap</option>
                 <option value="unowned">Not in My Codex</option>
                 <option value="shared">Shared Titles</option>
@@ -1108,7 +1144,6 @@
             </div>
           </div>
 
-          <!-- Grid & List Containers -->
           <div id="friendLibraryContainer"></div>
           <div id="friendLibraryListView" style="display: none; flex-direction: column; gap: 6px;"></div>
         </div>
@@ -1119,12 +1154,15 @@
     <div
       class="modal-overlay"
       id="recommendationsOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="recViewerTitle"
       style="background: var(--bg-base); z-index: 1000; padding: 0; align-items: stretch;"
     >
       <div style="display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1200px; margin: 0 auto; overflow: hidden;">
          <div style="min-height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; flex-wrap: wrap; gap: 10px;">
-            <button class="btn btn-ghost" onclick="window.closeRecommendationsViewer()">← Back</button>
-            <div style="font-family: var(--font-display); font-size: 20px; letter-spacing: 1px;">RECOMMENDED BY FRIENDS</div>
+            <button type="button" class="btn btn-ghost" data-act="closeRecViewer">← Back</button>
+            <div id="recViewerTitle" style="font-family: var(--font-display); font-size: 20px; letter-spacing: 1px;">RECOMMENDED BY FRIENDS</div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
          </div>
          <div id="recommendationsContainerGrid" style="flex: 1; height: 0; min-height: 200px; overflow-y: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); grid-auto-rows: max-content; gap: 16px;"></div>
@@ -1135,46 +1173,54 @@
     <div
       class="modal-overlay"
       id="recommendModalOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="recommendModalTitle"
       style="z-index: 1150;"
-      onclick="handleOverlayClick(event, 'recommendModalOverlay')"
+      data-backdrop-close="1"
     >
       <div class="modal" id="recommendModal" style="max-width: 500px">
         <div class="modal-header">
           <div class="modal-title" id="recommendModalTitle">SEND RECOMMENDATION</div>
-          <button class="modal-close" onclick="window.closeRecommendModal()">✕</button>
+          <button type="button" class="modal-close" data-act="closeRecModal" aria-label="Close recommend modal">✕</button>
         </div>
         <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
             <div id="recommendTargetInfo"></div>
             
             <div id="recommendSearchContainer">
-                <input type="text" id="recommendSearchInput" class="form-input" placeholder="Search..." autocomplete="off" oninput="window.onRecommendSearchInput()" onfocus="window.onRecommendSearchInput()" />
+                <input type="text" id="recommendSearchInput" aria-label="Search target" class="form-input" placeholder="Search..." autocomplete="off" />
                 <div id="recommendSearchResults" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-top: none; display: none;"></div>
             </div>
 
-            <textarea id="recommendNote" class="form-input" style="resize: vertical; min-height: 80px;" placeholder="Add a personal note... (optional, 140 chars max)" maxlength="140"></textarea>
+            <textarea id="recommendNote" aria-label="Personal note" class="form-input" style="resize: vertical; min-height: 80px;" placeholder="Add a personal note... (optional, 140 chars max)" maxlength="140"></textarea>
             
-            <button class="btn btn-primary" id="btnSendRecommendation" onclick="window.sendRecommendation()" style="width: 100%; justify-content: center;">🎁 Send Recommendation</button>
+            <button type="button" class="btn btn-primary" id="btnSendRecommendation" data-act="sendRec" style="width: 100%; justify-content: center;">🎁 Send Recommendation</button>
         </div>
       </div>
     </div>
 
+    <!-- ADD / EDIT ENTRY MODAL -->
     <div
       class="modal-overlay"
       id="entryModalOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="entryModalTitle"
       style="z-index: 1200;"
-      onclick="handleOverlayClick(event, 'entryModalOverlay')"
+      data-backdrop-close="1"
     >
       <div class="modal" id="entryModal" style="max-width: 640px">
         <div class="modal-header">
           <div class="modal-title" id="entryModalTitle">ADD ENTRY</div>
-          <button class="modal-close" onclick="closeEntryModal()">✕</button>
+          <button type="button" class="modal-close" data-act="closeEntryModal" aria-label="Close entry modal">✕</button>
         </div>
         <div class="modal-tabs">
           <button
             type="button"
             class="modal-tab-btn active"
             id="entryTabBtn-1"
-            onclick="switchEntryTab(1)"
+            data-act="switchEntryTab"
+            data-tab="1"
           >
             Core Details
           </button>
@@ -1182,7 +1228,8 @@
             type="button"
             class="modal-tab-btn"
             id="entryTabBtn-2"
-            onclick="switchEntryTab(2)"
+            data-act="switchEntryTab"
+            data-tab="2"
           >
             Ratings &amp; Tags
           </button>
@@ -1190,7 +1237,8 @@
             type="button"
             class="modal-tab-btn"
             id="entryTabBtn-3"
-            onclick="switchEntryTab(3)"
+            data-act="switchEntryTab"
+            data-tab="3"
           >
             Notes &amp; Links
           </button>
@@ -1199,7 +1247,7 @@
           <!-- TAB 1: Core Details -->
           <div id="entryTab-1" class="form-grid">
             <div class="form-group full">
-              <label class="form-label"
+              <label for="field-title" class="form-label"
                 >Title <span style="color: var(--danger)">*</span></label
               >
               <div style="position: relative">
@@ -1209,8 +1257,6 @@
                     class="form-input"
                     id="field-title"
                     placeholder="Type to search…"
-                    oninput="onTitleInput()"
-                    onkeydown="handleTitleKey(event)"
                     autocomplete="off"
                   />
                   <div
@@ -1248,12 +1294,8 @@
               <div id="autofillStatus"></div>
             </div>
             <div class="form-group">
-              <label class="form-label">Type</label
-              ><select
-                class="form-select"
-                id="field-type"
-                onchange="onTypeChange()"
-              >
+              <label for="field-type" class="form-label">Type</label
+              ><select class="form-select" id="field-type">
                 <option>Anime</option>
                 <option>Movie</option>
                 <option>Web Series</option>
@@ -1262,7 +1304,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Status</label
+              <label for="field-status" class="form-label">Status</label
               ><select class="form-select" id="field-status">
                 <option>Plan to Watch</option>
                 <option>Watching</option>
@@ -1272,7 +1314,7 @@
               </select>
             </div>
             <div class="form-group full">
-              <label class="form-label">Poster URL</label
+              <label for="field-poster" class="form-label">Poster URL</label
               ><input
                 type="url"
                 class="form-input"
@@ -1280,12 +1322,22 @@
                 placeholder="https://…"
               />
             </div>
-            <div class="form-group full">
-              <label class="form-label">Episodes Watched</label
+            <div class="form-group">
+              <label for="field-episodes" class="form-label">Episodes Watched</label
               ><input
                 type="number"
                 class="form-input"
                 id="field-episodes"
+                placeholder="0"
+                min="0"
+              />
+            </div>
+            <div class="form-group">
+              <label for="field-episodes-total" class="form-label">Total Episodes</label
+              ><input
+                type="number"
+                class="form-input"
+                id="field-episodes-total"
                 placeholder="0"
                 min="0"
               />
@@ -1295,43 +1347,53 @@
           <!-- TAB 2: Ratings & Tags -->
           <div id="entryTab-2" class="form-grid" style="display: none;">
             <div class="form-group full">
-              <label class="form-label">Tier Rating</label>
+              <span class="form-label">Tier Rating</span>
               <div class="tier-selector" id="tierSelector"></div>
             </div>
             <div class="form-group full">
-              <label class="form-label">Genres</label>
-              <div
-                class="tags-input-wrap"
-                onclick="document.getElementById('genreInput').focus()"
-              >
+              <label for="genreInput" class="form-label">Genres</label>
+              <div class="tags-input-wrap" data-act="focusGenreInput">
                 <div id="genreTags"></div>
                 <input
                   type="text"
                   class="tags-input"
                   id="genreInput"
                   placeholder="Type genre, press Enter or comma…"
-                  onkeydown="handleGenreKey(event)"
                 />
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Release Year</label
+              <label for="field-year" class="form-label">Release Year</label
               ><input
                 type="number"
                 class="form-input"
                 id="field-year"
                 placeholder="2024"
                 min="1900"
-                max="2099"
+                max="2100"
               />
             </div>
             <div class="form-group">
-              <label class="form-label">Seasonal Tag</label
-              ><input
+              <label for="field-season-name" class="form-label">Seasonal Tag</label>
+              <div class="season-select-row">
+                <select class="form-select" id="field-season-name" aria-label="Season">
+                  <option value="">Season…</option>
+                  <option value="Winter">Winter</option>
+                  <option value="Spring">Spring</option>
+                  <option value="Summer">Summer</option>
+                  <option value="Fall">Fall</option>
+                </select>
+                <select class="form-select" id="field-season-year" aria-label="Season Year">
+                  <option value="">Year…</option>
+                </select>
+              </div>
+              <input
                 type="text"
                 class="form-input"
-                id="field-season"
-                placeholder="e.g. Winter 2024"
+                id="field-season-custom"
+                aria-label="Custom season tag"
+                placeholder="Or custom tag (optional)"
+                style="margin-top: 6px; font-size: 12px;"
               />
             </div>
             <div
@@ -1346,7 +1408,7 @@
                   margin-bottom: 4px;
                 "
               >
-                <label class="form-label" style="margin-bottom: 0"
+                <label for="field-seasonCount" class="form-label" style="margin-bottom: 0"
                   >Seasons Tracker</label
                 >
                 <div
@@ -1366,11 +1428,6 @@
                 min="0"
                 max="50"
                 value="0"
-                oninput="
-                  document.getElementById('seasonCountLabel').textContent =
-                    this.value;
-                  renderSeasonChips();
-                "
                 style="
                   width: 100%;
                   margin-bottom: 12px;
@@ -1385,7 +1442,7 @@
           <!-- TAB 3: Notes & Links -->
           <div id="entryTab-3" class="form-grid" style="display: none;">
             <div class="form-group full">
-              <label class="form-label">Personal Notes</label
+              <label for="field-notes" class="form-label">Personal Notes</label
               ><textarea
                 class="form-textarea"
                 id="field-notes"
@@ -1394,7 +1451,7 @@
               ></textarea>
             </div>
             <div class="form-group full">
-              <label class="form-label">External Link</label
+              <label for="field-link" class="form-label">External Link</label
               ><input
                 type="url"
                 class="form-input"
@@ -1405,65 +1462,63 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-ghost" onclick="closeEntryModal()">
+          <button type="button" class="btn btn-ghost" data-act="closeEntryModal">
             Cancel</button
-          ><button class="btn btn-primary" onclick="saveEntry()">
+          ><button type="button" class="btn btn-primary" id="entrySaveBtn" data-act="saveEntry">
             Save Entry
           </button>
         </div>
       </div>
     </div>
 
+    <!-- DETAIL MODAL -->
     <div
       class="modal-overlay"
       id="detailModalOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Entry details"
       style="z-index: 1100;"
-      onclick="handleOverlayClick(event, 'detailModalOverlay')"
+      data-backdrop-close="1"
     >
       <div class="modal modal-lg" id="detailModal">
-        <div
+        <button
+          type="button"
           class="modal-close"
+          data-act="closeDetailModal"
+          aria-label="Close details"
           style="
             position: absolute;
             top: 12px;
             right: 12px;
             z-index: 10;
-            cursor: pointer;
             background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
           "
-          onclick="closeDetailModal()"
         >
           ✕
-        </div>
+        </button>
         <div class="detail-hero" id="detailHero"></div>
         <div class="detail-body" id="detailBody"></div>
       </div>
     </div>
 
-
-
+    <!-- SURPRISE MODAL -->
     <div
       class="modal-overlay"
       id="surpriseModalOverlay"
-      onclick="handleOverlayClick(event, 'surpriseModalOverlay')"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="surpriseModalTitle"
+      data-backdrop-close="1"
     >
       <div class="modal" id="surpriseModal">
         <div class="modal-header">
-          <div class="modal-title">🎲 SURPRISE ME</div>
-          <button class="modal-close" onclick="closeSurpriseModal()">✕</button>
+          <div class="modal-title" id="surpriseModalTitle">🎲 SURPRISE ME</div>
+          <button type="button" class="modal-close" data-act="closeSurpriseModal" aria-label="Close surprise picker">✕</button>
         </div>
         <div class="modal-body">
           <div class="form-group" style="margin-bottom: 16px">
-            <label class="form-label">Status Filter</label
+            <label for="surpriseStatus" class="form-label">Status Filter</label
             ><select class="form-select" id="surpriseStatus">
               <option value="">Any</option>
               <option value="Plan to Watch" selected>Plan to Watch</option>
@@ -1471,12 +1526,12 @@
             </select>
           </div>
           <div class="form-group" style="margin-bottom: 20px">
-            <label class="form-label" style="margin-bottom: 8px"
-              >Filter by Genre (optional)</label
+            <span class="form-label" style="margin-bottom: 8px"
+              >Filter by Genre (optional)</span
             >
             <div class="genre-pills-wrap" id="surpriseGenrePills"></div>
           </div>
-          <button class="btn btn-primary btn-full" onclick="pickSurprise()">
+          <button type="button" class="btn btn-primary btn-full" data-act="pickSurprise">
             🎲 Pick One!
           </button>
           <div id="surpriseResult" style="margin-top: 16px"></div>
@@ -1484,6 +1539,98 @@
       </div>
     </div>
 
+    <!-- REUSABLE IN-APP CONFIRM / PROMPT DIALOG -->
+    <div
+      class="modal-overlay"
+      id="appDialogOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="appDialogTitle"
+      style="z-index: 1500;"
+    >
+      <div class="modal" id="appDialogModal" style="max-width: 440px;">
+        <div class="modal-header">
+          <div class="modal-title" id="appDialogTitle">CONFIRM</div>
+          <button type="button" class="modal-close" id="appDialogCloseBtn" aria-label="Close dialog">✕</button>
+        </div>
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;">
+          <p id="appDialogMessage" style="font-size:13.5px;color:var(--text-secondary);line-height:1.55;white-space:pre-line;"></p>
+          <div id="appDialogInputWrap" style="display:none;">
+            <input type="text" class="form-input" id="appDialogInput" autocomplete="off" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="appDialogCancelBtn">Cancel</button>
+          <button type="button" class="btn btn-secondary" id="appDialogAltBtn" style="display:none;"></button>
+          <button type="button" class="btn btn-primary" id="appDialogConfirmBtn">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEYBOARD SHORTCUTS MODAL -->
+    <div
+      class="modal-overlay"
+      id="shortcutsModalOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="shortcutsModalTitle"
+      style="z-index: 1400;"
+      data-backdrop-close="1"
+    >
+      <div class="modal" style="max-width: 420px;">
+        <div class="modal-header">
+          <div class="modal-title" id="shortcutsModalTitle">⌨️ KEYBOARD SHORTCUTS</div>
+          <button type="button" class="modal-close" data-act="closeShortcuts" aria-label="Close shortcuts">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-shortcuts-grid">
+            <span>Focus library search</span><span class="kbd-key">/</span>
+            <span>Add new entry</span><span class="kbd-key">N</span>
+            <span>Switch to Library</span><span class="kbd-key">1</span>
+            <span>Switch to Tier List</span><span class="kbd-key">2</span>
+            <span>Switch to Stats</span><span class="kbd-key">3</span>
+            <span>Switch to Discover</span><span class="kbd-key">4</span>
+            <span>Switch to Social</span><span class="kbd-key">5</span>
+            <span>Close open modal or drawer</span><span class="kbd-key">Esc</span>
+            <span>Show this shortcuts guide</span><span class="kbd-key">?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRIVACY POLICY & TERMS MODAL -->
+    <div
+      class="modal-overlay"
+      id="legalModalOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="legalModalTitle"
+      style="z-index: 10010;"
+      data-backdrop-close="1"
+    >
+      <div class="modal" style="max-width: 560px;">
+        <div class="modal-header">
+          <div class="modal-title" id="legalModalTitle">PRIVACY POLICY &amp; TERMS</div>
+          <button type="button" class="modal-close" data-act="closeLegal" aria-label="Close privacy and terms">✕</button>
+        </div>
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;font-size:13px;color:var(--text-secondary);line-height:1.6;">
+          <div>
+            <strong style="color:var(--text-primary);display:block;margin-bottom:4px;">Data We Store</strong>
+            In Guest Mode, your codex is stored locally in your browser's <code>localStorage</code>. When signed in with Google, your library entries, social profile, friend relationships, and notifications are stored securely in Firebase Firestore under strict per-user access rules.
+          </div>
+          <div>
+            <strong style="color:var(--text-primary);display:block;margin-bottom:4px;">Public vs Private Data</strong>
+            Your email address and friend invite code remain private to your account. New accounts default library visibility to Friends Only, which you can adjust anytime under Social Settings.
+          </div>
+          <div>
+            <strong style="color:var(--text-primary);display:block;margin-bottom:4px;">Your Control &amp; Deletion</strong>
+            You can export your complete library as JSON, switch visibility, or permanently erase your account and all cloud data from Social Settings → Delete My Account &amp; Data.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN OVERLAY -->
     <div
       id="loginOverlay"
       style="
@@ -1576,34 +1723,16 @@
         </div>
       </div>
       <button
+        type="button"
         class="btn btn-primary"
         id="googleSignInBtn"
-        onclick="signInWithGoogle()"
-        style="
-          padding: 16px 32px;
-          border-radius: 50px;
-          font-size: 16px;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 10px 40px rgba(139, 92, 246, 0.35);
-          transition: all 0.3s ease;
-        "
-        onmouseover="
-          this.style.transform = 'translateY(-3px)';
-          this.style.boxShadow = '0 15px 50px rgba(139, 92, 246, 0.45)';
-        "
-        onmouseout="
-          this.style.transform = 'translateY(0)';
-          this.style.boxShadow = '0 10px 40px rgba(139, 92, 246, 0.35)';
-        "
+        data-act="googleSignIn"
       >
         <svg
           style="width: 20px; height: 20px"
           viewBox="0 0 24 24"
           fill="currentColor"
+          aria-hidden="true"
         >
           <path
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -1625,21 +1754,26 @@
         Sign in with Google
       </button>
       <button
+        type="button"
         class="btn btn-ghost"
         id="guestBtn"
-        onclick="useAsGuest()"
+        data-act="useGuest"
         style="
           padding: 12px 24px;
           font-size: 14px;
           animation: fadeInUp 1.2s var(--ease);
           margin-top: -10px;
-          opacity: 0.8;
+          opacity: 0.85;
         "
       >
         Or use locally without account
       </button>
+      <div class="legal-links-bar">
+        <button type="button" class="link-btn" data-act="openLegal">Privacy Policy &amp; Terms</button>
+      </div>
     </div>
 
+    <!-- INITIAL LOADING OVERLAY -->
     <div
       id="loadingOverlay"
       style="
@@ -1659,19 +1793,12 @@
         style="
           width: 48px;
           height: 48px;
-          border: 4px solid var(--border-light);
+          border: 4px solid rgba(255, 255, 255, 0.12);
           border-top-color: var(--accent);
           border-radius: 50%;
           animation: spin 1s linear infinite;
         "
       ></div>
-      <style>
-        @keyframes spin {
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-      </style>
       <div class="logo-sub">Initializing Codex...</div>
     </div>
 
